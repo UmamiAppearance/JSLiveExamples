@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/UmamiAppearance/JSLiveExamles/issues"
   },
-  "homepage": "https://github.com/UmamiAppearance/JSLiveExamles#readme"
+  "homepage": "https://github.com/UmamiAppearance/JSLiveExamles#readme",
+  "dependencies": {
+    "codejar": "^3.6.0"
+  }
 }
