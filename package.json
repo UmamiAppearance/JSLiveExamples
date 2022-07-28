@@ -1,0 +1,24 @@
+{
+  "name": "js-live-examples",
+  "version": "0.1.0",
+  "description": "Create HTML live examples to demonstrate JavaScript code in action",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UmamiAppearance/JSLiveExamles.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "live",
+    "code"
+  ],
+  "author": "UmamiAppearance",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/UmamiAppearance/JSLiveExamles/issues"
+  },
+  "homepage": "https://github.com/UmamiAppearance/JSLiveExamles#readme"
+}
