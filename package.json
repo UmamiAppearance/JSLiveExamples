@@ -2,7 +2,7 @@
   "name": "js-live-examples",
   "version": "0.1.0",
   "description": "Create HTML live examples to demonstrate JavaScript code in action",
-  "main": "index.js",
+  "browser": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
