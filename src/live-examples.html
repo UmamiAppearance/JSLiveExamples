@@ -17,11 +17,6 @@
             import { CodeJar } from "https://medv.io/codejar/codejar.js";
             
             // Make all BaseEx classes globally available
-            import * as BaseEx from "../src/base-ex.js";
-
-            for (const className in BaseEx) {;
-                window[className] = BaseEx[className];
-            }
         
             const getExample = (exampleID) => {
                 const nodeInnerHTML = document.getElementById(exampleID).innerHTML;
@@ -144,10 +139,8 @@
 
 <script id="example-1-code">if (false) {
 // ---------- BEGIN ---------- //
-const base16 = new Base16();
-const testHex = base16.encode("test");
-
-console.log(testHex);
+const helloWorld = "hello world!";
+console.log(helloWorld);
 // ----------- END ----------- //
 }</script>
 
