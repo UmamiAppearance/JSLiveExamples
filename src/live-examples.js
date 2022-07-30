@@ -1,15 +1,16 @@
 import "../lib/prism.js";
 import { CodeJar } from "../lib/codejar.js";
-import ConTodo from "../lib/contodo.esm.js";
+import ConTodo from "../lib/contodo.js";
 
 
 class LiveExample {
     
     constructor(node) {
-        const code = this.getCode(node);
+        const code = this.getCode(node).trim();
         const example = this.makeCodeExample(code);
 
         node.parentNode.append(example);
+
 
     }
 
@@ -28,8 +29,6 @@ class LiveExample {
 
 
     makeCodeExample(code) { 
-        
-        console.log(window.Prism.highlightElement);
 
         // create new html nodes
         const main = document.createElement("div");
@@ -37,6 +36,7 @@ class LiveExample {
 
         const codeNode = document.createElement("code");
               codeNode.className = "language-js";
+              codeNode.style.display = "block";
         
         const resetBtn = document.createElement("button");
               resetBtn.appendChild(document.createTextNode("reset"));
@@ -46,9 +46,8 @@ class LiveExample {
               executeBtn.appendChild(document.createTextNode("run"));
               executeBtn.addEventListener("click", () => { eval(jar.toString()); }, false);
 
-        console.log(window.Prism)
         // initialize jar instance
-        const jar = CodeJar(codeNode, (editor) => { window.Prism.highlightElement(editor); } , {
+        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
             tab: " ".repeat(4),
         });
         jar.updateCode(code);
@@ -64,8 +63,15 @@ class LiveExample {
 }
 
 const liveExamples = (() => {
+
+    import("./css.js").then(css => {
+        const style= document.createElement("style"); 
+        style.innerHTML = css.css;
+        document.head.append(style);
+    });
+    
     document.addEventListener("DOMContentLoaded", () => {   
-        
+
         const nodes = document.querySelectorAll("template.live-example");
         for (const node of nodes) {
             new LiveExample(node);
