@@ -46,7 +46,6 @@ class LiveExample {
 
         const executeBtn = document.createElement("button");
               executeBtn.appendChild(document.createTextNode("run"));
-              executeBtn.addEventListener("click", () => { eval(jar.toString()); }, false);
 
         // initialize jar instance
         const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
@@ -59,6 +58,21 @@ class LiveExample {
         main.appendChild(codeNode);
         main.appendChild(resetBtn);
         main.appendChild(executeBtn);
+
+        const contodo = new ConTodo(
+            main,
+            {
+                autostart: false
+            }
+        );
+
+        contodo.createDocumentNode();
+
+        executeBtn.addEventListener("click", () => {
+            contodo.initFunctions();
+            eval(jar.toString());
+            contodo.restoreDefaultConsole();
+        }, false);
 
         return main;
     };
