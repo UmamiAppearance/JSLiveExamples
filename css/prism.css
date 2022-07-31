@@ -25,20 +25,6 @@ pre[class*="language-"] {
 	hyphens: none;
 }
 
-pre[class*="language-"]::-moz-selection,
-pre[class*="language-"] ::-moz-selection,
-code[class*="language-"]::-moz-selection,
-code[class*="language-"] ::-moz-selection {
-	background: #8da1b9;
-}
-
-pre[class*="language-"]::selection,
-pre[class*="language-"] ::selection,
-code[class*="language-"]::selection,
-code[class*="language-"] ::selection {
-	background: #8da1b9;
-}
-
 /* Code blocks */
 pre[class*="language-"] {
 	padding: 1em;
@@ -46,15 +32,9 @@ pre[class*="language-"] {
 	overflow: auto;
 }
 
-:not(pre) > code[class*="language-"],
-pre[class*="language-"] {
-	background: #e3eaf2;
-}
 
 /* Inline code */
 :not(pre) > code[class*="language-"] {
-	padding: 0.1em 0.3em;
-	border-radius: 0.3em;
 	white-space: normal;
 }
 
@@ -233,19 +213,11 @@ div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus {
 	background: #3c526d;
 }
 
-/* overrides color-values for the Line Highlight plugin
- * http://prismjs.com/plugins/line-highlight/
- */
-.line-highlight.line-highlight {
-	background: #8da1b92f;
-	background: linear-gradient(to right, #8da1b92f 70%, #8da1b925);
-}
 
 .line-highlight.line-highlight:before,
 .line-highlight.line-highlight[data-end]:after {
 	background-color: #3c526d;
 	color: #e3eaf2;
-	box-shadow: 0 1px #8da1b9;
 }
 
 pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows > span:hover:before {
@@ -304,12 +276,6 @@ pre > code.diff-highlight .token.token.inserted:not(.prefix) {
 	background-color: #116b001f;
 }
 
-/* overrides color-values for the Command Line plugin
- * https://prismjs.com/plugins/command-line/
- */
-.command-line .command-line-prompt {
-	border-right: 1px solid #8da1b97a;
-}
 
 .command-line .command-line-prompt > span:before {
 	color: #3c526dda;

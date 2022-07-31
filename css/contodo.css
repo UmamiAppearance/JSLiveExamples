@@ -8,9 +8,8 @@
     white-space: break-spaces;
     overflow: auto;
     margin: auto;
-    background-color: #fff;
     color: black;
-    padding: 1px;
+    border-radius: 0 0 0.5em 0.5em;
 }
 .contodo > .log {
     border-color: rgba(157, 157, 157, 0.2);
@@ -56,6 +55,7 @@
     border-collapse: collapse;
     border: 2px #333;
     border-style: solid none;
+    background-color: white;
 }
 .contodo thead, .contodo th {
     font-weight: 700;
@@ -67,4 +67,64 @@
     padding: 3px 0;
     border: 1px solid rgba(157, 157, 157, 0.2);
     width: 1%;
+}
+/*
+code {
+    counter-reset: line;
+}
+code span:before {
+    counter-increment: line;
+    content: counter(line);
+}
+*/
+
+div.live-example {
+    font-size: 14px;
+    background-color: rgba(244, 249, 245, 0.5);
+}
+.live-example > * {
+    padding: 0.75em 1.3em;
+}
+.live-example > code, .live-example > div.title-wrapper {
+    border: 3px dashed rgb(0, 0, 85);;
+    border-radius: 0 none !important;
+}
+.live-example > code {
+    min-height: 160px;
+}
+.live-example > .code {
+    background-image: url("data:image/svg+xml;utf-8,\
+        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
+            <text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\
+        </svg>");
+    background-repeat: no-repeat;
+    background-position: bottom center;
+}
+.live-example > .contodo {
+    background-image: url("data:image/svg+xml,\
+        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'>\
+            <text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text>\
+        </svg>"
+    );
+    background-repeat: no-repeat;
+    background-position: bottom center;
+}
+.live-example > div.title-wrapper {
+    border-width: 0 3px;
+    display: flex;
+    justify-content: space-between;
+}
+.live-example h1 {
+    font-size: 1.4em;
+}
+.live-example button {
+    margin: 0 5px;
+    padding: 0.5em 1em;
+    font-size: 1.2em;
+    background-color: seashell;
+    border: 2px solid rgb(0, 0, 85);
+    cursor: pointer;
+}
+.live-example button:hover {
+    background-color: #f0c8c8;
 }

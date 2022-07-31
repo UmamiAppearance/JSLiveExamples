@@ -7,11 +7,23 @@ const css = contodoCSS + prismCSS;
 
 class LiveExample {
     
-    constructor(node) {
+    constructor(node, index) {
+        const title = this.getTitle(node, index);
         const code = this.getCode(node);
-        const example = this.makeCodeExample(code);
+        const example = this.makeCodeExample(title, code);
 
         node.parentNode.append(example);
+    }
+
+    getTitle(node, index) {
+        const titleNode = node.content.querySelector("h1");
+        let title;
+        if (!titleNode) {
+            title = `Example #${index}`;
+        } else {
+            title = titleNode.textContent;
+        }
+        return title;
     }
 
     getCode(node) {
@@ -30,22 +42,35 @@ class LiveExample {
     };
 
 
-    makeCodeExample(code) { 
+    makeCodeExample(title, code) { 
 
         // create new html nodes
         const main = document.createElement("div");
+        main.className = "live-example"
         //main.setAttribute.code = code;
 
         const codeNode = document.createElement("code");
-              codeNode.className = "language-js";
+              codeNode.className = "language-js code";
               codeNode.style.display = "block";
+              codeNode.style.borderRadius = "0.5em 0.5em 0 0";
         
+
+        const titleWrapper = document.createElement("div");
+              titleWrapper.className = "title-wrapper";
+        
+        const titleNode = document.createElement("h1");
+              titleNode.append(document.createTextNode(title));
+
+
+        const controlsWrapper = document.createElement("div");
+              controlsWrapper.className = "controls";
+              
         const resetBtn = document.createElement("button");
-              resetBtn.appendChild(document.createTextNode("reset"));
+              resetBtn.append(document.createTextNode("reset"));
               resetBtn.addEventListener("click", () => { jar.updateCode(code); }, false);
 
         const executeBtn = document.createElement("button");
-              executeBtn.appendChild(document.createTextNode("run"));
+              executeBtn.append(document.createTextNode("run"));
 
         // initialize jar instance
         const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
@@ -55,14 +80,22 @@ class LiveExample {
         
         
         // append nodes to document section
-        main.appendChild(codeNode);
-        main.appendChild(resetBtn);
-        main.appendChild(executeBtn);
+        main.append(codeNode);
+
+        titleWrapper.append(titleNode);
+        titleWrapper.append(controlsWrapper);
+        controlsWrapper.append(resetBtn);
+        controlsWrapper.append(executeBtn);
+        main.append(titleWrapper);
 
         const contodo = new ConTodo(
             main,
             {
-                autostart: false
+                autostart: false,
+                catchErrors: true,
+                height: "160px",
+                preventDefault: true,
+                reversed: true
             }
         );
 
@@ -87,8 +120,9 @@ const liveExamples = (() => {
 
     const applyNodes = () => {
         const nodes = document.querySelectorAll("template.live-example");
+        let i = 0;
         for (const node of nodes) {
-            new LiveExample(node);
+            new LiveExample(node, i++);
         }
     }
 
