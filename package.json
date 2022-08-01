@@ -24,7 +24,7 @@
   "homepage": "https://github.com/UmamiAppearance/JSLiveExamles#readme",
   "dependencies": {
     "codejar": "^3.6.0",
-    "contodo": "^0.1.3",
+    "contodo": "^0.1.4",
     "prismjs": "^1.28.0"
   },
   "devDependencies": {

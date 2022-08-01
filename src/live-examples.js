@@ -37,10 +37,31 @@ class LiveExample {
         let code = codeNode.innerHTML;
         const pattern = code.match(/\s*\n[\t\s]*/);
         code = code.replace(new RegExp(pattern, "g"), "\n");
-        
+
         return code.trim();
     };
 
+    makeLineFN(ln) {
+
+        let storedLines = 0;
+        
+        const updateLines = (code) => {
+            const lines = code.split("\n").length;
+            if (lines !== storedLines) {
+                while (lines < storedLines) {
+                    ln.childNodes[lines-1].remove();
+                    storedLines --;
+                }
+                while (lines > storedLines) {
+                    ln.append(document.createElement("li"));
+                    storedLines ++;
+                }
+            }
+        }
+
+        return updateLines;
+    }
+    
 
     makeCodeExample(title, code) { 
 
@@ -49,43 +70,55 @@ class LiveExample {
         main.className = "live-example"
         //main.setAttribute.code = code;
 
-        const codeNode = document.createElement("code");
-              codeNode.className = "language-js code";
-              codeNode.style.display = "block";
-              codeNode.style.borderRadius = "0.5em 0.5em 0 0";
+        const codeWrapper = document.createElement("div");
+        codeWrapper.className = "code";
+
+        const lineNumbers = document.createElement("ol");
         
+        const codeNode = document.createElement("code");
+        codeNode.className = "language-js";
+        codeNode.style.display = "block";
+        codeNode.style.borderRadius = "0.5em 0.5em 0 0";
+        
+        codeWrapper.append(lineNumbers);
+        codeWrapper.append(codeNode);
+            
 
         const titleWrapper = document.createElement("div");
-              titleWrapper.className = "title-wrapper";
+        titleWrapper.className = "title-wrapper";
         
         const titleNode = document.createElement("h1");
-              titleNode.append(document.createTextNode(title));
-
+        titleNode.append(document.createTextNode(title));
 
         const controlsWrapper = document.createElement("div");
-              controlsWrapper.className = "controls";
-              
+        controlsWrapper.className = "controls";
+
         const resetBtn = document.createElement("button");
-              resetBtn.append(document.createTextNode("reset"));
-              resetBtn.addEventListener("click", () => { jar.updateCode(code); }, false);
+        resetBtn.append(document.createTextNode("reset"));
 
         const executeBtn = document.createElement("button");
-              executeBtn.append(document.createTextNode("run"));
+        executeBtn.append(document.createTextNode("run"));
+
+        controlsWrapper.append(resetBtn);
+        controlsWrapper.append(executeBtn);
+
+        titleWrapper.append(titleNode);
+        titleWrapper.append(controlsWrapper);
+
 
         // initialize jar instance
+        const updateLines = this.makeLineFN(lineNumbers);
         const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
             tab: " ".repeat(4),
         });
+
+        jar.onUpdate(updateLines);
+        updateLines(code);
         jar.updateCode(code);
         
         
         // append nodes to document section
-        main.append(codeNode);
-
-        titleWrapper.append(titleNode);
-        titleWrapper.append(controlsWrapper);
-        controlsWrapper.append(resetBtn);
-        controlsWrapper.append(executeBtn);
+        main.append(codeWrapper);
         main.append(titleWrapper);
 
         const contodo = new ConTodo(
@@ -100,10 +133,17 @@ class LiveExample {
         );
 
         contodo.createDocumentNode();
-
+        
+        // button methods
+        resetBtn.addEventListener("click", () => {
+            contodo.clear(false);
+            jar.updateCode(code);
+            updateLines(code);
+        }, false);
         executeBtn.addEventListener("click", () => {
+            contodo.clear(false);
             contodo.initFunctions();
-            eval(jar.toString());
+            eval(jar.toString(jar.toString()));
             contodo.restoreDefaultConsole();
         }, false);
 

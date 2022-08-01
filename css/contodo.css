@@ -9,7 +9,6 @@
     overflow: auto;
     margin: auto;
     color: black;
-    border-radius: 0 0 0.5em 0.5em;
 }
 .contodo > .log {
     border-color: rgba(157, 157, 157, 0.2);
@@ -81,50 +80,73 @@ code span:before {
 div.live-example {
     font-size: 14px;
     background-color: rgba(244, 249, 245, 0.5);
+    min-width: 340px;
+    width: 80%;
+    margin: auto;
 }
-.live-example > * {
-    padding: 0.75em 1.3em;
+@media screen and (max-width:768px) {
+    div.live-example {
+        width: 100%;
+    }
 }
-.live-example > code, .live-example > div.title-wrapper {
-    border: 3px dashed rgb(0, 0, 85);;
-    border-radius: 0 none !important;
+.live-example > .code, .live-example > .contodo, .live-example > div.title-wrapper {
+    border: 3px dashed rgb(0, 0, 85);
 }
-.live-example > code {
+.live-example > .code {
     min-height: 160px;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    padding: 0.5em;
+}
+.live-example > .code > ol {
+    font-family: monospace;
+    line-height: 1.5em;
+    margin: 0;
+    background-color: #8fbc8fad;
+}
+.live-example > .code > code {
+    width: 100%;
+    background-color: rgba(100,110,100,0.025);
+    padding-left: 5px;
+    
 }
 .live-example > .code {
     background-image: url("data:image/svg+xml;utf-8,\
-        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
+        <svg height='150px' width='300px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
             <text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\
         </svg>");
     background-repeat: no-repeat;
-    background-position: bottom center;
+    background-position: right 10px;
 }
 .live-example > .contodo {
     background-image: url("data:image/svg+xml,\
-        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'>\
+        <svg height='150px' width='300px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>\
             <text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text>\
         </svg>"
     );
     background-repeat: no-repeat;
-    background-position: bottom center;
+    background-position: right 10px;
 }
 .live-example > div.title-wrapper {
     border-width: 0 3px;
     display: flex;
     justify-content: space-between;
+    padding: 0.2em;
 }
 .live-example h1 {
     font-size: 1.4em;
+    margin: auto 0;
 }
 .live-example button {
+    font-weight: 500;
     margin: 0 5px;
     padding: 0.5em 1em;
     font-size: 1.2em;
-    background-color: seashell;
+    background-color: #8fbc8fad;
     border: 2px solid rgb(0, 0, 85);
     cursor: pointer;
 }
 .live-example button:hover {
-    background-color: #f0c8c8;
+    background-color: #8fbc8f;
 }
