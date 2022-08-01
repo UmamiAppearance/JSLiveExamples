@@ -9,6 +9,7 @@
     overflow: auto;
     margin: auto;
     color: black;
+    scroll-behavior: smooth;
 }
 .contodo > .log {
     border-color: rgba(157, 157, 157, 0.2);
