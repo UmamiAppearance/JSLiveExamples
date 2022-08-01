@@ -20,13 +20,13 @@
     border-width: 1pt 0;
 }
 .contodo > .warn {
-    background-color: #fafab4;
+    background-color: #ffff97bb;
 }
 .contodo > .warn > span.string {
     color: #505000;
 }
 .contodo > .error {
-    background-color: #f0c8c8;
+    background-color: #eeaeaebb;
 }
 .contodo > .error > span.string {
     color: #640000;
@@ -82,7 +82,7 @@ div.live-example {
     background-color: rgba(244, 249, 245, 0.5);
     min-width: 340px;
     width: 80%;
-    margin: auto;
+    margin: 0.5em auto;
 }
 @media screen and (max-width:768px) {
     div.live-example {
@@ -127,12 +127,13 @@ div.live-example {
     );
     background-repeat: no-repeat;
     background-position: right 10px;
+    padding: 0.5em;
 }
 .live-example > div.title-wrapper {
     border-width: 0 3px;
     display: flex;
     justify-content: space-between;
-    padding: 0.2em;
+    padding: 0.5em;
 }
 .live-example h1 {
     font-size: 1.4em;
@@ -149,4 +150,9 @@ div.live-example {
 }
 .live-example button:hover {
     background-color: #8fbc8f;
+}
+.live-example button:active {
+    background-color: #315c31;
+    box-shadow: inset 0 0 0 2px rgb(50, 77, 50);
+    color: #fffee0;
 }

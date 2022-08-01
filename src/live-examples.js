@@ -8,18 +8,27 @@ const css = contodoCSS + prismCSS;
 class LiveExample {
     
     constructor(node, index) {
+        const id = node.getAttribute("for") || `live-example-${index+1}`;
+        const className = node.getAttribute("class");
+
         const title = this.getTitle(node, index);
         const code = this.getCode(node);
+        if (!code) {
+            return null;
+        }
+        
         const example = this.makeCodeExample(title, code);
+        example.id = id;
+        example.className = className;
 
-        node.parentNode.append(example);
+        node.parentNode.insertBefore(example, node);
     }
 
     getTitle(node, index) {
         const titleNode = node.content.querySelector("h1");
         let title;
         if (!titleNode) {
-            title = `Example #${index}`;
+            title = `Example #${index+1}`;
         } else {
             title = titleNode.textContent;
         }
@@ -29,9 +38,9 @@ class LiveExample {
     getCode(node) {
         
         const codeNode = node.content.querySelector("script");
-        
         if (!codeNode) {
-            throw new TypeError("Every template needs a script tag with the code to display.")
+            console.warn("Every template needs a script tag with the code to display.");
+            return null;
         }
         
         let code = codeNode.innerHTML;
@@ -67,8 +76,6 @@ class LiveExample {
 
         // create new html nodes
         const main = document.createElement("div");
-        main.className = "live-example"
-        //main.setAttribute.code = code;
 
         const codeWrapper = document.createElement("div");
         codeWrapper.className = "code";
@@ -127,8 +134,7 @@ class LiveExample {
                 autostart: false,
                 catchErrors: true,
                 height: "160px",
-                preventDefault: true,
-                reversed: true
+                preventDefault: true
             }
         );
 
