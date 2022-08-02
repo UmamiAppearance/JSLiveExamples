@@ -1,4 +1,5 @@
 dist
-lib
+/lib/*
+!/lib/prism.js
 .github
-JSLiveExamles.code-workspace
+JSLiveExamples.code-workspace
