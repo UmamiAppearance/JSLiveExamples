@@ -70,6 +70,21 @@ class LiveExample {
 
         return updateLines;
     }
+
+    makeToClipboardFN() {
+        const toClipboard = (e) => {
+            const code = e.target.previousSibling.textContent;
+            window.navigator.clipboard.writeText(code);
+
+            const copied = document.querySelector("#le-copied");
+            copied.classList.add("show");
+            
+            setTimeout(() => {
+                copied.classList.remove("show");
+            }, 1500)
+        }
+        return toClipboard;
+    }
     
 
     makeCodeExample(title, code) { 
@@ -84,27 +99,32 @@ class LiveExample {
         
         const codeNode = document.createElement("code");
         codeNode.className = "language-js";
-        codeNode.style.display = "block";
-        codeNode.style.borderRadius = "0.5em 0.5em 0 0";
-        
+
+        const copyBtn = document.createElement("div");
+        copyBtn.className = "copy";
+        copyBtn.title = "copy to clipboard";
+        const toClipboard = this.makeToClipboardFN();
+        copyBtn.addEventListener("click", toClipboard, false);
+
         codeWrapper.append(lineNumbers);
         codeWrapper.append(codeNode);
+        codeWrapper.append(copyBtn);
             
 
         const titleWrapper = document.createElement("div");
         titleWrapper.className = "title-wrapper";
         
         const titleNode = document.createElement("h1");
-        titleNode.append(document.createTextNode(title));
+        titleNode.textContent = title;
 
         const controlsWrapper = document.createElement("div");
         controlsWrapper.className = "controls";
 
         const resetBtn = document.createElement("button");
-        resetBtn.append(document.createTextNode("reset"));
+        resetBtn.textContent = "reset";
 
         const executeBtn = document.createElement("button");
-        executeBtn.append(document.createTextNode("run"));
+        executeBtn.textContent = "run";
 
         controlsWrapper.append(resetBtn);
         controlsWrapper.append(executeBtn);
@@ -159,7 +179,6 @@ class LiveExample {
 
 const liveExamples = (() => {
 
-    console.log();
     const style= document.createElement("style"); 
     style.innerHTML = css;
     document.head.append(style);
@@ -170,6 +189,15 @@ const liveExamples = (() => {
         for (const node of nodes) {
             new LiveExample(node, i++);
         }
+
+        const copiedInfo = document.createElement("section");
+        copiedInfo.id = "le-copied";
+
+        const copiedInfoText = document.createElement("article");
+        copiedInfoText.textContent = "copied to clipboard";
+
+        copiedInfo.append(copiedInfoText);
+        document.body.append(copiedInfo);
     }
 
     if (document.readyState === "complete") {
