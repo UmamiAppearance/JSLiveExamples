@@ -75,6 +75,7 @@ div.live-example {
     min-width: 340px;
     width: 80%;
     margin: 0.5em auto;
+    padding: 0.5em;
 }
 .live-example > .code, .live-example > .contodo, .live-example > div.title-wrapper {
     border: 3px dashed #005;
@@ -107,17 +108,18 @@ div.live-example {
     background-repeat: no-repeat;
     background-size: contain;
     cursor: pointer;
+    z-index: 100;
+}
+.live-example > .code, .live-example > .contodo {
+    background-repeat: no-repeat;
+    background-position: right 10px;
 }
 .live-example > .code {
-    background-image: url("data:image/svg+xml;utf-8,<svg height='150px' width='300px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\</svg>");
-    background-repeat: no-repeat;
-    background-position: right 10px;
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='280px' xmlns='http://www.w3.org/2000/svg' viewBox='-116 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\</svg>");
 }
 .live-example > .contodo {
-    background-image: url("data:image/svg+xml,<svg height='150px' width='300px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>");
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='280px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>");
     background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: right 10px;
     padding: 0.5em;
 }
 .live-example > div.title-wrapper {
@@ -185,7 +187,7 @@ section#le-copied.show {
 
 @media screen and (max-width:768px) {
     div.live-example {
-        width: 100%;
+        width: calc(100% - 1em);
     }
     .live-example h1 {
         font-size: 1.3em;

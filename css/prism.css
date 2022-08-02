@@ -1,11 +1,20 @@
 /**
- * Coldark Theme for Prism.js
- * Theme variation: Cold
- * Tested with HTML, CSS, JS, JSON, PHP, YAML, Bash script
- * @author Armand Philippot <contact@armandphilippot.com>
- * @homepage https://github.com/ArmandPhilippot/coldark-prism
- * @license MIT
+ * Prism.js Custom Theme for https://github.com/UmamiAppearance/JSLiveExamples
+ *
+ * Based on:
+ * 		Coldark Theme for Prism.js (variation: Cold)
+ * 			from: Armand Philippot <contact@armandphilippot.com>
+ * 			homepage: https://github.com/ArmandPhilippot/coldark-prism
+ * 			license: MIT
+ *
+ * variations inspired by:
+ * 		JavaScript code prettifier
+ *			from: Google
+ *			homepage: https://github.com/googlearchive/code-prettify
+ *
+ * NOTE: This is not a fully featured Theme for Prism.js
  */
+
 code[class*="language-"],
 pre[class*="language-"] {
 	color: #111b27;
@@ -31,7 +40,6 @@ pre[class*="language-"] {
 	margin: 0.5em 0;
 	overflow: auto;
 }
-
 
 /* Inline code */
 :not(pre) > code[class*="language-"] {
@@ -176,107 +184,4 @@ pre[class*="language-"] {
 
 .language-scss .token.variable {
 	color: #006d6d;
-}
-
-/* overrides color-values for the Show Invisibles plugin
- * https://prismjs.com/plugins/show-invisibles/
- */
-.token.token.tab:not(:empty):before,
-.token.token.cr:before,
-.token.token.lf:before,
-.token.token.space:before {
-	color: #3c526d;
-}
-
-/* overrides color-values for the Toolbar plugin
- * https://prismjs.com/plugins/toolbar/
- */
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button {
-	color: #e3eaf2;
-	background: #005a8e;
-}
-
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:focus,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:focus {
-	color: #e3eaf2;
-	background: #005a8eda;
-	text-decoration: none;
-}
-
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus {
-	color: #e3eaf2;
-	background: #3c526d;
-}
-
-
-.line-highlight.line-highlight:before,
-.line-highlight.line-highlight[data-end]:after {
-	background-color: #3c526d;
-	color: #e3eaf2;
-}
-
-pre[id].linkable-line-numbers.linkable-line-numbers span.line-numbers-rows > span:hover:before {
-	background-color: #3c526d1f;
-}
-
-/* overrides color-values for the Line Numbers plugin
- * http://prismjs.com/plugins/line-numbers/
- */
-.line-numbers.line-numbers .line-numbers-rows {
-	border-right: 1px solid #8da1b97a;
-	background: #d0dae77a;
-}
-
-.line-numbers .line-numbers-rows > span:before {
-	color: #3c526dda;
-}
-
-/* overrides color-values for the Match Braces plugin
- * https://prismjs.com/plugins/match-braces/
- */
-.rainbow-braces .token.token.punctuation.brace-level-1,
-.rainbow-braces .token.token.punctuation.brace-level-5,
-.rainbow-braces .token.token.punctuation.brace-level-9 {
-	color: #755f00;
-}
-
-.rainbow-braces .token.token.punctuation.brace-level-2,
-.rainbow-braces .token.token.punctuation.brace-level-6,
-.rainbow-braces .token.token.punctuation.brace-level-10 {
-	color: #af00af;
-}
-
-.rainbow-braces .token.token.punctuation.brace-level-3,
-.rainbow-braces .token.token.punctuation.brace-level-7,
-.rainbow-braces .token.token.punctuation.brace-level-11 {
-	color: #005a8e;
-}
-
-.rainbow-braces .token.token.punctuation.brace-level-4,
-.rainbow-braces .token.token.punctuation.brace-level-8,
-.rainbow-braces .token.token.punctuation.brace-level-12 {
-	color: #7c00aa;
-}
-
-/* overrides color-values for the Diff Highlight plugin
- * https://prismjs.com/plugins/diff-highlight/
- */
-pre.diff-highlight > code .token.token.deleted:not(.prefix),
-pre > code.diff-highlight .token.token.deleted:not(.prefix) {
-	background-color: #c22f2e1f;
-}
-
-pre.diff-highlight > code .token.token.inserted:not(.prefix),
-pre > code.diff-highlight .token.token.inserted:not(.prefix) {
-	background-color: #116b001f;
-}
-
-
-.command-line .command-line-prompt > span:before {
-	color: #3c526dda;
 }
