@@ -95,8 +95,9 @@ div.live-example {
 .live-example > .code > code {
     width: 100%;
     background-color: rgba(100, 110, 100, 0.025);
-    padding-left: 5px;
+    padding: 0 0 0 5px;
     display: block;
+    font-size: inherit;
 }
 .live-example .copy {
     min-width: 26px;
