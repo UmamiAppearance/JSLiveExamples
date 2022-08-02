@@ -13,9 +13,13 @@
     "url": "git+https://github.com/UmamiAppearance/JSLiveExamles.git"
   },
   "keywords": [
+    "HTML",
     "JavaScript",
-    "live",
-    "code"
+    "browser",
+    "code",
+    "demo",
+    "examples",
+    "live"
   ],
   "author": "UmamiAppearance",
   "license": "GPL-3.0-or-later",
