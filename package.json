@@ -5,12 +5,13 @@
   "browser": "index.js",
   "type": "module",
   "scripts": {
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node .link-libs.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UmamiAppearance/JSLiveExamles.git"
+    "url": "git+https://github.com/UmamiAppearance/JSLiveExamples.git"
   },
   "keywords": [
     "HTML",
@@ -24,9 +25,9 @@
   "author": "UmamiAppearance",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/UmamiAppearance/JSLiveExamles/issues"
+    "url": "https://github.com/UmamiAppearance/JSLiveExamples/issues"
   },
-  "homepage": "https://github.com/UmamiAppearance/JSLiveExamles#readme",
+  "homepage": "https://github.com/UmamiAppearance/JSLiveExamples#readme",
   "dependencies": {
     "codejar": "^3.6.0",
     "contodo": "^0.2.0",

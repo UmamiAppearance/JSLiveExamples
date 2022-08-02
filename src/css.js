@@ -7,7 +7,7 @@ const getCSS = async url => {
     return await response.text();
 };
 
-const contodoCSS = await getCSS("../css/main.css");
+const mainCSS = await getCSS("../css/main.css");
 const prismCSS = await getCSS("../css/prism.css");
 
-export { contodoCSS, prismCSS };
+export { mainCSS, prismCSS };

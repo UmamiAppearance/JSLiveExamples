@@ -1,13 +1,13 @@
 import "../lib/prism.js";
 import { CodeJar } from "../lib/codejar.js";
 import ConTodo from "../lib/contodo.js";
-import { contodoCSS, prismCSS } from "./css.js";
+import { mainCSS, prismCSS } from "./css.js";
 
-const css = contodoCSS + prismCSS;
+const css = mainCSS + prismCSS;
 
 class LiveExample {
     
-    constructor(node, index) {
+    constructor(node, index, options) {
         const id = node.getAttribute("for") || `live-example-${index+1}`;
         const className = node.getAttribute("class");
 
@@ -85,6 +85,14 @@ class LiveExample {
         }
         return toClipboard;
     }
+
+    makeEvalFN(evil) {
+        if (evil) {
+            return code => eval(code);
+        } else {
+            return code => new Function(code)();
+        }
+    }
     
 
     makeCodeExample(title, code) { 
@@ -159,6 +167,7 @@ class LiveExample {
         );
 
         contodo.createDocumentNode();
+        const evalFN = this.makeEvalFN(false);
         
         // button methods
         resetBtn.addEventListener("click", () => {
@@ -169,7 +178,7 @@ class LiveExample {
         executeBtn.addEventListener("click", () => {
             contodo.clear(false);
             contodo.initFunctions();
-            eval(jar.toString(jar.toString()));
+            evalFN(jar.toString());
             contodo.restoreDefaultConsole();
         }, false);
 
@@ -179,9 +188,11 @@ class LiveExample {
 
 const liveExamples = (() => {
 
-    const style= document.createElement("style"); 
-    style.innerHTML = css;
-    document.head.append(style);
+    if (css) {
+        const style= document.createElement("style"); 
+        style.innerHTML = css;
+        document.head.append(style);
+    }
 
     const applyNodes = () => {
         const nodes = document.querySelectorAll("template.live-example");
