@@ -2922,6 +2922,8 @@ var liveExamples = (function () {
 	        const pattern = code.match(/\s*\n[\t\s]*/);
 	        code = code.replace(new RegExp(pattern, "g"), "\n");
 
+	        this.evaluate = codeNode.getAttribute("type") === "eval";
+
 	        return code.trim();
 	    };
 
@@ -2961,8 +2963,8 @@ var liveExamples = (function () {
 	        return toClipboard;
 	    }
 
-	    makeEvalFN(evil) {
-	        if (evil) {
+	    makeEvalFN() {
+	        if (this.evaluate) {
 	            return code => eval(code);
 	        } else {
 	            return code => new Function(code)();
@@ -3042,7 +3044,7 @@ var liveExamples = (function () {
 	        );
 
 	        contodo.createDocumentNode();
-	        const evalFN = this.makeEvalFN(false);
+	        const evalFN = this.makeEvalFN();
 	        
 	        // button methods
 	        resetBtn.addEventListener("click", () => {

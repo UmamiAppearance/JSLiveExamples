@@ -1,6 +1,8 @@
+import { manipulate } from "rollup-plugin-manipulate";
 import { terser } from "rollup-plugin-terser";
 import { string } from "rollup-plugin-string";
 import { importManager } from "rollup-plugin-import-manager";
+import CleanCSS from "clean-css";
 
 const output = (subDir="", appendix="") => [
     {   
@@ -42,6 +44,13 @@ const exports = [
         input: "./src/live-examples.js",
         output: output(),
         plugins: [
+            manipulate({
+                include: "**/*.css",
+                fn: source => {
+                    const output = new CleanCSS({}).minify(source);
+                    return output.styles;
+                },
+            }),
             string({
                 include: "**/*.css",
             }),
