@@ -5,7 +5,7 @@ const linkLib = (file, link) => {
         if (err) {
             console.error(err);
         } else {
-            console.log(`Symlink created: '${file}' <- '${link}'`);
+            console.log(`Symlink created: '${file}' -> '${link}'`);
         }
     });
 }
