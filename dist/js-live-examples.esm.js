@@ -2881,16 +2881,38 @@ var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;fon
 
 var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-family:monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#800}.token.punctuation{color:#111b27}.token.delimiter.important,.token.selector .parent,.token.tag,.token.tag .token.punctuation{color:#006d6d}.token.attr-name,.token.boolean,.token.boolean.important,.token.constant,.token.number,.token.selector .token.attribute{color:#755f00}.token.class-name,.token.key,.token.parameter,.token.property,.token.property-access,.token.variable{color:#005a8e}.token.attr-value,.token.color,.token.inserted,.token.selector .token.value,.token.string,.token.string .token.url-link{color:#080}.token.builtin,.token.keyword-array,.token.package,.token.regex{color:#af00af}.token.function,.token.selector .token.class,.token.selector .token.id{color:#7c00aa}.token.atrule .token.rule,.token.combinator,.token.keyword,.token.operator,.token.pseudo-class,.token.pseudo-element,.token.selector,.token.unit{color:#008}.token.deleted,.token.important{color:#c22f2e}.token.keyword-this,.token.this{color:#005a8e}.token.bold,.token.important,.token.keyword-this,.token.this{font-weight:700}.token.delimiter.important{font-weight:inherit}.token.italic{font-style:italic}.token.entity{cursor:help}.language-markdown .token.title,.language-markdown .token.title .token.punctuation{color:#005a8e;font-weight:700}.language-markdown .token.blockquote.punctuation{color:#af00af}.language-markdown .token.code{color:#006d6d}.language-markdown .token.hr.punctuation{color:#005a8e}.language-markdown .token.url>.token.content{color:#116b00}.language-markdown .token.url-link{color:#755f00}.language-markdown .token.list.punctuation{color:#af00af}.language-markdown .token.table-header{color:#111b27}.language-json .token.operator{color:#111b27}.language-scss .token.variable{color:#006d6d}";
 
-const css = mainCSS + prismCSS;
+/**
+ * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
+ *
+ * @version 0.1.0
+ * @author UmamiAppearance [mail@umamiappearance.eu]
+ * @license GPL-3.0
+ */
 
+const CSS = mainCSS + prismCSS;
+
+/**
+ * Constructor for an instance of a LiveExample.
+ * It converts a template into a document node
+ * and attaches it to the document.
+ */
 class LiveExample {
     
-    constructor(node, index, options) {
-        const id = node.getAttribute("for") || `live-example-${index+1}`;
-        const className = node.getAttribute("class");
+    /**
+     * Contains all steps for the node creation and
+     * insertion.
+     * @param {object} template - A html "<template>" node.
+     * @param {number} index - Index of the node for one document.
+     */
+    constructor(template, index) {
 
-        const title = this.getTitle(node, index);
-        const code = this.getCode(node);
+        // if the template has the attribute for
+        // it is used for the id of instance
+        const id = template.getAttribute("for") || `live-example-${index+1}`;
+        const className = template.getAttribute("class");
+
+        const title = this.getTitle(template, index);
+        const code = this.getCode(template);
         if (!code) {
             return null;
         }
@@ -2899,11 +2921,22 @@ class LiveExample {
         example.id = id;
         example.className = className;
 
-        node.parentNode.insertBefore(example, node);
+        // insert the fresh node right before the
+        // template node in the document
+        template.parentNode.insertBefore(example, template);
     }
 
-    getTitle(node, index) {
-        const titleNode = node.content.querySelector("h1");
+    
+    /**
+     * Extracts a title from the template node
+     * if present, otherwise generates a generic
+     * title from the index (Example #<index+1>)
+     * @param {object} template - A html "<template>" node.
+     * @param {number} index - Index of the node for one document.
+     * @returns {string} - Title.
+     */
+    getTitle(template, index) {
+        const titleNode = template.content.querySelector("h1");
         let title;
         if (!titleNode) {
             title = `Example #${index+1}`;
@@ -2913,9 +2946,16 @@ class LiveExample {
         return title;
     }
 
-    getCode(node) {
+
+    /**
+     * Extracts the code from given a <script> - tag
+     * from the <template> node.
+     * @param {object} template - A html "<template>" node. 
+     * @returns {string} - The code as a string.
+     */
+    getCode(template) {
         
-        const codeNode = node.content.querySelector("script");
+        const codeNode = template.content.querySelector("script");
         if (!codeNode) {
             console.warn("Every template needs a script tag with the code to display.");
             return null;
@@ -2925,12 +2965,17 @@ class LiveExample {
         const pattern = code.match(/\s*\n[\t\s]*/);
         code = code.replace(new RegExp(pattern, "g"), "\n");
 
-        this.evaluate = codeNode.getAttribute("type") === "eval";
-
         return code.trim();
-    };
+    }
 
-    makeLineFN(ln) {
+
+    /**
+     * Creates a function to update line numbers
+     * for the code.
+     * @param {object} lineNumNode - Parent node (an <ol>) for the line numbers.  
+     * @returns {function} - Function for line number updates.
+     */
+    makeLineFN(lineNumNode) {
 
         let storedLines = 0;
         
@@ -2938,11 +2983,11 @@ class LiveExample {
             const lines = code.split("\n").length;
             if (lines !== storedLines) {
                 while (lines < storedLines) {
-                    ln.childNodes[lines-1].remove();
+                    lineNumNode.childNodes[lines-1].remove();
                     storedLines --;
                 }
                 while (lines > storedLines) {
-                    ln.append(document.createElement("li"));
+                    lineNumNode.append(document.createElement("li"));
                     storedLines ++;
                 }
             }
@@ -2951,6 +2996,12 @@ class LiveExample {
         return updateLines;
     }
 
+
+    /**
+     * Creates a function to copy the code to clipboard
+     * and show an info node.
+     * @returns {function} - To clipboard function.
+     */
     makeToClipboardFN() {
         const toClipboard = (e) => {
             const code = e.target.previousSibling.textContent;
@@ -2965,21 +3016,21 @@ class LiveExample {
         };
         return toClipboard;
     }
-
-    makeEvalFN() {
-        if (this.evaluate) {
-            return code => eval(code);
-        } else {
-            return code => new Function(code)();
-        }
-    }
     
 
+    /**
+     * Main method. Finally the whole html node
+     * with all its children gets constructed. 
+     * @param {string} title - Title for the instance.
+     * @param {string} code - Initial code for the instance to display. 
+     * @returns {object} - A document node (<div>) with all of its children.
+     */
     makeCodeExample(title, code) { 
 
         // create new html nodes
         const main = document.createElement("div");
 
+        // the code part {
         const codeWrapper = document.createElement("div");
         codeWrapper.className = "code";
 
@@ -2997,8 +3048,10 @@ class LiveExample {
         codeWrapper.append(lineNumbers);
         codeWrapper.append(codeNode);
         codeWrapper.append(copyBtn);
+        //}
             
 
+        // the title and controls part {
         const titleWrapper = document.createElement("div");
         titleWrapper.className = "title-wrapper";
         
@@ -3019,10 +3072,12 @@ class LiveExample {
 
         titleWrapper.append(titleNode);
         titleWrapper.append(controlsWrapper);
+        //}
 
 
         // initialize jar instance
         const updateLines = this.makeLineFN(lineNumbers);
+        // eslint-disable-next-line no-undef
         const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
             tab: " ".repeat(4),
         });
@@ -3036,6 +3091,8 @@ class LiveExample {
         main.append(codeWrapper);
         main.append(titleWrapper);
 
+
+        // the condole part {
         const contodo = new ConTodo(
             main,
             {
@@ -3045,9 +3102,8 @@ class LiveExample {
                 preventDefault: true
             }
         );
-
         contodo.createDocumentNode();
-        const evalFN = this.makeEvalFN();
+        //}
         
         // button methods
         resetBtn.addEventListener("click", () => {
@@ -3058,28 +3114,40 @@ class LiveExample {
         executeBtn.addEventListener("click", () => {
             contodo.clear(false);
             contodo.initFunctions();
-            evalFN(jar.toString());
+            eval(jar.toString());
             contodo.restoreDefaultConsole();
         }, false);
 
         return main;
-    };
+    }
 }
 
+
+/**
+ * Immediately Invoked Function to scan the
+ * document for templates with the class name
+ * "live-example".
+ */
 const liveExamples = (() => {
 
+    // apply css to the document header (if present)
     {
         const style= document.createElement("style"); 
-        style.innerHTML = css;
+        style.innerHTML = CSS;
         document.head.append(style);
     }
 
+    /**
+     * Function to generate example instances for 
+     * every template and node for displaying the
+     * information, that the code was copied to the
+     * clipboard.
+     */
     const applyNodes = () => {
-        const nodes = document.querySelectorAll("template.live-example");
-        let i = 0;
-        for (const node of nodes) {
-            new LiveExample(node, i++);
-        }
+        const templates = document.querySelectorAll("template.live-example");
+        templates.forEach((template, i) => {
+            new LiveExample(template, i++);
+        });
 
         const copiedInfo = document.createElement("section");
         copiedInfo.id = "le-copied";
@@ -3091,12 +3159,13 @@ const liveExamples = (() => {
         document.body.append(copiedInfo);
     };
 
+    // Apply the example nodes either directly or wait
+    // until the DOM is ready if it wasn't already. 
     if (document.readyState === "complete") {
         applyNodes();
     } else {
         document.addEventListener("DOMContentLoaded", applyNodes, false);
-    }
-    
+    }   
 })();
 
 export { liveExamples as default };

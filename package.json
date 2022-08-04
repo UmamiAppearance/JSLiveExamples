@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c",
+    "lint": "eslint ./src/*",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node .link-libs.js"
   },
@@ -30,7 +31,7 @@
   "homepage": "https://github.com/UmamiAppearance/JSLiveExamples#readme",
   "dependencies": {
     "codejar": "^3.6.0",
-    "contodo": "^0.2.0",
+    "contodo": "^0.2.1",
     "prismjs": "^1.28.0"
   },
   "devDependencies": {
@@ -41,6 +42,6 @@
     "rollup-plugin-import-manager": "^0.1.4",
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-your-function": "^0.1.0"
+    "rollup-plugin-your-function": "^0.1.1"
   }
 }
