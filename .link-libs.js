@@ -1,22 +1,22 @@
-import { link } from "fs";
+import { symlink } from "fs";
 
-const copyLib = (path, dest) => {
-    link(path, dest, (err) => {
+const linkLib = (file, link) => {
+    symlink(file, link, (err) => {
         if (err) {
             console.error(err);
         } else {
-            console.log(`Hard link created: '${path}' -> '${dest}'`);
+            console.log(`Symlink created: '${file}' <- '${link}'`);
         }
     });
 }
 
-copyLib(
-    "./node_modules/codejar/codejar.js",
+linkLib(
+    "../node_modules/codejar/codejar.js",
     "./lib/codejar.js"
 );
 
-copyLib(
-    "./node_modules/contodo/dist/no-style/contodo-no-style.esm.js",
+linkLib(
+    "../node_modules/contodo/dist/no-style/contodo-no-style.esm.js",
     "./lib/contodo.js"
 );
 

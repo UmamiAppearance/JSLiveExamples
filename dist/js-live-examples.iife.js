@@ -1900,7 +1900,7 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.2.0
+	 * @version 0.2.1
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license GPL-3.0
 	 */
