@@ -39,10 +39,19 @@ const mainCSS = "";
 const prismCSS = "";
 `;
 
+const warn = (msg) => {
+    // eval is not evil in this special case,
+    // no need to spam the terminal 
+    if (msg.code !== "EVAL") {
+        console.warn(msg);
+    }
+};
+
 const exports = [
     {
         input: "./src/live-examples.js",
         output: output(),
+        onwarn: warn,
         plugins: [
             yourFunction({
                 include: "**/*.css",
@@ -68,6 +77,7 @@ const exports = [
     {
         input: "./src/live-examples.js",
         output: output("no-style/", "-no-style"),
+        onwarn: warn,
         plugins: [
             importManager({
                 units: {
