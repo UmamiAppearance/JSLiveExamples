@@ -1,13 +1,15 @@
-import { symlink } from "fs";
+import { existsSync as fileExists, symlink } from "fs";
 
 const linkLib = (file, link) => {
-    symlink(file, link, (err) => {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log(`Symlink created: '${file}' -> '${link}'`);
-        }
-    });
+    if (!fileExists(link)) {
+        symlink(file, link, (err) => {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log(`Symlink created: '${file}' -> '${link}'`);
+            }
+        });
+    }
 }
 
 linkLib(

@@ -150,10 +150,11 @@ class LiveExample {
      */
     makeCodeExample(title, code) { 
 
-        // create new html nodes
+        // create new html node
         const main = document.createElement("div");
 
-        // the code part {
+
+        // the code part
         const codeWrapper = document.createElement("div");
         codeWrapper.className = "code";
 
@@ -171,10 +172,9 @@ class LiveExample {
         codeWrapper.append(lineNumbers);
         codeWrapper.append(codeNode);
         codeWrapper.append(copyBtn);
-        //}
             
 
-        // the title and controls part {
+        // the title and controls part
         const titleWrapper = document.createElement("div");
         titleWrapper.className = "title-wrapper";
         
@@ -195,7 +195,6 @@ class LiveExample {
 
         titleWrapper.append(titleNode);
         titleWrapper.append(controlsWrapper);
-        //}
 
 
         // initialize jar instance
@@ -210,12 +209,13 @@ class LiveExample {
         jar.updateCode(code);
         
         
-        // append nodes to document section
+
+        // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
 
 
-        // the condole part {
+        // create and append the contodo part to main
         const contodo = new ConTodo(
             main,
             {
@@ -226,14 +226,15 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
-        //}
         
-        // button methods
+
+        // establish button methods
         resetBtn.addEventListener("click", () => {
             contodo.clear(false);
             jar.updateCode(code);
             updateLines(code);
         }, false);
+
         executeBtn.addEventListener("click", () => {
             contodo.clear(false);
             contodo.initFunctions();

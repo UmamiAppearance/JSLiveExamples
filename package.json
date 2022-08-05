@@ -29,15 +29,13 @@
     "url": "https://github.com/UmamiAppearance/JSLiveExamples/issues"
   },
   "homepage": "https://github.com/UmamiAppearance/JSLiveExamples#readme",
-  "dependencies": {
-    "codejar": "^3.6.0",
-    "contodo": "^0.2.1",
-    "prismjs": "^1.28.0"
-  },
   "devDependencies": {
     "clean-css": "^5.3.1",
+    "codejar": "^3.6.0",
+    "contodo": "^0.2.1",
     "eslint": "^8.21.0",
     "no-bro-cote": "^0.1.4",
+    "prismjs": "^1.28.0",
     "rollup": "^2.77.2",
     "rollup-plugin-import-manager": "^0.1.4",
     "rollup-plugin-string": "^3.0.0",
