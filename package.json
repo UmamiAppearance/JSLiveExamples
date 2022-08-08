@@ -2,12 +2,15 @@
   "name": "js-live-examples",
   "version": "0.1.0",
   "description": "Create HTML live examples to demonstrate JavaScript code in action",
-  "browser": "index.js",
+  "browser": "./dist/js-live-examples.esm.js",
+  "exports": {
+    "browser": "./dist/js-live-examples.esm.js"
+  },
   "type": "module",
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src/*",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node ./test/test.js",
     "postinstall": "node .link-libs.js"
   },
   "repository": {
