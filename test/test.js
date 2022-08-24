@@ -1,6 +1,4 @@
-import NoBroCote from "no-bro-cote";
-
-const test = new NoBroCote(import.meta.url);
+import { test } from "no-bro-cote";
 
 test.htmlPage = "./test/fixtures/test.html";
 
@@ -49,7 +47,7 @@ test.makeUnit(
             return false;
         }
 
-        console.log("Asserting log content.")
+        console.log("Asserting log content.");
         return (log.textContent === "Hello World!");
     }
 );

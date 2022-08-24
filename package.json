@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src/*",
-    "test": "node ./test/test.js",
+    "test": "no-bro-cote",
     "postinstall": "node .link-libs.js"
   },
   "repository": {
@@ -35,14 +35,14 @@
   "devDependencies": {
     "clean-css": "^5.3.1",
     "codejar": "^3.6.0",
-    "contodo": "^0.2.1",
-    "eslint": "^8.21.0",
-    "no-bro-cote": "^0.1.4",
-    "prismjs": "^1.28.0",
-    "rollup": "^2.77.2",
-    "rollup-plugin-import-manager": "^0.1.4",
+    "contodo": "^0.2.2",
+    "eslint": "^8.22.0",
+    "no-bro-cote": "^0.2.2",
+    "prismjs": "^1.29.0",
+    "rollup": "^2.78.1",
+    "rollup-plugin-import-manager": "^0.3.1",
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-your-function": "^0.1.1"
+    "rollup-plugin-your-function": "^0.1.3"
   }
 }
