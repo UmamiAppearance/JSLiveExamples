@@ -80,9 +80,10 @@ After importing the templates can be used inside of the HTML. A Basic example ma
 ```
 - The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
 - The ``<h1>`` tag Becomes the title of the example.
-- The script tag contains initial code of the example.
+- The ``<script>`` tag contains initial code of the example.
 
 **Note:**
+- the final example gets inserted directly at the location of the template
 - additional class names for the example are possible.
 - if the example needs an id, pass the attribute `for="myId"`
 
