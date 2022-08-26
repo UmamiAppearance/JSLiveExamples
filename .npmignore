@@ -3,3 +3,4 @@ dist
 !/lib/prism.js
 .github
 JSLiveExamples.code-workspace
+media
