@@ -22,7 +22,6 @@ linkLib(
     "./lib/contodo.js"
 );
 
-// An automatic build for 'Prism.js' is not available.
-// You can download it here:
-// https://prismjs.com/download.html#themes=prism&languages=clike+javascript
-
+console.warn(`An automatic build for 'Prism.js' is not available.
+You can download it here:
+https://prismjs.com/download.html#themes=prism&languages=clike+javascript\n`);

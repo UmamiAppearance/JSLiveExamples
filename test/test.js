@@ -1,11 +1,10 @@
 import { test } from "no-bro-cote";
 
 test.htmlPage = "./test/fixtures/test.html";
-
 test.addImport("import liveExamples from './dist/js-live-examples.esm.js';");
 
 test.makeUnit(
-    "logTest",
+    "functionality",
     true,
     () => {
         const example1Node = document.querySelector("#live-example-1");
