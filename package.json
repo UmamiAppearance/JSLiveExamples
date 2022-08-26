@@ -10,9 +10,9 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint ./src/*",
-    "test": "no-bro-cote",
     "postinstall": "node .link-libs.js",
-    "start": "http-server -a localhost -o ./examples/demo.html"
+    "start": "http-server -a localhost -o ./examples/demo.html",
+    "test": "no-bro-cote"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
   "devDependencies": {
     "clean-css": "^5.3.1",
     "codejar": "^3.6.0",
-    "contodo": "^0.2.2",
+    "contodo": "^0.2.3",
     "eslint": "^8.22.0",
     "http-server": "^14.1.1",
     "no-bro-cote": "^0.2.2",

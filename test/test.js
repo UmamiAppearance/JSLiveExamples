@@ -4,50 +4,53 @@ test.htmlPage = "./test/fixtures/test.html";
 test.addImport("import liveExamples from './dist/js-live-examples.esm.js';");
 
 test.makeUnit(
-    "functionality",
+    "Node creation",
     true,
     () => {
-        const example1Node = document.querySelector("#live-example-1");
+        window.example1Node = document.querySelector("#live-example-1");
 
-        console.log("Test if node was created.");
-        if (!example1Node) {
-            console.log("FAILED");
-            return false;
-        }
+        return Boolean(window.example1Node);
+    }
+);
 
-        console.log("Test if contains 3 children.");
-        if (example1Node.childNodes.length !== 3) {
-            console.log(`FAILED - children length is ${example1Node.childNodes.length}`);
-            return false;
-        }
+test.makeUnit(
+    "Test if node contains 3 children",
+    3,
+    () => window.example1Node.childNodes.length,
+);
 
-        console.log("Test if contodo node is present.");
-        const contodo = example1Node.querySelector(".contodo");
-        if (!contodo) {
-            console.log("FAILED");
-            return false;
-        }
 
-        console.log("Test if contodo contains two buttons.");
-        const buttons = example1Node.querySelectorAll("button");
-        if (buttons.length !== 2) {
-            console.log(`FAILED - button length is ${buttons.length}`);
-            return false;
-        }
-        
-        console.log("Clicking run button!");
-        const runButton = buttons[1];
+test.makeUnit(
+    "Test if contodo node is present.",
+    true,
+    () => {
+        window.contodo = window.example1Node.querySelector(".contodo");
+        return Boolean(window.contodo);
+    }
+);
+
+test.makeUnit(
+    "Test if contodo contains two buttons.",
+    2,
+    () => {
+        window.buttons = window.example1Node.querySelectorAll("button");
+        return window.buttons.length;
+    }
+);
+
+test.makeUnit(
+    "Clicking run button => Expect log output.",
+    "Hello World!",
+    () => {
+        const runButton = window.buttons[1];
         runButton.click();
 
-        console.log("Test if log was created.");
-        const log = contodo.querySelector(".log");
+        const log = window.contodo.querySelector(".log");
         if (!log) {
-            console.log("FAILED");
             return false;
         }
 
-        console.log("Asserting log content.");
-        return (log.textContent === "Hello World!");
+        return log.textContent;
     }
 );
 
