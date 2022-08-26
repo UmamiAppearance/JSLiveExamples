@@ -11,7 +11,8 @@
     "build": "rollup -c",
     "lint": "eslint ./src/*",
     "test": "no-bro-cote",
-    "postinstall": "node .link-libs.js"
+    "postinstall": "node .link-libs.js",
+    "start": "http-server -a localhost -o ./examples/demo.html"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "codejar": "^3.6.0",
     "contodo": "^0.2.2",
     "eslint": "^8.22.0",
+    "http-server": "^14.1.1",
     "no-bro-cote": "^0.2.2",
     "prismjs": "^1.29.0",
     "rollup": "^2.78.1",
