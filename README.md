@@ -65,7 +65,7 @@ First either import the esm-module or add the iife script tag to the HTML page. 
 ```
 
 ### Creating an Example
-After importing the templates can be used inside of the HTML. A Basic example may look like this:
+After importing, the templates can be used inside of your HTML. A Basic example may look like this:
 
 ```html
 <template class="live-example">
