@@ -1,6 +1,6 @@
 {
   "name": "js-live-examples",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Create HTML live examples to demonstrate JavaScript code in action",
   "browser": "./dist/js-live-examples.esm.js",
   "exports": {
@@ -36,7 +36,7 @@
   "devDependencies": {
     "clean-css": "^5.3.1",
     "codejar": "^3.6.0",
-    "contodo": "^0.2.3",
+    "contodo": "^0.2.4",
     "eslint": "^8.22.0",
     "http-server": "^14.1.1",
     "no-bro-cote": "^0.2.2",

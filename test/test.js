@@ -21,7 +21,7 @@ test.makeUnit(
 
 
 test.makeUnit(
-    "contodo node is present.",
+    "contodo node is present",
     true,
     () => {
         window.contodo = window.example1Node.querySelector(".contodo");
@@ -30,7 +30,7 @@ test.makeUnit(
 );
 
 test.makeUnit(
-    "contodo contains two buttons.",
+    "contodo contains two buttons",
     2,
     () => {
         window.buttons = window.example1Node.querySelectorAll("button");
@@ -39,7 +39,7 @@ test.makeUnit(
 );
 
 test.makeUnit(
-    "clicking run button // expecting log output.",
+    "clicking run button // expecting log output",
     "Hello World!",
     () => {
         const runButton = window.buttons[1];
