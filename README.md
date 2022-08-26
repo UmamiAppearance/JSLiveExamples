@@ -38,8 +38,9 @@ npm run build
 ## Usage
 First either import the esm-module or add the iife script tag to the HTML page. After that, the templates for the examples can be used inside of the HTML.
 
+### Importing
 
-### ES6
+#### ES6
 ```html
 <script type="module">
     import liveExamples from "./<path>/js-live-examples.esm.min.js";
@@ -53,7 +54,7 @@ First either import the esm-module or add the iife script tag to the HTML page. 
 ```
 
 
-### IIFE
+#### IIFE
 ```html
 <script src="./<path>/js-live-examples.iife.min.js"></script>
 ```
@@ -62,6 +63,28 @@ First either import the esm-module or add the iife script tag to the HTML page. 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/js-live-examples@latest/dist/js-live-examples.iife.min.js"></script>
 ```
+
+### Creating an Example
+After importing the templates can be used inside of the HTML. A Basic example may look like this:
+
+```html
+<template class="live-example">
+    <h1>Example: Hello World!</h1>
+    <script>
+        const helloWorld = () => {
+            console.log("Hello World!");
+        };
+        helloWorld();
+    </script>
+</template>
+```
+- The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
+- The ``<h1>`` tag Becomes the title of the example.
+- The script tag contains initial code of the example.
+
+**Note:**
+- additional class names for the example are possible.
+- if the example needs an id, pass the attribute `for="myId"`
 
 
 ## License
