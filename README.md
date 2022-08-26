@@ -8,11 +8,11 @@ Create HTML live examples to demonstrate JavaScript code in action
 ![JSLiveExamples-Image](https://github.com/UmamiAppearance/JSLiveExamples/blob/main/media/JSLiveExamples.gif?raw=true)
 
 ## Idea
-There are countless JavaScript packages out there. For the developer it is always a lot of work to think about how to present it to a possible user. A lot of times apart from the documentation and/or readme file one has to rely on third party services to show live examples to demonstrate the code in action. **JSLiveExamples** makes it possible to keep the creation of live examples inside of your github repository (or whatever service which is able to serve html [like GithubPages]).  
+There are countless JavaScript packages out there. For the developer it is always a lot of work to think about how to present it to a possible user. A lot of times apart from the documentation and/or readme file one has to rely on third party services to show live examples to demonstrate the code in action. **JSLiveExamples** makes it possible to keep the creation of live examples of JavaScript code for the browser inside of e.g. your github repository (with GithubPages or with whatever service which is able to serve HTML).  
   
 A JSLiveExample is just a little template which gets inserted into the HTML code at the place where the example should be, the rest is done by the JavaScript application.  
   
-The user can see, change, and run the provided code, the console output gets logged to the page. Watch the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) to see it in action.
+The user can see, change, and run the provided code. The console output gets logged to the page. Watch the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) to see it in action.
 
 
 ## Installation
@@ -27,7 +27,16 @@ nmp install js-live-examples
 ```
 
 ## Builds
-Builds can be find them in the directory dist ([github:dist](https://github.com/UmamiAppearance/JSLiveExamples/tree/main/dist)). 
+Builds can be find in the directory dist ([github:dist](https://github.com/UmamiAppearance/JSLiveExamples/tree/main/dist)). 
+
+You have two builds available ([esm](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and [iife](https://developer.mozilla.org/en-US/docs/Glossary/IIFE)), plus a minified version of each. 
+* ``js-live-examples.esm.js``
+* ``js-live-examples.esm.min.js``
+* ``js-live-examples.iife.min.js``
+* ``js-live-examples.iife.js``
+
+Also in subfolder _no-style_ ([github:dist/no-style](https://github.com/UmamiAppearance/JSLiveExamples/tree/main/dist/no-style)), there are builds available without build in css.
+
 
 If you want to build your own copy run:
 ```sh
@@ -36,7 +45,8 @@ npm run build
 
 
 ## Usage
-First either import the esm-module or add the iife script tag to the HTML page. After that, the templates for the examples can be used inside of the HTML.
+First either [import](#importing) the esm-module or add the iife script tag to the HTML page. After that, the templates for the examples can be [used](#creating-a-live-example) inside of your HTML page.
+
 
 ### Importing
 
@@ -64,8 +74,8 @@ First either import the esm-module or add the iife script tag to the HTML page. 
 <script src="https://cdn.jsdelivr.net/npm/js-live-examples@latest/dist/js-live-examples.iife.min.js"></script>
 ```
 
-### Creating an Example
-After importing the templates can be used inside of the HTML. A Basic example may look like this:
+### Creating a Live Example
+After [importing](#importing) the templates can be used inside of the HTML, a Basic example may look like this:
 
 ```html
 <template class="live-example">
@@ -78,14 +88,15 @@ After importing the templates can be used inside of the HTML. A Basic example ma
     </script>
 </template>
 ```
-- The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
-- The ``<h1>``-tag becomes the title of the example.
-- The ``<script>``-tag contains initial code of the example.
+* The result of this code is shown at the very [top](#jsliveexamples); also the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) uses the same code.
+* The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
+* The ``<h1>``-tag becomes the title of the example.
+* The ``<script>``-tag contains initial code of the example.
 
 **Note:**
-- the final example gets inserted directly at the location of the template
-- additional class names for the example are possible.
-- if the example needs an id, pass the attribute `for="myId"` to the `<template`-tag
+* The final example gets inserted directly at the location of the template.
+* Additional class names for the example are possible.
+* If the example needs an id, pass the attribute `for="myId"` to the `<template`-tag
 
 
 ## License
