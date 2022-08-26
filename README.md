@@ -74,8 +74,8 @@ First either [import](#importing) the esm-module or add the iife script tag to t
 <script src="https://cdn.jsdelivr.net/npm/js-live-examples@latest/dist/js-live-examples.iife.min.js"></script>
 ```
 
-### Creating a Live Example
-After [importing](#importing) the templates can be used inside of the HTML, a Basic example may look like this:
+### Creating an Example
+After importing the templates can be used inside of the HTML. A Basic example may look like this:
 
 ```html
 <template class="live-example">
