@@ -4,7 +4,7 @@ test.htmlPage = "./test/fixtures/test.html";
 test.addImport("import liveExamples from './dist/js-live-examples.esm.js';");
 
 test.makeUnit(
-    "Node creation",
+    "node creation",
     true,
     () => {
         window.example1Node = document.querySelector("#live-example-1");
@@ -14,14 +14,14 @@ test.makeUnit(
 );
 
 test.makeUnit(
-    "Test if node contains 3 children",
+    "node contains 3 children",
     3,
     () => window.example1Node.childNodes.length,
 );
 
 
 test.makeUnit(
-    "Test if contodo node is present.",
+    "contodo node is present.",
     true,
     () => {
         window.contodo = window.example1Node.querySelector(".contodo");
@@ -30,7 +30,7 @@ test.makeUnit(
 );
 
 test.makeUnit(
-    "Test if contodo contains two buttons.",
+    "contodo contains two buttons.",
     2,
     () => {
         window.buttons = window.example1Node.querySelectorAll("button");
@@ -39,7 +39,7 @@ test.makeUnit(
 );
 
 test.makeUnit(
-    "Clicking run button => Expect log output.",
+    "clicking run button // expecting log output.",
     "Hello World!",
     () => {
         const runButton = window.buttons[1];
