@@ -2883,7 +2883,7 @@ var liveExamples = (function () {
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.1.1
+	 * @version 0.1.2
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license GPL-3.0
 	 */
@@ -2909,12 +2909,13 @@ var liveExamples = (function () {
 	        const className = template.getAttribute("class");
 
 	        const title = this.getTitle(template, index);
-	        const code = this.getCode(template);
+	        const { code, autostart } = this.getCode(template);
+
 	        if (!code) {
 	            return null;
 	        }
 	        
-	        const example = this.makeCodeExample(title, code);
+	        const example = this.makeCodeExample(title, code, autostart);
 	        example.id = id;
 	        example.className = className;
 
@@ -2960,9 +2961,11 @@ var liveExamples = (function () {
 	        
 	        let code = codeNode.innerHTML;
 	        const pattern = code.match(/\s*\n[\t\s]*/);
-	        code = code.replace(new RegExp(pattern, "g"), "\n");
+	        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
 
-	        return code.trim();
+	        const autostart = Boolean(codeNode.dataset.run);
+
+	        return { code, autostart };
 	    }
 
 
@@ -3022,7 +3025,7 @@ var liveExamples = (function () {
 	     * @param {string} code - Initial code for the instance to display. 
 	     * @returns {object} - A document node (<div>) with all of its children.
 	     */
-	    makeCodeExample(title, code) { 
+	    makeCodeExample(title, code, autostart) { 
 
 	        // create new html node
 	        const main = document.createElement("div");
@@ -3115,6 +3118,10 @@ var liveExamples = (function () {
 	            eval(jar.toString());
 	            contodo.restoreDefaultConsole();
 	        }, false);
+
+	        if (autostart) {
+	            executeBtn.click();
+	        }
 
 	        return main;
 	    }
