@@ -96,7 +96,7 @@ After importing the templates can be used inside of the HTML. A Basic example ma
 * The final example gets inserted directly at the location of the template.
 * Additional class names for the example are possible.
 * Every example gets the id "live-example-<nr>", for a custom id, pass the attribute `for="myId"` to the `<template`-tag
-* If the code should execute auto automatically, pass the data-attribute `data-run="true"` to the script-tag
+* If the code should execute automatically, pass the data-attribute `data-run="true"` to the script-tag
 
 
 ## License
