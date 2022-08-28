@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/UmamiAppearance/JSLiveExamples?color=009911&style=for-the-badge)](./LICENSE)
 [![npm](https://img.shields.io/npm/v/js-live-examples?color=%23009911&style=for-the-badge)](https://www.npmjs.com/package/js-live-examples)
 
-Create HTML live examples to demonstrate JavaScript code in action
+Create HTML live examples to demonstrate JavaScript code for the browser in action.
 
 ![JSLiveExamples-Image](https://github.com/UmamiAppearance/JSLiveExamples/blob/main/media/JSLiveExamples.gif?raw=true)
 
