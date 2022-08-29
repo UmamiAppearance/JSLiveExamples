@@ -88,15 +88,16 @@ After importing the templates can be used inside of the HTML. A Basic example ma
 </template>
 ```
 * The result of this code is shown at the very [top](#jsliveexamples); also the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) uses the same code.
-* The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
+* The most important part is the class name ``live-example``. This is the property **JSLiveExamples** is looking for.
 * The ``<h1>``-tag becomes the title of the example.
 * The ``<script>``-tag contains initial code of the example.
 
 **Note:**
 * The final example gets inserted directly at the location of the template.
 * Additional class names for the example are possible.
-* Every example gets the id "live-example-\<nr\>", for a custom id, pass the attribute `for="myId"` to the `<template>`-tag
-* If the code should execute automatically, pass the data-attribute `data-run="true"` to the `<script>`-tag
+* Every example gets the id "live-example-\<nr\>", for a custom id, pass the attribute ``for="myId"`` to the ``<template>``-tag
+* If the code should execute automatically, pass the data-attribute ``data-run="true"`` to the ``<script>``-tag
+* The default height of the console output is 160px, if the content overflows it starts to scroll. To change that add the class name ``no-scroll`` in addition to ``live-example`` to let the console grow with its content 
 
 
 ## License
