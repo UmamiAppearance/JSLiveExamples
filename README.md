@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/UmamiAppearance/JSLiveExamples?color=009911&style=for-the-badge)](./LICENSE)
 [![npm](https://img.shields.io/npm/v/js-live-examples?color=%23009911&style=for-the-badge)](https://www.npmjs.com/package/js-live-examples)
 
-Create HTML live examples to demonstrate JavaScript code in action
+Create HTML live examples to demonstrate JavaScript code for the browser in action.
 
 ![JSLiveExamples-Image](https://github.com/UmamiAppearance/JSLiveExamples/blob/main/media/JSLiveExamples.gif?raw=true)
 
@@ -95,8 +95,8 @@ After importing the templates can be used inside of the HTML. A Basic example ma
 **Note:**
 * The final example gets inserted directly at the location of the template.
 * Additional class names for the example are possible.
-* Every example gets the id "live-example-<nr>", for a custom id, pass the attribute `for="myId"` to the `<template`-tag
-* If the code should execute auto automatically, pass the data-attribute `data-run="true"` to the script-tag
+* Every example gets the id "live-example-\<nr\>", for a custom id, pass the attribute `for="myId"` to the `<template>`-tag
+* If the code should execute automatically, pass the data-attribute `data-run="true"` to the `<script>`-tag
 
 
 ## License
