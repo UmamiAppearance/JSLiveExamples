@@ -5,11 +5,15 @@
     font-size: inherit;
     min-width: 100px;
     min-height: 100px;
+    height: 160px !important;
     white-space: break-spaces;
     overflow: auto;
     margin: auto;
     color: black;
     scroll-behavior: smooth;
+}
+.no-scroll .contodo {
+    height: auto !important;
 }
 .contodo > .log {
     border-color: rgba(157, 157, 157, 0.2);

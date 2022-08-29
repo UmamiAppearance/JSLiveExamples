@@ -1,7 +1,7 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.1.2
+ * @version 0.1.3
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
@@ -224,7 +224,6 @@ class LiveExample {
             {
                 autostart: false,
                 catchErrors: true,
-                height: "160px",
                 preventDefault: true
             }
         );

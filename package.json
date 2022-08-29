@@ -1,6 +1,6 @@
 {
   "name": "js-live-examples",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Create HTML live examples to demonstrate JavaScript code in action",
   "browser": "./dist/js-live-examples.esm.js",
   "exports": {
