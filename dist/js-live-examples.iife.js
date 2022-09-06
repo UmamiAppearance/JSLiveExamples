@@ -2887,12 +2887,13 @@ var liveExamples = (function () {
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.1.3
+	 * @version 0.2.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license GPL-3.0
 	 */
 
 	const CSS = mainCSS + prismCSS;
+	const AsyncFunction = (async function () {}).constructor;
 
 	/**
 	 * Constructor for an instance of a LiveExample.
@@ -3103,7 +3104,6 @@ var liveExamples = (function () {
 	            main,
 	            {
 	                autostart: false,
-	                catchErrors: true,
 	                preventDefault: true
 	            }
 	        );
@@ -3117,10 +3117,20 @@ var liveExamples = (function () {
 	            updateLines(code);
 	        }, false);
 
-	        executeBtn.addEventListener("click", () => {
+	        executeBtn.addEventListener("click", async () => {
 	            contodo.clear(false);
 	            contodo.initFunctions();
-	            eval(jar.toString());
+	            //eval(jar.toString());
+	            
+	            try {
+	                const fn = new AsyncFunction(jar.toString());
+	                contodo.defaultConsole.log(fn);
+	                await fn();
+	            } catch (err) {
+	                contodo.defaultConsole.error(err);
+	                console.error(err.name, err.message);
+	                console.log(err[0]);
+	            }
 	            contodo.restoreDefaultConsole();
 	        }, false);
 
