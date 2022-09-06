@@ -195,6 +195,7 @@ section#le-copied.show {
 @media screen and (max-width:768px) {
     div.live-example {
         width: calc(100% - 1em);
+        font-size: 12px;
     }
     .live-example h1 {
         font-size: 1.3em;

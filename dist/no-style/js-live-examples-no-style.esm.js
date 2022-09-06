@@ -3118,9 +3118,9 @@ class LiveExample {
                 contodo.defaultConsole.log(fn);
                 await fn();
             } catch (err) {
-                contodo.defaultConsole.error(err);
-                console.error(err.name, err.message);
-                console.log(err[0]);
+                console.error(
+                    `${err.name} [line ${err.lineNumber-2}]: ${err.message}`, 
+                );
             }
             contodo.restoreDefaultConsole();
         }, false);
