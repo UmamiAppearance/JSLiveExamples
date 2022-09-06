@@ -3118,11 +3118,12 @@ var liveExamples = (function () {
 	            
 	            try {
 	                const fn = new AsyncFunction(jar.toString());
-	                contodo.defaultConsole.log(fn);
 	                await fn();
 	            } catch (err) {
+	                const lNr = err.lineNumber-2;
+	                const lNrStr = isNaN(lNr) ? "" : ` [line ${err.lineNumber-2}]`;
 	                console.error(
-	                    `${err.name} [line ${err.lineNumber-2}]: ${err.message}`, 
+	                    `${err.name}${lNrStr}: ${err.message}`
 	                );
 	            }
 	            contodo.restoreDefaultConsole();
