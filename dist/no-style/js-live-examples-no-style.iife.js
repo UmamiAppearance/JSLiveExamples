@@ -3086,7 +3086,6 @@ var liveExamples = (function () {
 	        updateLines(code);
 	        jar.updateCode(code);
 	        
-	        
 
 	        // append code and title to main
 	        main.append(codeWrapper);
@@ -3116,6 +3115,8 @@ var liveExamples = (function () {
 	            contodo.initFunctions();
 	            //eval(jar.toString());
 	            
+	            const fn = new AsyncFunction(jar.toString());
+	            /*
 	            try {
 	                const fn = new AsyncFunction(jar.toString());
 	                await fn();
@@ -3126,7 +3127,15 @@ var liveExamples = (function () {
 	                    `${err.name}${lNrStr}: ${err.message}`
 	                );
 	            }
-	            contodo.restoreDefaultConsole();
+	            */
+	            fn()
+	                .catch((err) => {
+	                    console.error(err);
+	                    contodo.restoreDefaultConsole();
+	                })
+	                .then(() => {
+	                    contodo.restoreDefaultConsole();
+	                });
 	        }, false);
 
 	        if (autostart) {

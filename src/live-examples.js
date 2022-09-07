@@ -143,6 +143,24 @@ class LiveExample {
         };
         return toClipboard;
     }
+
+    makeErrorStackExtractor() {
+        const errorStackExtractor = (stack) => {
+            const stackArray = stack.split("\n");
+            const len = stackArray.length;
+
+            for (let i=len; i--; i>0) {
+                if (stackArray[i].includes("liveExampleCodeRunner")) {
+                    break;
+                }
+                stackArray.pop();
+            }
+
+            return stackArray;
+        };
+
+        return errorStackExtractor;
+    }
     
 
     /**
@@ -213,7 +231,6 @@ class LiveExample {
         jar.updateCode(code);
         
         
-
         // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
@@ -237,11 +254,13 @@ class LiveExample {
             updateLines(code);
         }, false);
 
-        executeBtn.addEventListener("click", async () => {
+
+        const stackExtractor = this.makeErrorStackExtractor();
+        // don't rename this function !!!
+        const liveExampleCodeRunner = async () => {
             contodo.clear(false);
             contodo.initFunctions();
-            //eval(jar.toString());
-            
+
             try {
                 const fn = new AsyncFunction(jar.toString());
                 await fn();
@@ -251,9 +270,12 @@ class LiveExample {
                 console.error(
                     `${err.name}${lNrStr}: ${err.message}`
                 );
+                window.STACK = stackExtractor(err.stack);
             }
             contodo.restoreDefaultConsole();
-        }, false);
+        };
+
+        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
 
         if (autostart) {
             executeBtn.click();
