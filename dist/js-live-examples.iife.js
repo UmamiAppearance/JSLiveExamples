@@ -2887,12 +2887,13 @@ var liveExamples = (function () {
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.2.0
+	 * @version 0.2.1
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license GPL-3.0
 	 */
 
 	const CSS = mainCSS + prismCSS;
+	const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 	const AsyncFunction = (async function () {}).constructor;
 
 	/**
@@ -3035,8 +3036,7 @@ var liveExamples = (function () {
 	        do {
 	            part = stackArray.pop();
 	        }
-	        while (typeof part !== "undefined" && !part.includes("liveExampleCodeRunner"));
-
+	        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
 	    
 	        // remove redundant error name and description (chrome)
 	        const redundancyReg = new RegExp(`^${error.name}`);
@@ -3184,8 +3184,9 @@ var liveExamples = (function () {
 	        }, false);
 
 
-	        // don't rename this function !!!
-	        const liveExampleCodeRunner = async () => {
+	        // this is a regular async fn, but protected
+	        // against renaming by eg. terser
+	        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
 	            contodo.clear(false);
 	            contodo.initFunctions();
 
@@ -3201,7 +3202,7 @@ var liveExamples = (function () {
 	                console.error(msg); 
 	            }
 	            contodo.restoreDefaultConsole();
-	        };
+	        }}[RUNNER_FUNCTION_NAME];
 
 	        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
 
