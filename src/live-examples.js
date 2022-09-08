@@ -1,7 +1,7 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.1.3
+ * @version 0.2.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
@@ -13,6 +13,7 @@ import ConTodo from "../lib/contodo.js";
 import { mainCSS, prismCSS } from "./css.js";
 
 const CSS = mainCSS + prismCSS;
+const AsyncFunction = (async function () {}).constructor;
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -31,7 +32,7 @@ class LiveExample {
 
         // if the template has the attribute for
         // it is used for the id of instance
-        const id = template.getAttribute("for") || `live-example-${index+1}`;
+        this.id = template.getAttribute("for") || `live-example-${index+1}`;
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
@@ -42,7 +43,7 @@ class LiveExample {
         }
         
         const example = this.makeCodeExample(title, code, autostart);
-        example.id = id;
+        example.id = this.id;
         example.className = className;
 
         // insert the fresh node right before the
@@ -128,19 +129,87 @@ class LiveExample {
      * and show an info node.
      * @returns {function} - To clipboard function.
      */
-    makeToClipboardFN() {
-        const toClipboard = (e) => {
-            const code = e.target.previousSibling.textContent;
-            window.navigator.clipboard.writeText(code);
+    toClipboard = (e) => {
+        const code = e.target.previousSibling.textContent;
+        window.navigator.clipboard.writeText(code);
 
-            const copied = document.querySelector("#le-copied");
-            copied.classList.add("show");
+        const copied = document.querySelector("#le-copied");
+        copied.classList.add("show");
+        
+        setTimeout(() => {
+            copied.classList.remove("show");
+        }, 1500);
+    };
+
+    /**
+     * Adjusts the information from an error stack.
+     * @param {Object} error - Error object. 
+     * @returns {string} - Stack string.
+     */
+    errorStackExtractor(error) {
+
+        const stackArray = error.stack.split("\n");
+        
+        // remove irrelevant stack information deeper down
+        let part;
+        do {
+            part = stackArray.pop();
+        }
+        while (typeof part !== "undefined" && !part.includes("liveExampleCodeRunner"));
+
+    
+        // remove redundant error name and description (chrome)
+        const redundancyReg = new RegExp(`^${error.name}`);
+        if (stackArray.length && redundancyReg.test(stackArray[0])) {
+            stackArray.shift();
+        }
+
+        if (stackArray.length) {
             
-            setTimeout(() => {
-                copied.classList.remove("show");
-            }, 1500);
-        };
-        return toClipboard;
+            const buildStackElem = (fn, line, col) => {
+                line -=2;
+                if (line < 0) {
+                    return null;
+                }
+                
+                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
+            };
+
+            // chrome & edge
+            if ((/\s*at\s/).test(stackArray[0])) {
+                stackArray.forEach((elem, i) => {
+                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
+                    let [ line, col ] = elem.split(":")
+                        .slice(-2)
+                        .map(n => n.replace(/\D/g, "")|0);
+                    
+                    stackArray[i] = buildStackElem(fn, line, col);
+                });
+            } 
+            
+            // firefox
+            else if ((/^\w+@/).test(stackArray[0])) {
+                stackArray.forEach((elem, i) => {
+                    const fn = elem.split("@")[0];
+                    let [ line, col ] = elem.split(":")
+                        .slice(-2)
+                        .map(n => n.replace(/\D/g, "")|0);
+                    
+                    stackArray[i] = buildStackElem(fn, line, col);
+                });
+            }
+
+            let stackStr = "";
+            stackArray.forEach(elem => {
+                if (elem) {
+                    stackStr += elem + "\n";
+                }
+            });
+
+            return stackStr;
+        }
+        
+        return null;
     }
     
 
@@ -169,8 +238,7 @@ class LiveExample {
         const copyBtn = document.createElement("div");
         copyBtn.className = "copy";
         copyBtn.title = "copy to clipboard";
-        const toClipboard = this.makeToClipboardFN();
-        copyBtn.addEventListener("click", toClipboard, false);
+        copyBtn.addEventListener("click", this.toClipboard, false);
 
         codeWrapper.append(lineNumbers);
         codeWrapper.append(codeNode);
@@ -212,7 +280,6 @@ class LiveExample {
         jar.updateCode(code);
         
         
-
         // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
@@ -223,7 +290,6 @@ class LiveExample {
             main,
             {
                 autostart: false,
-                catchErrors: true,
                 preventDefault: true
             }
         );
@@ -237,12 +303,27 @@ class LiveExample {
             updateLines(code);
         }, false);
 
-        executeBtn.addEventListener("click", () => {
+
+        // don't rename this function !!!
+        const liveExampleCodeRunner = async () => {
             contodo.clear(false);
             contodo.initFunctions();
-            eval(jar.toString());
+
+            try {
+                const fn = new AsyncFunction(jar.toString());
+                await fn();
+            } catch (err) {
+                let msg = `${err.name}: ${err.message}`;
+                const stack = this.errorStackExtractor(err);
+                if (stack) {
+                    msg += "\n" + stack;
+                }
+                console.error(msg); 
+            }
             contodo.restoreDefaultConsole();
-        }, false);
+        };
+
+        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
 
         if (autostart) {
             executeBtn.click();
