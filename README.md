@@ -96,8 +96,11 @@ After importing the templates can be used inside of the HTML. A Basic example ma
 * The final example gets inserted directly at the location of the template.
 * Additional class names for the example are possible.
 * Every example gets the id "live-example-\<nr\>", for a custom id, pass the attribute ``for="myId"`` to the ``<template>``-tag
+* Apart from the button, the code can also be executed by calling ``<example>.run()``.
+* After the code was executed the ``<example>`` emits the event ``executed``
+* Apart from the button, you can also reset the code by calling ``<example>.reset()``.
 * If the code should execute automatically, pass the data-attribute ``data-run="true"`` to the ``<script>``-tag
-* The default height of the console output is 160px, if the content overflows it starts to scroll. To change that add the class name ``no-scroll`` in addition to ``live-example`` to let the console grow with its content 
+* The default height of the console output is 160px, if the content overflows it starts to scroll. To change that add the class name ``no-scroll`` in addition to ``live-example`` to let the console grow with its content
 
 
 ## License

@@ -44,13 +44,16 @@ class LiveExample {
             return null;
         }
         
-        const example = this.makeCodeExample(title, code, autostart);
+        const example = this.makeCodeExample(title, code);
         example.id = this.id;
         example.className = className;
+        example.autostart = autostart;
 
         // insert the fresh node right before the
         // template node in the document
         template.parentNode.insertBefore(example, template);
+
+        return example;
     }
 
     
@@ -221,7 +224,7 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code, autostart) { 
+    makeCodeExample(title, code) { 
 
         // create new html node
         const main = document.createElement("div");
@@ -331,10 +334,6 @@ class LiveExample {
         executeBtn.addEventListener("click", liveExampleCodeRunner, false);
         main.run = liveExampleCodeRunner;
 
-        if (autostart) {
-            executeBtn.click();
-        }
-
         return main;
     }
 }
@@ -362,8 +361,13 @@ const liveExamples = (() => {
      */
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
+        const autostartExamples = [];
+
         templates.forEach((template, i) => {
-            new LiveExample(template, i++);
+            const example = new LiveExample(template, i++);
+            if (example && example.autostart) {
+                autostartExamples.push(example);
+            }
         });
 
         const copiedInfo = document.createElement("section");
@@ -374,6 +378,16 @@ const liveExamples = (() => {
 
         copiedInfo.append(copiedInfoText);
         document.body.append(copiedInfo);
+
+        // make sure to run the auto run examples serially
+        const autoExe = () => {
+            const example = autostartExamples.shift();
+            if (example) {
+                example.addEventListener("executed", autoExe, false);
+                example.run();
+            }
+        };
+        autoExe();
     };
 
     // Apply the example nodes either directly or wait
