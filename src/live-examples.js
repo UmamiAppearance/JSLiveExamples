@@ -1,7 +1,7 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.2.1
+ * @version 0.3.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
@@ -15,6 +15,7 @@ import { mainCSS, prismCSS } from "./css.js";
 const CSS = mainCSS + prismCSS;
 const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 const AsyncFunction = (async function () {}).constructor;
+const EXECUTED = new Event("executed");
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -295,13 +296,15 @@ class LiveExample {
         );
         contodo.createDocumentNode();
         
-
-        // establish button methods
-        resetBtn.addEventListener("click", () => {
+        const resetFN = () => {
             contodo.clear(false);
             jar.updateCode(code);
             updateLines(code);
-        }, false);
+        };
+
+        // establish button methods
+        resetBtn.addEventListener("click", resetFN, false);
+        main.reset = resetFN;
 
 
         // this is a regular async fn, but protected
@@ -322,9 +325,11 @@ class LiveExample {
                 console.error(msg); 
             }
             contodo.restoreDefaultConsole();
+            main.dispatchEvent(EXECUTED);       
         }}[RUNNER_FUNCTION_NAME];
 
         executeBtn.addEventListener("click", liveExampleCodeRunner, false);
+        main.run = liveExampleCodeRunner;
 
         if (autostart) {
             executeBtn.click();
