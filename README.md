@@ -5,7 +5,7 @@
 
 Create HTML live examples to demonstrate JavaScript code for the browser in action.
 
-![JSLiveExamples-Image](https://github.com/UmamiAppearance/JSLiveExamples/blob/main/media/JSLiveExamples.gif?raw=true)
+[![JSLiveExamples-Image](https://github.com/UmamiAppearance/JSLiveExamples/blob/main/media/JSLiveExamples.gif?raw=true)](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html)
 
 ## Idea
 There are countless JavaScript packages out there. For the developer it is always a lot of work to think about how to present it to a possible user. A lot of times apart from the documentation and/or readme file one has to rely on third party services to show live examples to demonstrate the code in action. **JSLiveExamples** makes it possible to keep the creation of live examples of JavaScript code for the browser inside of e.g. your github repository (with GithubPages or with whatever service which is able to serve HTML).  
