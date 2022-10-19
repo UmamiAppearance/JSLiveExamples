@@ -14,6 +14,11 @@ A JSLiveExample is just a little template which gets inserted into the HTML code
   
 The user can see, change, and run the provided code. The console output gets logged to the page. Watch the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) to see it in action.
 
+### Powered by:
+ - [**codejar**](https://github.com/antonmedv/codejar)
+ - [**contodo**](https://github.com/UmamiAppearance/contodo)
+ - [**prismjs**](https://github.com/PrismJS/prism)
+
 
 ## Installation
 ### GitHub
