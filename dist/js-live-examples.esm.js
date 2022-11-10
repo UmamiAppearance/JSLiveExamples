@@ -1897,7 +1897,7 @@ const isIdentifier = (str) => {
 /**
  * [contodo]{@link https://github.com/UmamiAppearance/contodo}
  *
- * @version 0.2.7
+ * @version 0.2.8
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
@@ -2884,7 +2884,7 @@ var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.3.2
+ * @version 0.3.3
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
