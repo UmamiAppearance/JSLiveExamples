@@ -1,7 +1,7 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.3.3
+ * @version 0.4.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license GPL-3.0
  */
