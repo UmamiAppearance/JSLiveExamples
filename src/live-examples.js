@@ -39,10 +39,6 @@ class LiveExample {
 
         const title = this.getTitle(template, index);
         const { code, autostart } = this.getCode(template);
-
-        if (!code) {
-            return null;
-        }
         
         const example = this.makeCodeExample(title, code);
         example.id = this.id;
@@ -85,18 +81,19 @@ class LiveExample {
      */
     getCode(template) {
         
+        let code = "";
+        let autostart = false;
+
         const codeNode = template.content.querySelector("script");
-        if (!codeNode) {
-            console.warn("Every template needs a script tag with the code to display.");
-            return null;
+        
+        if (codeNode) {
+            code = codeNode.innerHTML;
+            const pattern = code.match(/\s*\n[\t\s]*/);
+            code = code.replace(new RegExp(pattern, "g"), "\n").trim();
+            
+            autostart = Boolean(codeNode.dataset.run);
         }
         
-        let code = codeNode.innerHTML;
-        const pattern = code.match(/\s*\n[\t\s]*/);
-        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
-
-        const autostart = Boolean(codeNode.dataset.run);
-
         return { code, autostart };
     }
 
@@ -348,7 +345,7 @@ const liveExamples = (() => {
 
     // apply css to the document header (if present)
     if (CSS) {
-        const style= document.createElement("style"); 
+        const style = document.createElement("style"); 
         style.innerHTML = CSS;
         document.head.append(style);
     }
