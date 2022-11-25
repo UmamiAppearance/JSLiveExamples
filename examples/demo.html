@@ -49,10 +49,16 @@
             
                 <template class="live-example">
                     <h1>Example: Hello World!</h1>
-                    <script data-run="true">
+                    <script data-run="true" data-demo="true">
                         const helloWorld = () => {
                             console.log("Hello World!");
                         };
+                        
+                        helloWorld();
+                        ___(200);
+                        helloWorld();
+
+                        ___(400);
                         helloWorld();
                     </script>
                 </template>

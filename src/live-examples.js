@@ -11,10 +11,10 @@ import "../lib/prism.js";
 import { CodeJar } from "../lib/codejar.js";
 import ConTodo from "../lib/contodo.js";
 import { mainCSS, prismCSS } from "./css.js";
+import { AsyncFunction, makeDemo } from "./utils.js";
 
 const CSS = mainCSS + prismCSS;
 const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-const AsyncFunction = (async function () {}).constructor;
 const EXECUTED = new Event("executed");
 
 /**
@@ -26,24 +26,25 @@ class LiveExample {
     
     /**
      * Contains all steps for the node creation and
-     * insertion.
-     * @param {object} template - A html "<template>" node.
+     * insertion into the page.
+     * @param {object} template - A html <template> node.
      * @param {number} index - Index of the node for one document.
      */
     constructor(template, index) {
 
-        // if the template has the attribute for
+        // if the template has the attribute "for"
         // it is used for the id of instance
         this.id = template.getAttribute("for") || `live-example-${index+1}`;
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
-        const { code, autostart } = this.getCode(template);
+        const { code, autostart, demo } = this.getCode(template);
         
-        const example = this.makeCodeExample(title, code);
+        const example = this.makeCodeExample(title, code, demo);
         example.id = this.id;
         example.className = className;
         example.autostart = autostart;
+        example.demo = demo;
 
         // insert the fresh node right before the
         // template node in the document
@@ -83,18 +84,22 @@ class LiveExample {
         
         let code = "";
         let autostart = false;
+        let demo = false;
 
         const codeNode = template.content.querySelector("script");
         
         if (codeNode) {
             code = codeNode.innerHTML;
             const pattern = code.match(/\s*\n[\t\s]*/);
-            code = code.replace(new RegExp(pattern, "g"), "\n").trim();
+            code = code
+                .replace(new RegExp(pattern, "g"), "\n")
+                .trim();
             
             autostart = Boolean(codeNode.dataset.run);
+            demo = Boolean(codeNode.dataset.demo);
         }
         
-        return { code, autostart };
+        return { code, autostart, demo };
     }
 
 
@@ -136,9 +141,17 @@ class LiveExample {
         window.navigator.clipboard.writeText(code);
 
         const copied = document.querySelector("#le-copied");
+
+        // reset animation in case it is running 
+        clearTimeout(window.copyTimer);
+        copied.getAnimations().forEach(anim => {
+            anim.cancel();
+            anim.play();
+        });
+
+        // start animation
         copied.classList.add("show");
-        
-        setTimeout(() => {
+        window.copyTimer = setTimeout(() => {
             copied.classList.remove("show");
         }, 1500);
     };
@@ -221,7 +234,7 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code) { 
+    makeCodeExample(title, code, isDemo) { 
 
         // create new html node
         const main = document.createElement("div");
@@ -269,12 +282,23 @@ class LiveExample {
         titleWrapper.append(controlsWrapper);
 
 
+        // test and prepare for demo mode
+        if (isDemo) {
+            const demo = makeDemo(code);
+            code = "";
+            console.log(demo);
+        }
+
+
         // initialize jar instance
         const updateLines = this.makeLineFN(lineNumbers);
-        // eslint-disable-next-line no-undef
-        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
-            tab: " ".repeat(4),
-        });
+        const jar = CodeJar(
+            codeNode,
+            // eslint-disable-next-line no-undef
+            editor => Prism.highlightElement(editor), {
+                tab: " ".repeat(4),
+            }
+        );
 
         jar.onUpdate(updateLines);
         updateLines(code);
@@ -308,7 +332,10 @@ class LiveExample {
 
 
         // this is a regular async fn, but protected
-        // against renaming by eg. terser
+        // against renaming by eg. terser, hence the
+        // weird construction (the function name must
+        // be protected to get readable error messages)
+
         const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
             contodo.clear(false);
             contodo.initFunctions();
