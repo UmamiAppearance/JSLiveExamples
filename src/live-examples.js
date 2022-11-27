@@ -11,10 +11,15 @@ import "../lib/prism.js";
 import { CodeJar } from "../lib/codejar.js";
 import ConTodo from "../lib/contodo.js";
 import { mainCSS, prismCSS } from "./css.js";
-import { AsyncFunction, makeDemo } from "./utils.js";
+import {
+    RUNNER_FUNCTION_NAME,
+    AsyncFunction,
+    throwError,
+    makeDemo 
+} from "./utils.js";
+
 
 const CSS = mainCSS + prismCSS;
-const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 const EXECUTED = new Event("executed");
 
 /**
@@ -156,76 +161,6 @@ class LiveExample {
         }, 1500);
     };
 
-    /**
-     * Adjusts the information from an error stack.
-     * @param {Object} error - Error object. 
-     * @returns {string} - Stack string.
-     */
-    errorStackExtractor(error) {
-
-        const stackArray = error.stack.split("\n");
-        
-        // remove irrelevant stack information deeper down
-        let part;
-        do {
-            part = stackArray.pop();
-        }
-        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
-    
-        // remove redundant error name and description (chrome)
-        const redundancyReg = new RegExp(`^${error.name}`);
-        if (stackArray.length && redundancyReg.test(stackArray[0])) {
-            stackArray.shift();
-        }
-
-        if (stackArray.length) {
-            
-            const buildStackElem = (fn, line, col) => {
-                line -=2;
-                if (line < 0) {
-                    return null;
-                }
-                
-                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
-            };
-
-            // chrome & edge
-            if ((/\s*at\s/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            } 
-            
-            // firefox
-            else if ((/^\w+@/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.split("@")[0];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            }
-
-            let stackStr = "";
-            stackArray.forEach(elem => {
-                if (elem) {
-                    stackStr += elem + "\n";
-                }
-            });
-
-            return stackStr;
-        }
-        
-        return null;
-    }
-    
 
     /**
      * Main method. Finally the whole html node
@@ -282,13 +217,6 @@ class LiveExample {
         titleWrapper.append(controlsWrapper);
 
 
-        // test and prepare for demo mode
-        if (isDemo) {
-            const demo = makeDemo(code);
-            code = "";
-            console.log(demo);
-        }
-
 
         // initialize jar instance
         const updateLines = this.makeLineFN(lineNumbers);
@@ -301,10 +229,8 @@ class LiveExample {
         );
 
         jar.onUpdate(updateLines);
-        updateLines(code);
-        jar.updateCode(code);
         
-        
+    
         // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
@@ -319,6 +245,18 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
+
+
+        // test and prepare for demo mode
+        if (isDemo) {
+            updateLines("");
+            jar.updateCode("");
+            makeDemo(this.id, code, jar, contodo);
+        } else {
+            updateLines(code);
+            jar.updateCode(code);
+        }
+
         
         const resetFN = () => {
             contodo.clear(false);
@@ -344,12 +282,7 @@ class LiveExample {
                 const fn = new AsyncFunction(jar.toString());
                 await fn();
             } catch (err) {
-                let msg = `${err.name}: ${err.message}`;
-                const stack = this.errorStackExtractor(err);
-                if (stack) {
-                    msg += "\n" + stack;
-                }
-                console.error(msg); 
+                throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
             main.dispatchEvent(EXECUTED);       
@@ -389,7 +322,7 @@ const liveExamples = (() => {
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
-            if (example && example.autostart) {
+            if (example && example.autostart && !example.demo) {
                 autostartExamples.push(example);
             }
         });
