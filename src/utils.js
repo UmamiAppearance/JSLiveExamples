@@ -2,7 +2,7 @@ const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 
 const AsyncFunction = (async function () {}).constructor;
 
-const randID = () => `p_${Math.random().toString(16).slice(2)}`;
+const randID = () => `P_${Math.random().toString(16).slice(2)}`;
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -19,20 +19,16 @@ window.waitPromise = name => {
 
 
 const makeTypingFN = (code) => {
-
-    const chars = [...code];
-    
-    const fn = async jar => {
+    return async jar => {
         let content = jar.toString();
         
-        for (const char of chars) {
+        for (const char of [...code]) {
             content += char;
             jar.updateCode(content);
-            await sleep(Math.floor(Math.random() * 70 + 40));
+            jar.updateLines(content);
+            await sleep(Math.floor(Math.random() * 50 + 30));
         }     
     };
-
-    return fn;
 };
 
 const makeDemo = async (id, code, jar, contodo) => {
@@ -46,9 +42,9 @@ const makeDemo = async (id, code, jar, contodo) => {
     breakpoints.push(0);
     
     let codeInstructions = `const sleep = ${sleep.toString()};\n`;
-    //codeInstructions += `const instanceId = ${instanceId}\n`;
     codeInstructions += `await waitPromise("${instanceId}");\n`;
     const typingInstructions = [];
+    const lastIndex = codeUnits.length-1;
 
     codeUnits.forEach((codeUnit, i) => {
 
@@ -58,11 +54,12 @@ const makeDemo = async (id, code, jar, contodo) => {
         typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
         typingInstructions.push(async () => await window.waitPromise(instanceId));
 
-        codeInstructions += codeUnit; 
-        codeInstructions += `await sleep(${breakpoints[i]+10});\n`;
-        codeInstructions += `window.dispatchEvent(window.${instanceId})\n`;
-        codeInstructions += `await waitPromise("${instanceId}")\n`;
-        
+        codeInstructions += codeUnit;
+        if (i < lastIndex) {
+            codeInstructions += `await sleep(${breakpoints[i]+10});\n`;
+            codeInstructions += `window.dispatchEvent(window.${instanceId})\n`;
+            codeInstructions += `await waitPromise("${instanceId}")\n`;
+        }
     });
 
     console.log(codeInstructions);
@@ -73,7 +70,6 @@ const makeDemo = async (id, code, jar, contodo) => {
     try {
         (async () => {
             for (const fn of typingInstructions) {
-                //console.log(fn);
                 await fn(jar);
             }
         })();
@@ -82,10 +78,8 @@ const makeDemo = async (id, code, jar, contodo) => {
     } catch (err) {
         throwError(err, id);
     }
-    // TODO: dispatch one more time at the end
-    console.log("doone");
+    
     contodo.restoreDefaultConsole();
-    //jar.updateCode("");
 };
 
 

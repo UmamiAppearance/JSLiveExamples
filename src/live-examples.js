@@ -219,7 +219,6 @@ class LiveExample {
 
 
         // initialize jar instance
-        const updateLines = this.makeLineFN(lineNumbers);
         const jar = CodeJar(
             codeNode,
             // eslint-disable-next-line no-undef
@@ -227,8 +226,10 @@ class LiveExample {
                 tab: " ".repeat(4),
             }
         );
+        jar.updateLines = this.makeLineFN(lineNumbers);
+        jar.onUpdate(jar.updateLines);
 
-        jar.onUpdate(updateLines);
+        window.JAR = jar;
         
     
         // append code and title to main
@@ -245,15 +246,15 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
-
+        window.NODE = codeNode;
 
         // test and prepare for demo mode
         if (isDemo) {
-            updateLines("");
+            jar.updateLines("");
             jar.updateCode("");
             makeDemo(this.id, code, jar, contodo);
         } else {
-            updateLines(code);
+            jar.updateLines(code);
             jar.updateCode(code);
         }
 
@@ -261,7 +262,7 @@ class LiveExample {
         const resetFN = () => {
             contodo.clear(false);
             jar.updateCode(code);
-            updateLines(code);
+            jar.updateLines(code);
         };
 
         // establish button methods
