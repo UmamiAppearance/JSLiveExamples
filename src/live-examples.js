@@ -252,7 +252,7 @@ class LiveExample {
             jar.updateCode("");
             const instructions = code;
             code = getCleanCode(code);
-            makeDemo(this.id, instructions, jar, contodo);
+            main.runDemo = makeDemo(this.id, instructions, jar, contodo);
         } else {
             jar.updateLines(code);
             jar.updateCode(code);

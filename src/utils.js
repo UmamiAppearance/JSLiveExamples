@@ -33,7 +33,7 @@ const makeTypingFN = (code) => {
     };
 };
 
-const makeDemo = async (id, code, jar, contodo) => {
+const makeDemo = (id, code, jar, contodo) => {
     const instanceId = randID();
     window[instanceId] = new Event(instanceId);
     
@@ -68,22 +68,35 @@ const makeDemo = async (id, code, jar, contodo) => {
 
     console.log(codeInstructions);
     console.log(typingInstructions);
-    contodo.clear(false);
-    contodo.initFunctions();
     
-    try {
-        (async () => {
-            for (const fn of typingInstructions) {
-                await fn(jar);
-            }
-        })();
-        const fn = new AsyncFunction(codeInstructions);
-        await fn();
-    } catch (err) {
-        throwError(err, id);
-    }
+    const demoFN = async () => {
+        if (window.isDemoing) {
+            throw new Error("A demo is currently running. Starting was blocked.");
+        } 
+        window.isDemoing = true;
+        contodo.clear(false);
+        contodo.initFunctions();
+        
+        jar.updateLines("");
+        jar.updateCode("");
+        
+        try {
+            (async () => {
+                for (const fn of typingInstructions) {
+                    await fn(jar);
+                }
+            })();
+            const fn = new AsyncFunction(codeInstructions);
+            await fn();
+        } catch (err) {
+            throwError(err, id);
+        }
+        
+        contodo.restoreDefaultConsole();
+        window.isDemoing = false;
+    };
     
-    contodo.restoreDefaultConsole();
+    return demoFN;
 };
 
 
