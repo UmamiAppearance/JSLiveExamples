@@ -14,8 +14,9 @@ import { mainCSS, prismCSS } from "./css.js";
 import {
     RUNNER_FUNCTION_NAME,
     AsyncFunction,
-    throwError,
-    makeDemo 
+    getCleanCode,
+    makeDemo,
+    throwError 
 } from "./utils.js";
 
 
@@ -229,8 +230,6 @@ class LiveExample {
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
 
-        window.JAR = jar;
-        
     
         // append code and title to main
         main.append(codeWrapper);
@@ -246,13 +245,14 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
-        window.NODE = codeNode;
 
         // test and prepare for demo mode
         if (isDemo) {
             jar.updateLines("");
             jar.updateCode("");
-            makeDemo(this.id, code, jar, contodo);
+            const instructions = code;
+            code = getCleanCode(code);
+            makeDemo(this.id, instructions, jar, contodo);
         } else {
             jar.updateLines(code);
             jar.updateCode(code);

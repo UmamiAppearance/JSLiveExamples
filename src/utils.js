@@ -4,7 +4,9 @@ const AsyncFunction = (async function () {}).constructor;
 
 const randID = () => `P_${Math.random().toString(16).slice(2)}`;
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+window.sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
 
 window.waitPromise = name => {
     return new Promise(resolve => {
@@ -26,7 +28,7 @@ const makeTypingFN = (code) => {
             content += char;
             jar.updateCode(content);
             jar.updateLines(content);
-            await sleep(Math.floor(Math.random() * 50 + 30));
+            await window.sleep(Math.floor(Math.random() * 50 + 30));
         }     
     };
 };
@@ -35,14 +37,16 @@ const makeDemo = async (id, code, jar, contodo) => {
     const instanceId = randID();
     window[instanceId] = new Event(instanceId);
     
-    const regex = /^_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
-    const codeUnits = code.split(regex);
-    const breakpoints = code.match(regex)
-        .map(bp => Number(bp.replace(/[^0-9]/g, "")));
-    breakpoints.push(0);
     
-    let codeInstructions = `const sleep = ${sleep.toString()};\n`;
-    codeInstructions += `await waitPromise("${instanceId}");\n`;
+    const codeUnits = code.split(breakPointRegex);
+    let breakpoints = [];
+    const breakpointsArr = code.match(breakPointRegex);
+    if (breakpointsArr) {
+        breakpointsArr.forEach(bp => breakpoints.push(Number(bp.replace(/[^0-9]/g, ""))));
+        breakpoints.push(0);
+    }
+    
+    let codeInstructions = `await waitPromise("${instanceId}");\n`;
     const typingInstructions = [];
     const lastIndex = codeUnits.length-1;
 
@@ -56,7 +60,7 @@ const makeDemo = async (id, code, jar, contodo) => {
 
         codeInstructions += codeUnit;
         if (i < lastIndex) {
-            codeInstructions += `await sleep(${breakpoints[i]+10});\n`;
+            codeInstructions += `await window.sleep(${breakpoints[i]+10});\n`;
             codeInstructions += `window.dispatchEvent(window.${instanceId})\n`;
             codeInstructions += `await waitPromise("${instanceId}")\n`;
         }
@@ -81,6 +85,9 @@ const makeDemo = async (id, code, jar, contodo) => {
     
     contodo.restoreDefaultConsole();
 };
+
+
+const getCleanCode = code => code.replace(breakPointRegex, "");
 
 
 /**
@@ -166,6 +173,7 @@ const throwError = (err, id) => {
 export {
     RUNNER_FUNCTION_NAME,
     AsyncFunction,
-    throwError,
-    makeDemo
+    getCleanCode,
+    makeDemo,
+    throwError
 };
