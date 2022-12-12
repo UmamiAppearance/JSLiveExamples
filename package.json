@@ -42,7 +42,7 @@
     "http-server": "^14.1.1",
     "no-bro-cote": "^0.2.7",
     "prismjs": "^1.29.0",
-    "rollup": "^3.7.1",
+    "rollup": "^3.7.3",
     "rollup-plugin-import-manager": "^0.3.4",
     "rollup-plugin-your-function": "^0.4.4"
   }
