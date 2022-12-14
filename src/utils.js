@@ -29,14 +29,25 @@ window.sleep = ms => new Promise(resolve => {
 
 window.demoPauseEvt = new Event("demoPause");
 
-window.pauseDemo = () => {
-    window.demoPause = window.waitPromise("demoPause");
-    window.demoIsPaused = true;
+const pauseDemoFN = contodo => {
+    return () => {
+        if (!window.isDemoing || window.demoIsPaused) {
+            return;
+        }
+        contodo.restoreDefaultConsole();
+        window.demoPause = window.waitPromise("demoPause");
+        window.demoIsPaused = true;
+    };
 };
-
-window.resumeDemo = () => {
-    window.dispatchEvent(window.demoPauseEvt);
-    window.demoIsPaused = false;
+const resumeDemoFN = contodo => {
+    return () => {
+        if (!window.isDemoing || !window.demoIsPaused) {
+            return;
+        }
+        contodo.initFunctions();
+        window.dispatchEvent(window.demoPauseEvt);
+        window.demoIsPaused = false;
+    };
 };
 
 const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
@@ -118,7 +129,11 @@ const makeDemo = (id, code, jar, contodo) => {
         window.isDemoing = false;
     };
     
-    return demoFN;
+    return [
+        demoFN,
+        pauseDemoFN(contodo),
+        resumeDemoFN(contodo)
+    ];
 };
 
 

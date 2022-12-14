@@ -249,11 +249,19 @@ class LiveExample {
 
         // test and prepare for demo mode
         if (isDemo) {
+
             jar.updateLines("");
             jar.updateCode("");
+            
             const instructions = code;
             code = getCleanCode(code);
-            main.runDemo = makeDemo(this.id, instructions, jar, contodo);
+            
+            [
+                main.runDemo,
+                main.pauseDemo,
+                main.resumeDemo
+            ] = makeDemo(this.id, instructions, jar, contodo);
+            
         } else {
             jar.updateLines(code);
             jar.updateCode(code);
