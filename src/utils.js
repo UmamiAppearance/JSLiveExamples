@@ -4,10 +4,6 @@ const AsyncFunction = (async function () {}).constructor;
 
 const randID = () => `P_${Math.random().toString(16).slice(2)}`;
 
-window.sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
-
 window.waitPromise = name => {
     return new Promise(resolve => {
         const resolveFn = () => {
@@ -18,6 +14,32 @@ window.waitPromise = name => {
     });
     // TODO: eventually add timeout/reject
 };
+
+
+window.sleep = ms => new Promise(resolve => {
+    const resumeIfNotPaused = async () => {
+        if (window.demoIsPaused) {
+            await window.demoPause;
+        }
+        return resolve();
+    };
+    setTimeout(resumeIfNotPaused, ms);
+});
+
+
+window.demoPauseEvt = new Event("demoPause");
+
+window.pauseDemo = () => {
+    window.demoPause = window.waitPromise("demoPause");
+    window.demoIsPaused = true;
+};
+
+window.resumeDemo = () => {
+    window.dispatchEvent(window.demoPauseEvt);
+    window.demoIsPaused = false;
+};
+
+const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
 
 
 const makeTypingFN = (code) => {
@@ -36,8 +58,7 @@ const makeTypingFN = (code) => {
 const makeDemo = (id, code, jar, contodo) => {
     const instanceId = randID();
     window[instanceId] = new Event(instanceId);
-    
-    
+     
     const codeUnits = code.split(breakPointRegex);
     let breakpoints = [];
     const breakpointsArr = code.match(breakPointRegex);
@@ -46,7 +67,7 @@ const makeDemo = (id, code, jar, contodo) => {
         breakpoints.push(0);
     }
     
-    let codeInstructions = `await waitPromise("${instanceId}");\n`;
+    let codeInstructions = `await window.waitPromise("${instanceId}");\n`;
     const typingInstructions = [];
     const lastIndex = codeUnits.length-1;
 
@@ -73,6 +94,7 @@ const makeDemo = (id, code, jar, contodo) => {
         if (window.isDemoing) {
             throw new Error("A demo is currently running. Starting was blocked.");
         } 
+        window.demoPause = false;
         window.isDemoing = true;
         contodo.clear(false);
         contodo.initFunctions();

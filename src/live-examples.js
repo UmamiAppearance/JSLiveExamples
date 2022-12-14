@@ -174,6 +174,7 @@ class LiveExample {
 
         // create new html node
         const main = document.createElement("div");
+        window.M = main;
 
 
         // the code part
