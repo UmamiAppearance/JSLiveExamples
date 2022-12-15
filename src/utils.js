@@ -2,7 +2,7 @@ const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 
 const AsyncFunction = (async function () {}).constructor;
 
-const randID = () => `P_${Math.random().toString(16).slice(2)}`;
+const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
 window.waitPromise = name => {
     return new Promise(resolve => {
@@ -12,7 +12,6 @@ window.waitPromise = name => {
         };
         window.addEventListener(name, resolveFn, false);
     });
-    // TODO: eventually add timeout/reject
 };
 
 
@@ -39,6 +38,7 @@ const pauseDemoFN = contodo => {
         window.demoIsPaused = true;
     };
 };
+
 const resumeDemoFN = contodo => {
     return () => {
         if (!window.isDemoing || !window.demoIsPaused) {
@@ -50,8 +50,20 @@ const resumeDemoFN = contodo => {
     };
 };
 
-const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
-
+const stopDemoFN = (code, jar, contodo) => {
+    return () => {
+        window.demoIsStopped = true;
+        window.isDemoing = false;
+        contodo.clear(false);
+        contodo.initFunctions();
+        jar.updateCode(code);
+        
+        // TODO: make a reliable waiting fn
+        setTimeout(() => {
+            window.demoIsStopped = false;
+        }, 200);
+    };
+};
 
 const makeTypingFN = (code) => {
     return async jar => {
@@ -62,28 +74,39 @@ const makeTypingFN = (code) => {
             jar.updateCode(content);
             jar.updateLines(content);
             await window.sleep(Math.floor(Math.random() * 50 + 30));
+            
+            if (window.demoIsStopped) {
+                break;
+            }
         }     
     };
 };
 
 const makeDemo = (id, code, jar, contodo) => {
+    jar.updateLines("");
+    jar.updateCode(""); 
+
     const instanceId = randID();
     window[instanceId] = new Event(instanceId);
-     
+
+    const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
     const codeUnits = code.split(breakPointRegex);
     let breakpoints = [];
+
     const breakpointsArr = code.match(breakPointRegex);
     if (breakpointsArr) {
         breakpointsArr.forEach(bp => breakpoints.push(Number(bp.replace(/[^0-9]/g, ""))));
         breakpoints.push(0);
     }
     
+    let cleanCode = "";
     let codeInstructions = `await window.waitPromise("${instanceId}");\n`;
     const typingInstructions = [];
     const lastIndex = codeUnits.length-1;
 
     codeUnits.forEach((codeUnit, i) => {
 
+        cleanCode += codeUnit;
         const typingFN = makeTypingFN(codeUnit);
 
         typingInstructions.push(typingFN);
@@ -105,7 +128,7 @@ const makeDemo = (id, code, jar, contodo) => {
         if (window.isDemoing) {
             throw new Error("A demo is currently running. Starting was blocked.");
         } 
-        window.demoPause = false;
+        window.demoIsPaused = false;
         window.isDemoing = true;
         contodo.clear(false);
         contodo.initFunctions();
@@ -117,6 +140,9 @@ const makeDemo = (id, code, jar, contodo) => {
             (async () => {
                 for (const fn of typingInstructions) {
                     await fn(jar);
+                    if (window.demoIsStopped) {
+                        break;
+                    }
                 }
             })();
             const fn = new AsyncFunction(codeInstructions);
@@ -130,14 +156,14 @@ const makeDemo = (id, code, jar, contodo) => {
     };
     
     return [
+        cleanCode,
         demoFN,
         pauseDemoFN(contodo),
-        resumeDemoFN(contodo)
+        resumeDemoFN(contodo),
+        stopDemoFN(cleanCode, jar, contodo)
     ];
 };
 
-
-const getCleanCode = code => code.replace(breakPointRegex, "");
 
 
 /**
@@ -223,7 +249,6 @@ const throwError = (err, id) => {
 export {
     RUNNER_FUNCTION_NAME,
     AsyncFunction,
-    getCleanCode,
     makeDemo,
     throwError
 };

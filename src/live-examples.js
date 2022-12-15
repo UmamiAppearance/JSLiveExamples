@@ -14,7 +14,6 @@ import { mainCSS, prismCSS } from "./css.js";
 import {
     RUNNER_FUNCTION_NAME,
     AsyncFunction,
-    getCleanCode,
     makeDemo,
     throwError 
 } from "./utils.js";
@@ -248,20 +247,15 @@ class LiveExample {
         contodo.createDocumentNode();
 
         // test and prepare for demo mode
-        if (isDemo) {
-
-            jar.updateLines("");
-            jar.updateCode("");
-            
-            const instructions = code;
-            code = getCleanCode(code);
-            
-            [
+        if (isDemo) {      
+            [   
+                code,
                 main.runDemo,
                 main.pauseDemo,
-                main.resumeDemo
-            ] = makeDemo(this.id, instructions, jar, contodo);
-            
+                main.resumeDemo,
+                main.stopDemo
+            ] = makeDemo(this.id, code, jar, contodo);
+
         } else {
             jar.updateLines(code);
             jar.updateCode(code);
