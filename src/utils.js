@@ -5,12 +5,16 @@ const AsyncFunction = (async function () {}).constructor;
 const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
 window.waitPromise = name => {
+    if (window.abortDemo) {
+        return Promise.reject();
+    }
+    window.demoAbortController = new AbortController();
     return new Promise(resolve => {
-        const resolveFn = () => {
-            window.removeEventListener(name, resolveFn, false);
-            resolve();
-        };
-        window.addEventListener(name, resolveFn, false);
+        window.addEventListener(name, resolve, {
+            capture: false,
+            once: true,
+            signal: window.demoAbortController.signal
+        });
     });
 };
 
@@ -50,18 +54,27 @@ const resumeDemoFN = contodo => {
     };
 };
 
-const stopDemoFN = (code, jar, contodo) => {
-    return () => {
-        window.demoIsStopped = true;
-        window.isDemoing = false;
+const stopDemoFN = (instanceId, code, jar, contodo) => {
+    return () => {    
+        window.abortDemo = true;
+        contodo.restoreDefaultConsole();
         contodo.clear(false);
-        contodo.initFunctions();
-        jar.updateCode(code);
         
-        // TODO: make a reliable waiting fn
-        setTimeout(() => {
-            window.demoIsStopped = false;
-        }, 200);
+        if (window.demoIsPaused) {
+            window.dispatchEvent(window.demoPauseEvt);
+            window.dispatchEvent(window[instanceId]);
+            window.demoIsPaused = false;
+        }
+        
+        
+        if (window.demoAbortController) {
+            window.demoAbortController.abort();
+        }
+
+        jar.updateCode(code);
+        jar.updateLines(code);
+        
+        window.isDemoing = false;
     };
 };
 
@@ -75,7 +88,7 @@ const makeTypingFN = (code) => {
             jar.updateLines(content);
             await window.sleep(Math.floor(Math.random() * 50 + 30));
             
-            if (window.demoIsStopped) {
+            if (window.abortDemo) {
                 break;
             }
         }     
@@ -115,9 +128,9 @@ const makeDemo = (id, code, jar, contodo) => {
 
         codeInstructions += codeUnit;
         if (i < lastIndex) {
-            codeInstructions += `await window.sleep(${breakpoints[i]+10});\n`;
-            codeInstructions += `window.dispatchEvent(window.${instanceId})\n`;
-            codeInstructions += `await waitPromise("${instanceId}")\n`;
+            codeInstructions += `await window.sleep(${Math.max(breakpoints[i], 10)});\n`;
+            codeInstructions += `window.dispatchEvent(window.${instanceId});\n`;
+            codeInstructions += `await waitPromise("${instanceId}");\n`;
         }
     });
 
@@ -128,8 +141,11 @@ const makeDemo = (id, code, jar, contodo) => {
         if (window.isDemoing) {
             throw new Error("A demo is currently running. Starting was blocked.");
         } 
+
+        window.abortDemo = false;
         window.demoIsPaused = false;
         window.isDemoing = true;
+        
         contodo.clear(false);
         contodo.initFunctions();
         
@@ -140,8 +156,8 @@ const makeDemo = (id, code, jar, contodo) => {
             (async () => {
                 for (const fn of typingInstructions) {
                     await fn(jar);
-                    if (window.demoIsStopped) {
-                        break;
+                    if (window.abortDemo) {
+                        return;
                     }
                 }
             })();
@@ -160,7 +176,7 @@ const makeDemo = (id, code, jar, contodo) => {
         demoFN,
         pauseDemoFN(contodo),
         resumeDemoFN(contodo),
-        stopDemoFN(cleanCode, jar, contodo)
+        stopDemoFN(instanceId, cleanCode, jar, contodo)
     ];
 };
 
@@ -172,7 +188,7 @@ const makeDemo = (id, code, jar, contodo) => {
  * @returns {string} - Stack string.
  */
 const errorStackExtractor = (error, id) => {
-
+    
     const stackArray = error.stack.split("\n");
     
     // remove irrelevant stack information deeper down
@@ -237,6 +253,9 @@ const errorStackExtractor = (error, id) => {
 };
 
 const throwError = (err, id) => {
+    if (!err || !err.message) {
+        return;
+    }
     let msg = `${err.name}: ${err.message}`;
     const stack = errorStackExtractor(err, id);
     if (stack) {

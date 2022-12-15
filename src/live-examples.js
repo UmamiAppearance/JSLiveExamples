@@ -263,6 +263,9 @@ class LiveExample {
 
         
         const resetFN = () => {
+            if (window.isDemoing) {
+                return;
+            }
             contodo.clear(false);
             jar.updateCode(code);
             jar.updateLines(code);
@@ -279,6 +282,9 @@ class LiveExample {
         // be protected to get readable error messages)
 
         const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+            if (window.isDemoing) {
+                return;
+            }
             contodo.clear(false);
             contodo.initFunctions();
 
