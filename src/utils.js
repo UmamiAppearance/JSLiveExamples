@@ -1,19 +1,32 @@
 const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-
 const AsyncFunction = (async function(){}).constructor;
-
 const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
 window.waitPromise = name => {
     if (window.abortDemo) {
         return Promise.reject();
     }
-    window[name + "Controller"] = new AbortController();
-    return new Promise(resolve => {
-        window.addEventListener(name, resolve, {
+       
+    return new Promise((resolve, reject) => {
+
+        const resolveFN = () => {
+            window.removeEventListener("abort" + name, rejectFN, false);
+            return resolve();
+        };
+    
+        const rejectFN = () => {
+            window.removeEventListener(name, resolveFN, false);
+            return reject();
+        };
+
+        window.addEventListener(name, resolveFN, {
             capture: false,
             once: true,
-            signal: window[name + "Controller"].signal
+        });
+        
+        window.addEventListener("abort" + name, rejectFN, {
+            capture: false,
+            once: true,
         });
     });
 };
@@ -57,25 +70,19 @@ const resumeDemoFN = contodo => {
 const stopDemoFN = (instanceId, code, jar, contodo) => {
     return () => {
 
-        window.abortDemo = true;
         contodo.restoreDefaultConsole();
         contodo.clear(false);
-        
-        if (window.demoPauseController) {
-            console.log("cA");
-            window.demoPauseController.abort();
-        }
 
-        if (window[instanceId + "Controller"]) {
-            console.log("cB");
-            window[instanceId + "Controller"].abort();
-        }
+        window.abortDemo = true;
+        
+        window.dispatchEvent(window.demoPauseEvt);
+        window.dispatchEvent(window["abort" + instanceId]);
 
         jar.updateCode(code);
         jar.updateLines(code);
         
         window.isDemoing = false;
-        
+
     };
 };
 
@@ -102,6 +109,7 @@ const makeDemo = (id, code, jar, contodo) => {
 
     const instanceId = randID();
     window[instanceId] = new Event(instanceId);
+    window["abort" + instanceId] = new Event("abort" + instanceId);
 
     const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
     const codeUnits = code.split(breakPointRegex);
@@ -156,18 +164,25 @@ const makeDemo = (id, code, jar, contodo) => {
         try {
             (async () => {
                 for (const fn of typingInstructions) {
-                    await fn(jar);
+                    try {
+                        await fn(jar);
+                    } catch {
+                        return;
+                    }
                     if (window.abortDemo) {
                         return;
                     }
                 }
             })();
             const fn = new AsyncFunction(codeInstructions);
-            await fn();
+            window.FN = fn();
+            await window.FN;
         } catch (err) {
             throwError(err, id);
         }
         
+        // end waiter, if still hanging
+        window.dispatchEvent(window[instanceId]);
         contodo.restoreDefaultConsole();
         window.isDemoing = false;
     };

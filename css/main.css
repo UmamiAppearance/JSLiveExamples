@@ -81,6 +81,9 @@ div.live-example {
     margin: 0.5em auto;
     padding: 0.5em;
 }
+.live-example.regular .demo,.live-example.demo .regular, .live-example.stopped .running, .live-example.running .stopped, .live-example.running .paused:not(.running), .live-example.paused .running:not(.paused), .live-example.stopped .paused, .live-example.paused .stopped {
+    display: none;
+}
 .live-example > .code, .live-example > .contodo, .live-example > div.title-wrapper {
     border: 3px dashed #005;
 }

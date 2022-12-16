@@ -21,6 +21,7 @@ import {
 
 const CSS = mainCSS + prismCSS;
 const EXECUTED = new Event("executed");
+const STOPPED = new Event("stopped");
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -47,7 +48,7 @@ class LiveExample {
         
         const example = this.makeCodeExample(title, code, demo);
         example.id = this.id;
-        example.className = className;
+        example.classList.add(className);
         example.autostart = autostart;
         example.demo = demo;
 
@@ -173,20 +174,18 @@ class LiveExample {
 
         // create new html node
         const main = document.createElement("div");
-        window.M = main;
-
 
         // the code part
         const codeWrapper = document.createElement("div");
-        codeWrapper.className = "code";
+        codeWrapper.classList.add("code");
 
         const lineNumbers = document.createElement("ol");
         
         const codeNode = document.createElement("code");
-        codeNode.className = "language-js";
+        codeNode.classList.add("language-js");
 
         const copyBtn = document.createElement("div");
-        copyBtn.className = "copy";
+        copyBtn.classList.add("copy");
         copyBtn.title = "copy to clipboard";
         copyBtn.addEventListener("click", this.toClipboard, false);
 
@@ -197,21 +196,48 @@ class LiveExample {
 
         // the title and controls part
         const titleWrapper = document.createElement("div");
-        titleWrapper.className = "title-wrapper";
+        titleWrapper.classList.add("title-wrapper");
         
         const titleNode = document.createElement("h1");
         titleNode.textContent = title;
 
         const controlsWrapper = document.createElement("div");
-        controlsWrapper.className = "controls";
+        controlsWrapper.classList.add("controls");
+
+        let demoBtn,
+            demoStopBtn,
+            demoPauseBtn,
+            demoResumeBtn;
+        if (isDemo) {
+            demoStopBtn = document.createElement("button");
+            demoStopBtn.textContent = "stop";
+            demoStopBtn.classList.add("demo", "running", "paused");
+            controlsWrapper.append(demoStopBtn);
+            
+            demoBtn = document.createElement("button");
+            demoBtn.textContent = "demo";
+            demoBtn.classList.add("stopped");
+            controlsWrapper.append(demoBtn);
+
+            demoPauseBtn = document.createElement("button");
+            demoPauseBtn.textContent = "pause";
+            demoPauseBtn.classList.add("demo", "running");
+            controlsWrapper.append(demoPauseBtn);
+
+            demoResumeBtn = document.createElement("button");
+            demoResumeBtn.textContent = "resume";
+            demoResumeBtn.classList.add("demo", "paused");
+            controlsWrapper.append(demoResumeBtn);
+        }
 
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
+        resetBtn.classList.add("regular");
+        controlsWrapper.append(resetBtn);
 
         const executeBtn = document.createElement("button");
         executeBtn.textContent = "run";
-
-        controlsWrapper.append(resetBtn);
+        executeBtn.classList.add("regular");
         controlsWrapper.append(executeBtn);
 
         titleWrapper.append(titleNode);
@@ -245,16 +271,58 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
-
+        window.M = main;
+        let runDemo, stopDemo, pauseDemo, resumeDemo;
         // test and prepare for demo mode
         if (isDemo) {      
             [   
                 code,
-                main.runDemo,
-                main.pauseDemo,
-                main.resumeDemo,
-                main.stopDemo
+                runDemo,
+                pauseDemo,
+                resumeDemo,
+                stopDemo
             ] = makeDemo(this.id, code, jar, contodo);
+        
+            main.runDemo = () => {
+                if (main.mode === "regular") {
+                    setDemoMode();
+                }
+
+                main.classList.remove("stopped");
+                main.classList.add("running");
+
+                runDemo()
+                    .finally(() => {
+                        setRegularMode();
+                        main.dispatchEvent(STOPPED);
+
+                        main.classList.remove("running");
+                        main.classList.add("stopped");
+                    });
+            };
+
+            main.pauseDemo = () => {
+                pauseDemo();
+                main.classList.remove("running");
+                main.classList.add("paused");
+            };
+
+            main.resumeDemo = () => {
+                resumeDemo();
+                main.classList.remove("paused");
+                main.classList.add("running");
+            };
+
+            main.stopDemo = () => {
+                stopDemo();
+                main.classList.remove("running");
+                main.classList.add("stopped");
+            };
+
+            demoBtn.addEventListener("click", main.runDemo, false);
+            demoPauseBtn.addEventListener("click", main.pauseDemo, false);
+            demoResumeBtn.addEventListener("click", main.resumeDemo, false);
+            demoStopBtn.addEventListener("click", main.stopDemo, false);
 
         } else {
             jar.updateLines(code);
@@ -262,7 +330,7 @@ class LiveExample {
         }
 
         
-        const resetFN = () => {
+        main.reset = () => {
             if (window.isDemoing) {
                 return;
             }
@@ -271,20 +339,19 @@ class LiveExample {
             jar.updateLines(code);
         };
 
-        // establish button methods
-        resetBtn.addEventListener("click", resetFN, false);
-        main.reset = resetFN;
-
+        // bind reset to resetBtn
+        resetBtn.addEventListener("click", main.reset, false);
 
         // this is a regular async fn, but protected
         // against renaming by eg. terser, hence the
         // weird construction (the function name must
         // be protected to get readable error messages)
 
-        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
             if (window.isDemoing) {
                 return;
             }
+
             contodo.clear(false);
             contodo.initFunctions();
 
@@ -298,8 +365,26 @@ class LiveExample {
             main.dispatchEvent(EXECUTED);       
         }}[RUNNER_FUNCTION_NAME];
 
-        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
-        main.run = liveExampleCodeRunner;
+        // bind code execution to executeBtn
+        executeBtn.addEventListener("click", main.run, false);
+
+        const setDemoMode = () => {
+            main.mode = "demo";
+            main.classList.add("demo", "stopped");
+            main.classList.remove("regular");
+        };
+
+        const setRegularMode = () => {
+            main.mode = "regular";
+            main.classList.add("regular");
+            main.classList.remove("demo", "paused", "stopped");
+        };
+
+        if (isDemo) {
+            setDemoMode();
+        } else {
+            setRegularMode();
+        }
 
         return main;
     }
