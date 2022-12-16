@@ -1,6 +1,6 @@
 const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 
-const AsyncFunction = (async function () {}).constructor;
+const AsyncFunction = (async function(){}).constructor;
 
 const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
@@ -8,12 +8,12 @@ window.waitPromise = name => {
     if (window.abortDemo) {
         return Promise.reject();
     }
-    window.demoAbortController = new AbortController();
+    window[name + "Controller"] = new AbortController();
     return new Promise(resolve => {
         window.addEventListener(name, resolve, {
             capture: false,
             once: true,
-            signal: window.demoAbortController.signal
+            signal: window[name + "Controller"].signal
         });
     });
 };
@@ -55,26 +55,27 @@ const resumeDemoFN = contodo => {
 };
 
 const stopDemoFN = (instanceId, code, jar, contodo) => {
-    return () => {    
+    return () => {
+
         window.abortDemo = true;
         contodo.restoreDefaultConsole();
         contodo.clear(false);
         
-        if (window.demoIsPaused) {
-            window.dispatchEvent(window.demoPauseEvt);
-            window.dispatchEvent(window[instanceId]);
-            window.demoIsPaused = false;
+        if (window.demoPauseController) {
+            console.log("cA");
+            window.demoPauseController.abort();
         }
-        
-        
-        if (window.demoAbortController) {
-            window.demoAbortController.abort();
+
+        if (window[instanceId + "Controller"]) {
+            console.log("cB");
+            window[instanceId + "Controller"].abort();
         }
 
         jar.updateCode(code);
         jar.updateLines(code);
         
         window.isDemoing = false;
+        
     };
 };
 
