@@ -81,8 +81,15 @@ div.live-example {
     margin: 0.5em auto;
     padding: 0.5em;
 }
-.live-example.regular .demo,.live-example.demo .regular, .live-example.stopped .running, .live-example.running .stopped, .live-example.running .paused:not(.running), .live-example.paused .running:not(.paused), .live-example.stopped .paused, .live-example.paused .stopped {
+.live-example.regular .demo, .live-example.demo .regular, .live-example.stopped .running, .live-example.running .stopped, .live-example.running .paused:not(.running), .live-example.paused .running:not(.paused), .live-example.stopped .paused, .live-example.paused .stopped {
     display: none;
+}
+.live-example.demo code {
+    pointer-events: none;
+    user-select: none;
+}
+.live-example.demo > .code {
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\</svg>");
 }
 .live-example > .code, .live-example > .contodo, .live-example > div.title-wrapper {
     border: 3px dashed #005;
@@ -165,6 +172,9 @@ div.live-example {
     box-shadow: inset 0 0 0 2px #324d32;
     color: #fffee0;
 }
+.live-example button.demoPauseBtn, .live-example button.demoResumeBtn {
+    width: 5.4rem;
+}
 
 section#le-copied {
     pointer-events: none;
@@ -209,4 +219,7 @@ section#le-copied.show {
     .live-example button {
         padding: 0.4em 0.9em;
     }
+    .live-example button.demoPauseBtn, .live-example button.demoResumeBtn {
+        width: 4.4rem;
+    }    
 }

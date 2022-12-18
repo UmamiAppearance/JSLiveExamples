@@ -143,8 +143,6 @@ const makeDemo = (id, code, jar, contodo) => {
         }
     });
 
-    console.log(codeInstructions);
-    console.log(typingInstructions);
     
     const demoFN = async () => {
         if (window.isDemoing) {

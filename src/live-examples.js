@@ -211,33 +211,33 @@ class LiveExample {
         if (isDemo) {
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
-            demoStopBtn.classList.add("demo", "running", "paused");
+            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
             controlsWrapper.append(demoStopBtn);
             
             demoBtn = document.createElement("button");
             demoBtn.textContent = "demo";
-            demoBtn.classList.add("stopped");
+            demoBtn.classList.add("demoBtn", "stopped");
             controlsWrapper.append(demoBtn);
 
             demoPauseBtn = document.createElement("button");
             demoPauseBtn.textContent = "pause";
-            demoPauseBtn.classList.add("demo", "running");
+            demoPauseBtn.classList.add("demoPauseBtn", "demo", "running");
             controlsWrapper.append(demoPauseBtn);
 
             demoResumeBtn = document.createElement("button");
-            demoResumeBtn.textContent = "resume";
-            demoResumeBtn.classList.add("demo", "paused");
+            demoResumeBtn.textContent = "play";
+            demoResumeBtn.classList.add("demoResumeBtn", "demo", "paused");
             controlsWrapper.append(demoResumeBtn);
         }
 
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
-        resetBtn.classList.add("regular");
+        resetBtn.classList.add("resetBtn","regular");
         controlsWrapper.append(resetBtn);
 
         const executeBtn = document.createElement("button");
         executeBtn.textContent = "run";
-        executeBtn.classList.add("regular");
+        executeBtn.classList.add("executeBtn", "regular");
         controlsWrapper.append(executeBtn);
 
         titleWrapper.append(titleNode);
@@ -271,8 +271,10 @@ class LiveExample {
             }
         );
         contodo.createDocumentNode();
-        window.M = main;
+
+        
         let runDemo, stopDemo, pauseDemo, resumeDemo;
+        
         // test and prepare for demo mode
         if (isDemo) {      
             [   
