@@ -6,7 +6,7 @@
         
         <title>JavaScript LiveExamples Demo Page</title>
         
-        <link rel="shortcut icon" href="#">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://umamiappearance.github.io/_Profile/logo/favicon.ico">
         <link href="https://umamiappearance.github.io/MSG/MSG.css" rel="stylesheet">
         
         <script type="module">
@@ -50,6 +50,22 @@
                 <template class="live-example">
                     <h1>Example: Hello World!</h1>
                     <script data-run="true" data-demo="true">
+                        const helloWorld = () => {
+                            console.log("Hello World!");
+                        };
+                        
+                        helloWorld();
+                        ___(1000);
+                        console.log(new Date().toISOString());
+                        ___(2000);
+
+                        helloWorld();
+                    </script>
+                </template>
+
+                <template class="live-example">
+                    <h1>Example: Hello World2!</h1>
+                    <script data-run="False" data-demo="0">
                         const helloWorld = () => {
                             console.log("Hello World!");
                         };

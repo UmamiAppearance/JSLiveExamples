@@ -3,7 +3,7 @@
  *
  * @version 0.4.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
- * @license GPL-3.0
+ * @license MIT
  */
 
 
@@ -22,6 +22,9 @@ import {
 const CSS = mainCSS + prismCSS;
 const EXECUTED = new Event("executed");
 const STOPPED = new Event("stopped");
+
+const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -101,8 +104,8 @@ class LiveExample {
                 .replace(new RegExp(pattern, "g"), "\n")
                 .trim();
             
-            autostart = Boolean(codeNode.dataset.run);
-            demo = Boolean(codeNode.dataset.demo);
+            autostart = bool(codeNode.dataset.run);
+            demo = bool(codeNode.dataset.demo);
         }
         
         return { code, autostart, demo };
@@ -286,6 +289,10 @@ class LiveExample {
             ] = makeDemo(this.id, code, jar, contodo);
         
             main.runDemo = () => {
+                if (window.isDemoing) {
+                    throw new Error("A demo is currently running. Starting was blocked.");
+                }
+                
                 if (main.mode === "regular") {
                     setDemoMode();
                 }
@@ -370,9 +377,14 @@ class LiveExample {
         // bind code execution to executeBtn
         executeBtn.addEventListener("click", main.run, false);
 
-        const setDemoMode = () => {
+        const setDemoMode = (initial=false) => {
             main.mode = "demo";
-            main.classList.add("demo", "stopped");
+            main.classList.add(
+                "demo",
+                initial 
+                    ? "waiting"
+                    : "stopped"
+            );
             main.classList.remove("regular");
         };
 
@@ -383,7 +395,7 @@ class LiveExample {
         };
 
         if (isDemo) {
-            setDemoMode();
+            setDemoMode(true);
         } else {
             setRegularMode();
         }
@@ -416,12 +428,34 @@ const liveExamples = (() => {
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
         const autostartExamples = [];
+        let autostartDemoCount = 0;
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
-            if (example && example.autostart && !example.demo) {
+
+            if (!example) {
+                return;
+            }
+        
+            if (example.autostart) {
+                if (example.demo) {
+                    if (autostartDemoCount) {
+                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
+                    }
+                    example.classList.remove("waiting");
+                    example.classList.add("stopped");
+                    autostartDemoCount ++;
+                }
+                console.log("autostartDemoCount", autostartDemoCount);
+                console.log(example);
                 autostartExamples.push(example);
             }
+            
+            else if (example.demo) {
+                example.classList.add("stopped");
+                example.classList.remove("waiting");
+            }
+
         });
 
         const copiedInfo = document.createElement("section");
@@ -433,12 +467,18 @@ const liveExamples = (() => {
         copiedInfo.append(copiedInfoText);
         document.body.append(copiedInfo);
 
+        console.log(autostartExamples);
+
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
             if (example) {
-                example.addEventListener("executed", autoExe, false);
-                example.run();
+                if (example.demo) {
+                    example.runDemo();
+                } else {
+                    example.addEventListener("executed", autoExe, false);
+                    example.run();
+                }
             }
         };
         autoExe();

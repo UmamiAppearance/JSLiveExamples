@@ -1900,9 +1900,9 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.2.8
+	 * @version 0.3.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
-	 * @license GPL-3.0
+	 * @license MIT
 	 */
 
 
@@ -1987,6 +1987,9 @@ var liveExamples = (function () {
 	        // Bind Error Function to Class
 	        this.catchErrorFN = this.catchErrorFN.bind(this);
 
+	        // create API
+	        this.#makeAPI();
+
 	        // Auto Init
 	        if (this.options.autostart) {
 	            this.createDocumentNode();
@@ -2026,6 +2029,35 @@ var liveExamples = (function () {
 	        this.mainElem = null;
 	    }
 
+	    #makeAPI() {
+	        const naErr = () => {
+	            throw new ReferenceError("contodo does not have this method available");
+	        };
+
+	        this.api = {
+	            assert: (bool, ...args) => this.assert(bool, args),
+	            count: (label) => this.count(label),
+	            countReset: (label) => this.countReset(label),
+	            counters: () => this.countersShow(),
+	            clear: () => this.clear(),
+	            debug: (...args) => this.debug(args),
+	            dir: naErr,
+	            dirxml: naErr,
+	            error: (...args) => this.makeLog("error", args),
+	            group: naErr,
+	            info: (...args) => this.makeLog("info", args),
+	            log: (...args) => this.makeLog("log", args),
+	            table: (...args) => this.makeTableLog(args),
+	            time: (label) => this.time(label),
+	            timeEnd: (label) => this.timeEnd(label),
+	            timeLog: (label) => this.timeLog(label),
+	            timers: () => this.timersShow(),
+	            trace: (...args) => this.trace(args),
+	            warn: (...args) => this.makeLog("warn", args),
+	        };
+	        this.api.exception = this.api.error;
+	    }
+
 
 	    /**
 	     * Replaces default console methods with
@@ -2035,23 +2067,23 @@ var liveExamples = (function () {
 	        if (this.active) {
 	            return;
 	        }
-	        console.assert = (bool, ...args) => this.assert(bool, args);
-	        console.count = (label) => this.count(label);
-	        console.countReset = (label) => this.countReset(label);
-	        console.counters = () => this.countersShow();
-	        console.clear = () => this.clear();
-	        console.debug = (...args) => this.debug(args);
-	        console.error = (...args) => this.makeLog("error", args);
-	        console.exception = console.error;
-	        console.info = (...args) => this.makeLog("info", args);
-	        console.log = (...args) => this.makeLog("log", args);
-	        console.table = (...args) => this.makeTableLog(args);
-	        console.time = (label) => this.time(label);
-	        console.timeEnd = (label) => this.timeEnd(label);
-	        console.timeLog = (label) => this.timeLog(label);
-	        console.timers = () => this.timersShow();
-	        console.trace = (...args) => this.trace(args);
-	        console.warn = (...args) => this.makeLog("warn", args);
+	        console.assert = this.api.assert;
+	        console.count = this.api.count;
+	        console.countReset = this.api.countReset;
+	        console.counters = this.api.counters;
+	        console.clear = this.api.clear;
+	        console.debug = this.api.debug;
+	        console.error = this.api.error;
+	        console.exception = this.api.exception;
+	        console.info = this.api.info;
+	        console.log = this.api.log;
+	        console.table = this.api.table;
+	        console.time = this.api.time;
+	        console.timeEnd = this.api.timeEnd;
+	        console.timeLog = this.api.timeLog;
+	        console.timers = this.api.timers;
+	        console.trace = this.api.trace;
+	        console.warn = this.api.warn;
 	        if (this.options.catchErrors) window.addEventListener("error", this.catchErrorFN, false);
 	        this.active = true;
 	    }
@@ -2880,22 +2912,302 @@ var liveExamples = (function () {
 	    }
 	}
 
-	var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,255,245,.6);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;margin:auto 0}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}section#le-copied{position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}}";
+	var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;margin:auto 0}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
 
 	var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-family:monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#800}.token.punctuation{color:#111b27}.token.delimiter.important,.token.selector .parent,.token.tag,.token.tag .token.punctuation{color:#006d6d}.token.attr-name,.token.boolean,.token.boolean.important,.token.constant,.token.number,.token.selector .token.attribute{color:#755f00}.token.class-name,.token.key,.token.parameter,.token.property,.token.property-access,.token.variable{color:#005a8e}.token.attr-value,.token.color,.token.inserted,.token.selector .token.value,.token.string,.token.string .token.url-link{color:#080}.token.builtin,.token.keyword-array,.token.package,.token.regex{color:#af00af}.token.function,.token.selector .token.class,.token.selector .token.id{color:#7c00aa}.token.atrule .token.rule,.token.combinator,.token.keyword,.token.operator,.token.pseudo-class,.token.pseudo-element,.token.selector,.token.unit{color:#008}.token.deleted,.token.important{color:#c22f2e}.token.keyword-this,.token.this{color:#005a8e}.token.bold,.token.important,.token.keyword-this,.token.this{font-weight:700}.token.delimiter.important{font-weight:inherit}.token.italic{font-style:italic}.token.entity{cursor:help}.language-markdown .token.title,.language-markdown .token.title .token.punctuation{color:#005a8e;font-weight:700}.language-markdown .token.blockquote.punctuation{color:#af00af}.language-markdown .token.code{color:#006d6d}.language-markdown .token.hr.punctuation{color:#005a8e}.language-markdown .token.url>.token.content{color:#116b00}.language-markdown .token.url-link{color:#755f00}.language-markdown .token.list.punctuation{color:#af00af}.language-markdown .token.table-header{color:#111b27}.language-json .token.operator{color:#111b27}.language-scss .token.variable{color:#006d6d}";
+
+	const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
+	const AsyncFunction = (async function(){}).constructor;
+	const randID = () => `_${Math.random().toString(16).slice(2)}`;
+
+	window.waitPromise = name => {
+	    if (window.abortDemo) {
+	        return Promise.reject();
+	    }
+	       
+	    return new Promise((resolve, reject) => {
+
+	        const resolveFN = () => {
+	            window.removeEventListener("abort" + name, rejectFN, false);
+	            return resolve();
+	        };
+	    
+	        const rejectFN = () => {
+	            window.removeEventListener(name, resolveFN, false);
+	            return reject();
+	        };
+
+	        window.addEventListener(name, resolveFN, {
+	            capture: false,
+	            once: true,
+	        });
+	        
+	        window.addEventListener("abort" + name, rejectFN, {
+	            capture: false,
+	            once: true,
+	        });
+	    });
+	};
+
+
+	window.sleep = ms => new Promise(resolve => {
+	    const resumeIfNotPaused = async () => {
+	        if (window.demoIsPaused) {
+	            await window.demoPause;
+	        }
+	        return resolve();
+	    };
+	    setTimeout(resumeIfNotPaused, ms);
+	});
+
+
+	window.demoPauseEvt = new Event("demoPause");
+
+	const pauseDemoFN = contodo => {
+	    return () => {
+	        if (!window.isDemoing || window.demoIsPaused) {
+	            return;
+	        }
+	        contodo.restoreDefaultConsole();
+	        window.demoPause = window.waitPromise("demoPause");
+	        window.demoIsPaused = true;
+	    };
+	};
+
+	const resumeDemoFN = contodo => {
+	    return () => {
+	        if (!window.isDemoing || !window.demoIsPaused) {
+	            return;
+	        }
+	        contodo.initFunctions();
+	        window.dispatchEvent(window.demoPauseEvt);
+	        window.demoIsPaused = false;
+	    };
+	};
+
+	const stopDemoFN = (instanceId, code, jar, contodo) => {
+	    return () => {
+
+	        contodo.restoreDefaultConsole();
+	        contodo.clear(false);
+
+	        window.abortDemo = true;
+	        
+	        window.dispatchEvent(window.demoPauseEvt);
+	        window.dispatchEvent(window["abort" + instanceId]);
+
+	        jar.updateCode(code);
+	        jar.updateLines(code);
+	        
+	        window.isDemoing = false;
+
+	    };
+	};
+
+	const makeTypingFN = (code) => {
+	    return async jar => {
+	        let content = jar.toString();
+	        
+	        for (const char of [...code]) {
+	            content += char;
+	            jar.updateCode(content);
+	            jar.updateLines(content);
+	            await window.sleep(Math.floor(Math.random() * 50 + 30));
+	            
+	            if (window.abortDemo) {
+	                break;
+	            }
+	        }     
+	    };
+	};
+
+	const makeDemo = (id, code, jar, contodo) => {
+	    jar.updateLines("");
+	    jar.updateCode(""); 
+
+	    const instanceId = randID();
+	    window[instanceId] = new Event(instanceId);
+	    window["abort" + instanceId] = new Event("abort" + instanceId);
+
+	    const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
+	    const codeUnits = code.split(breakPointRegex);
+	    let breakpoints = [];
+
+	    const breakpointsArr = code.match(breakPointRegex);
+	    if (breakpointsArr) {
+	        breakpointsArr.forEach(bp => breakpoints.push(Number(bp.replace(/[^0-9]/g, ""))));
+	        breakpoints.push(0);
+	    }
+	    
+	    let cleanCode = "";
+	    let codeInstructions = `await window.waitPromise("${instanceId}");\n`;
+	    const typingInstructions = [];
+	    const lastIndex = codeUnits.length-1;
+
+	    codeUnits.forEach((codeUnit, i) => {
+
+	        cleanCode += codeUnit;
+	        const typingFN = makeTypingFN(codeUnit);
+
+	        typingInstructions.push(typingFN);
+	        typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
+	        typingInstructions.push(async () => await window.waitPromise(instanceId));
+
+	        codeInstructions += codeUnit;
+	        if (i < lastIndex) {
+	            codeInstructions += `await window.sleep(${Math.max(breakpoints[i], 10)});\n`;
+	            codeInstructions += `window.dispatchEvent(window.${instanceId});\n`;
+	            codeInstructions += `await waitPromise("${instanceId}");\n`;
+	        }
+	    });
+
+	    
+	    const demoFN = async () => {
+	         
+	        window.abortDemo = false;
+	        window.demoIsPaused = false;
+	        window.isDemoing = true;
+	        
+	        contodo.clear(false);
+	        contodo.initFunctions();
+	        
+	        jar.updateLines("");
+	        jar.updateCode("");
+	        
+	        try {
+	            (async () => {
+	                for (const fn of typingInstructions) {
+	                    try {
+	                        await fn(jar);
+	                    } catch {
+	                        return;
+	                    }
+	                    if (window.abortDemo) {
+	                        return;
+	                    }
+	                }
+	            })();
+	            const fn = new AsyncFunction(codeInstructions);
+	            window.FN = fn();
+	            await window.FN;
+	        } catch (err) {
+	            throwError(err, id);
+	        }
+	        
+	        // end waiter, if still hanging
+	        window.dispatchEvent(window[instanceId]);
+	        contodo.restoreDefaultConsole();
+	        window.isDemoing = false;
+	    };
+	    
+	    return [
+	        cleanCode,
+	        demoFN,
+	        pauseDemoFN(contodo),
+	        resumeDemoFN(contodo),
+	        stopDemoFN(instanceId, cleanCode, jar, contodo)
+	    ];
+	};
+
+
+
+	/**
+	 * Adjusts the information from an error stack.
+	 * @param {Object} error - Error object. 
+	 * @returns {string} - Stack string.
+	 */
+	const errorStackExtractor = (error, id) => {
+	    
+	    const stackArray = error.stack.split("\n");
+	    
+	    // remove irrelevant stack information deeper down
+	    let part;
+	    do {
+	        part = stackArray.pop();
+	    }
+	    while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
+
+	    // remove redundant error name and description (chrome)
+	    const redundancyReg = new RegExp(`^${error.name}`);
+	    if (stackArray.length && redundancyReg.test(stackArray[0])) {
+	        stackArray.shift();
+	    }
+
+	    if (stackArray.length) {
+	        
+	        const buildStackElem = (fn, line, col) => {
+	            line -=2;
+	            if (line < 0) {
+	                return null;
+	            }
+	            
+	            return `  > ${fn}@${id}, line: ${line}, col: ${col}`;
+	        };
+
+	        // chrome & edge
+	        if ((/\s*at\s/).test(stackArray[0])) {
+	            stackArray.forEach((elem, i) => {
+	                const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
+	                let [ line, col ] = elem.split(":")
+	                    .slice(-2)
+	                    .map(n => n.replace(/\D/g, "")|0);
+	                
+	                stackArray[i] = buildStackElem(fn, line, col);
+	            });
+	        } 
+	        
+	        // firefox
+	        else if ((/^\w+@/).test(stackArray[0])) {
+	            stackArray.forEach((elem, i) => {
+	                const fn = elem.split("@")[0];
+	                let [ line, col ] = elem.split(":")
+	                    .slice(-2)
+	                    .map(n => n.replace(/\D/g, "")|0);
+	                
+	                stackArray[i] = buildStackElem(fn, line, col);
+	            });
+	        }
+
+	        let stackStr = "";
+	        stackArray.forEach(elem => {
+	            if (elem) {
+	                stackStr += elem + "\n";
+	            }
+	        });
+
+	        return stackStr;
+	    }
+	    
+	    return null;
+	};
+
+	const throwError = (err, id) => {
+	    if (!err || !err.message) {
+	        return;
+	    }
+	    let msg = `${err.name}: ${err.message}`;
+	    const stack = errorStackExtractor(err, id);
+	    if (stack) {
+	        msg += "\n" + stack;
+	    }
+	    console.error(msg);
+	};
 
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.3.3
+	 * @version 0.4.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
-	 * @license GPL-3.0
+	 * @license MIT
 	 */
 
+
 	const CSS = mainCSS + prismCSS;
-	const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-	const AsyncFunction = (async function () {}).constructor;
 	const EXECUTED = new Event("executed");
+	const STOPPED = new Event("stopped");
+
+	const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+
 
 	/**
 	 * Constructor for an instance of a LiveExample.
@@ -2906,28 +3218,25 @@ var liveExamples = (function () {
 	    
 	    /**
 	     * Contains all steps for the node creation and
-	     * insertion.
-	     * @param {object} template - A html "<template>" node.
+	     * insertion into the page.
+	     * @param {object} template - A html <template> node.
 	     * @param {number} index - Index of the node for one document.
 	     */
 	    constructor(template, index) {
 
-	        // if the template has the attribute for
+	        // if the template has the attribute "for"
 	        // it is used for the id of instance
 	        this.id = template.getAttribute("for") || `live-example-${index+1}`;
 	        const className = template.getAttribute("class");
 
 	        const title = this.getTitle(template, index);
-	        const { code, autostart } = this.getCode(template);
-
-	        if (!code) {
-	            return null;
-	        }
+	        const { code, autostart, demo } = this.getCode(template);
 	        
-	        const example = this.makeCodeExample(title, code);
+	        const example = this.makeCodeExample(title, code, demo);
 	        example.id = this.id;
-	        example.className = className;
+	        example.classList.add(className);
 	        example.autostart = autostart;
+	        example.demo = demo;
 
 	        // insert the fresh node right before the
 	        // template node in the document
@@ -2965,19 +3274,24 @@ var liveExamples = (function () {
 	     */
 	    getCode(template) {
 	        
+	        let code = "";
+	        let autostart = false;
+	        let demo = false;
+
 	        const codeNode = template.content.querySelector("script");
-	        if (!codeNode) {
-	            console.warn("Every template needs a script tag with the code to display.");
-	            return null;
+	        
+	        if (codeNode) {
+	            code = codeNode.innerHTML;
+	            const pattern = code.match(/\s*\n[\t\s]*/);
+	            code = code
+	                .replace(new RegExp(pattern, "g"), "\n")
+	                .trim();
+	            
+	            autostart = bool(codeNode.dataset.run);
+	            demo = bool(codeNode.dataset.demo);
 	        }
 	        
-	        let code = codeNode.innerHTML;
-	        const pattern = code.match(/\s*\n[\t\s]*/);
-	        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
-
-	        const autostart = Boolean(codeNode.dataset.run);
-
-	        return { code, autostart };
+	        return { code, autostart, demo };
 	    }
 
 
@@ -3019,83 +3333,21 @@ var liveExamples = (function () {
 	        window.navigator.clipboard.writeText(code);
 
 	        const copied = document.querySelector("#le-copied");
+
+	        // reset animation in case it is running 
+	        clearTimeout(window.copyTimer);
+	        copied.getAnimations().forEach(anim => {
+	            anim.cancel();
+	            anim.play();
+	        });
+
+	        // start animation
 	        copied.classList.add("show");
-	        
-	        setTimeout(() => {
+	        window.copyTimer = setTimeout(() => {
 	            copied.classList.remove("show");
 	        }, 1500);
 	    };
 
-	    /**
-	     * Adjusts the information from an error stack.
-	     * @param {Object} error - Error object. 
-	     * @returns {string} - Stack string.
-	     */
-	    errorStackExtractor(error) {
-
-	        const stackArray = error.stack.split("\n");
-	        
-	        // remove irrelevant stack information deeper down
-	        let part;
-	        do {
-	            part = stackArray.pop();
-	        }
-	        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
-	    
-	        // remove redundant error name and description (chrome)
-	        const redundancyReg = new RegExp(`^${error.name}`);
-	        if (stackArray.length && redundancyReg.test(stackArray[0])) {
-	            stackArray.shift();
-	        }
-
-	        if (stackArray.length) {
-	            
-	            const buildStackElem = (fn, line, col) => {
-	                line -=2;
-	                if (line < 0) {
-	                    return null;
-	                }
-	                
-	                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
-	            };
-
-	            // chrome & edge
-	            if ((/\s*at\s/).test(stackArray[0])) {
-	                stackArray.forEach((elem, i) => {
-	                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
-	                    let [ line, col ] = elem.split(":")
-	                        .slice(-2)
-	                        .map(n => n.replace(/\D/g, "")|0);
-	                    
-	                    stackArray[i] = buildStackElem(fn, line, col);
-	                });
-	            } 
-	            
-	            // firefox
-	            else if ((/^\w+@/).test(stackArray[0])) {
-	                stackArray.forEach((elem, i) => {
-	                    const fn = elem.split("@")[0];
-	                    let [ line, col ] = elem.split(":")
-	                        .slice(-2)
-	                        .map(n => n.replace(/\D/g, "")|0);
-	                    
-	                    stackArray[i] = buildStackElem(fn, line, col);
-	                });
-	            }
-
-	            let stackStr = "";
-	            stackArray.forEach(elem => {
-	                if (elem) {
-	                    stackStr += elem + "\n";
-	                }
-	            });
-
-	            return stackStr;
-	        }
-	        
-	        return null;
-	    }
-	    
 
 	    /**
 	     * Main method. Finally the whole html node
@@ -3104,23 +3356,22 @@ var liveExamples = (function () {
 	     * @param {string} code - Initial code for the instance to display. 
 	     * @returns {object} - A document node (<div>) with all of its children.
 	     */
-	    makeCodeExample(title, code) { 
+	    makeCodeExample(title, code, isDemo) { 
 
 	        // create new html node
 	        const main = document.createElement("div");
 
-
 	        // the code part
 	        const codeWrapper = document.createElement("div");
-	        codeWrapper.className = "code";
+	        codeWrapper.classList.add("code");
 
 	        const lineNumbers = document.createElement("ol");
 	        
 	        const codeNode = document.createElement("code");
-	        codeNode.className = "language-js";
+	        codeNode.classList.add("language-js");
 
 	        const copyBtn = document.createElement("div");
-	        copyBtn.className = "copy";
+	        copyBtn.classList.add("copy");
 	        copyBtn.title = "copy to clipboard";
 	        copyBtn.addEventListener("click", this.toClipboard, false);
 
@@ -3131,39 +3382,67 @@ var liveExamples = (function () {
 
 	        // the title and controls part
 	        const titleWrapper = document.createElement("div");
-	        titleWrapper.className = "title-wrapper";
+	        titleWrapper.classList.add("title-wrapper");
 	        
 	        const titleNode = document.createElement("h1");
 	        titleNode.textContent = title;
 
 	        const controlsWrapper = document.createElement("div");
-	        controlsWrapper.className = "controls";
+	        controlsWrapper.classList.add("controls");
+
+	        let demoBtn,
+	            demoStopBtn,
+	            demoPauseBtn,
+	            demoResumeBtn;
+	        if (isDemo) {
+	            demoStopBtn = document.createElement("button");
+	            demoStopBtn.textContent = "stop";
+	            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
+	            controlsWrapper.append(demoStopBtn);
+	            
+	            demoBtn = document.createElement("button");
+	            demoBtn.textContent = "demo";
+	            demoBtn.classList.add("demoBtn", "stopped");
+	            controlsWrapper.append(demoBtn);
+
+	            demoPauseBtn = document.createElement("button");
+	            demoPauseBtn.textContent = "pause";
+	            demoPauseBtn.classList.add("demoPauseBtn", "demo", "running");
+	            controlsWrapper.append(demoPauseBtn);
+
+	            demoResumeBtn = document.createElement("button");
+	            demoResumeBtn.textContent = "play";
+	            demoResumeBtn.classList.add("demoResumeBtn", "demo", "paused");
+	            controlsWrapper.append(demoResumeBtn);
+	        }
 
 	        const resetBtn = document.createElement("button");
 	        resetBtn.textContent = "reset";
+	        resetBtn.classList.add("resetBtn","regular");
+	        controlsWrapper.append(resetBtn);
 
 	        const executeBtn = document.createElement("button");
 	        executeBtn.textContent = "run";
-
-	        controlsWrapper.append(resetBtn);
+	        executeBtn.classList.add("executeBtn", "regular");
 	        controlsWrapper.append(executeBtn);
 
 	        titleWrapper.append(titleNode);
 	        titleWrapper.append(controlsWrapper);
 
 
-	        // initialize jar instance
-	        const updateLines = this.makeLineFN(lineNumbers);
-	        // eslint-disable-next-line no-undef
-	        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
-	            tab: " ".repeat(4),
-	        });
 
-	        jar.onUpdate(updateLines);
-	        updateLines(code);
-	        jar.updateCode(code);
-	        
-	        
+	        // initialize jar instance
+	        const jar = CodeJar(
+	            codeNode,
+	            // eslint-disable-next-line no-undef
+	            editor => Prism.highlightElement(editor), {
+	                tab: " ".repeat(4),
+	            }
+	        );
+	        jar.updateLines = this.makeLineFN(lineNumbers);
+	        jar.onUpdate(jar.updateLines);
+
+	    
 	        // append code and title to main
 	        main.append(codeWrapper);
 	        main.append(titleWrapper);
@@ -3178,21 +3457,93 @@ var liveExamples = (function () {
 	            }
 	        );
 	        contodo.createDocumentNode();
+
 	        
-	        const resetFN = () => {
+	        let runDemo, stopDemo, pauseDemo, resumeDemo;
+	        
+	        // test and prepare for demo mode
+	        if (isDemo) {      
+	            [   
+	                code,
+	                runDemo,
+	                pauseDemo,
+	                resumeDemo,
+	                stopDemo
+	            ] = makeDemo(this.id, code, jar, contodo);
+	        
+	            main.runDemo = () => {
+	                if (window.isDemoing) {
+	                    throw new Error("A demo is currently running. Starting was blocked.");
+	                }
+	                
+	                if (main.mode === "regular") {
+	                    setDemoMode();
+	                }
+
+	                main.classList.remove("stopped");
+	                main.classList.add("running");
+
+	                runDemo()
+	                    .finally(() => {
+	                        setRegularMode();
+	                        main.dispatchEvent(STOPPED);
+
+	                        main.classList.remove("running");
+	                        main.classList.add("stopped");
+	                    });
+	            };
+
+	            main.pauseDemo = () => {
+	                pauseDemo();
+	                main.classList.remove("running");
+	                main.classList.add("paused");
+	            };
+
+	            main.resumeDemo = () => {
+	                resumeDemo();
+	                main.classList.remove("paused");
+	                main.classList.add("running");
+	            };
+
+	            main.stopDemo = () => {
+	                stopDemo();
+	                main.classList.remove("running");
+	                main.classList.add("stopped");
+	            };
+
+	            demoBtn.addEventListener("click", main.runDemo, false);
+	            demoPauseBtn.addEventListener("click", main.pauseDemo, false);
+	            demoResumeBtn.addEventListener("click", main.resumeDemo, false);
+	            demoStopBtn.addEventListener("click", main.stopDemo, false);
+
+	        } else {
+	            jar.updateLines(code);
+	            jar.updateCode(code);
+	        }
+
+	        
+	        main.reset = () => {
+	            if (window.isDemoing) {
+	                return;
+	            }
 	            contodo.clear(false);
 	            jar.updateCode(code);
-	            updateLines(code);
+	            jar.updateLines(code);
 	        };
 
-	        // establish button methods
-	        resetBtn.addEventListener("click", resetFN, false);
-	        main.reset = resetFN;
-
+	        // bind reset to resetBtn
+	        resetBtn.addEventListener("click", main.reset, false);
 
 	        // this is a regular async fn, but protected
-	        // against renaming by eg. terser
-	        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+	        // against renaming by eg. terser, hence the
+	        // weird construction (the function name must
+	        // be protected to get readable error messages)
+
+	        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
+	            if (window.isDemoing) {
+	                return;
+	            }
+
 	            contodo.clear(false);
 	            contodo.initFunctions();
 
@@ -3200,19 +3551,37 @@ var liveExamples = (function () {
 	                const fn = new AsyncFunction(jar.toString());
 	                await fn();
 	            } catch (err) {
-	                let msg = `${err.name}: ${err.message}`;
-	                const stack = this.errorStackExtractor(err);
-	                if (stack) {
-	                    msg += "\n" + stack;
-	                }
-	                console.error(msg); 
+	                throwError(err, this.id);
 	            }
 	            contodo.restoreDefaultConsole();
 	            main.dispatchEvent(EXECUTED);       
 	        }}[RUNNER_FUNCTION_NAME];
 
-	        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
-	        main.run = liveExampleCodeRunner;
+	        // bind code execution to executeBtn
+	        executeBtn.addEventListener("click", main.run, false);
+
+	        const setDemoMode = (initial=false) => {
+	            main.mode = "demo";
+	            main.classList.add(
+	                "demo",
+	                initial 
+	                    ? "waiting"
+	                    : "stopped"
+	            );
+	            main.classList.remove("regular");
+	        };
+
+	        const setRegularMode = () => {
+	            main.mode = "regular";
+	            main.classList.add("regular");
+	            main.classList.remove("demo", "paused", "stopped");
+	        };
+
+	        if (isDemo) {
+	            setDemoMode(true);
+	        } else {
+	            setRegularMode();
+	        }
 
 	        return main;
 	    }
@@ -3228,7 +3597,7 @@ var liveExamples = (function () {
 
 	    // apply css to the document header (if present)
 	    {
-	        const style= document.createElement("style"); 
+	        const style = document.createElement("style"); 
 	        style.innerHTML = CSS;
 	        document.head.append(style);
 	    }
@@ -3242,12 +3611,34 @@ var liveExamples = (function () {
 	    const applyNodes = () => {
 	        const templates = document.querySelectorAll("template.live-example");
 	        const autostartExamples = [];
+	        let autostartDemoCount = 0;
 
 	        templates.forEach((template, i) => {
 	            const example = new LiveExample(template, i++);
-	            if (example && example.autostart) {
+
+	            if (!example) {
+	                return;
+	            }
+	        
+	            if (example.autostart) {
+	                if (example.demo) {
+	                    if (autostartDemoCount) {
+	                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
+	                    }
+	                    example.classList.remove("waiting");
+	                    example.classList.add("stopped");
+	                    autostartDemoCount ++;
+	                }
+	                console.log("autostartDemoCount", autostartDemoCount);
+	                console.log(example);
 	                autostartExamples.push(example);
 	            }
+	            
+	            else if (example.demo) {
+	                example.classList.add("stopped");
+	                example.classList.remove("waiting");
+	            }
+
 	        });
 
 	        const copiedInfo = document.createElement("section");
@@ -3259,12 +3650,18 @@ var liveExamples = (function () {
 	        copiedInfo.append(copiedInfoText);
 	        document.body.append(copiedInfo);
 
+	        console.log(autostartExamples);
+
 	        // make sure to run the auto run examples serially
 	        const autoExe = () => {
 	            const example = autostartExamples.shift();
 	            if (example) {
-	                example.addEventListener("executed", autoExe, false);
-	                example.run();
+	                if (example.demo) {
+	                    example.runDemo();
+	                } else {
+	                    example.addEventListener("executed", autoExe, false);
+	                    example.run();
+	                }
 	            }
 	        };
 	        autoExe();

@@ -1900,9 +1900,9 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.2.8
+	 * @version 0.3.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
-	 * @license GPL-3.0
+	 * @license MIT
 	 */
 
 
@@ -1987,6 +1987,9 @@ var liveExamples = (function () {
 	        // Bind Error Function to Class
 	        this.catchErrorFN = this.catchErrorFN.bind(this);
 
+	        // create API
+	        this.#makeAPI();
+
 	        // Auto Init
 	        if (this.options.autostart) {
 	            this.createDocumentNode();
@@ -2026,6 +2029,35 @@ var liveExamples = (function () {
 	        this.mainElem = null;
 	    }
 
+	    #makeAPI() {
+	        const naErr = () => {
+	            throw new ReferenceError("contodo does not have this method available");
+	        };
+
+	        this.api = {
+	            assert: (bool, ...args) => this.assert(bool, args),
+	            count: (label) => this.count(label),
+	            countReset: (label) => this.countReset(label),
+	            counters: () => this.countersShow(),
+	            clear: () => this.clear(),
+	            debug: (...args) => this.debug(args),
+	            dir: naErr,
+	            dirxml: naErr,
+	            error: (...args) => this.makeLog("error", args),
+	            group: naErr,
+	            info: (...args) => this.makeLog("info", args),
+	            log: (...args) => this.makeLog("log", args),
+	            table: (...args) => this.makeTableLog(args),
+	            time: (label) => this.time(label),
+	            timeEnd: (label) => this.timeEnd(label),
+	            timeLog: (label) => this.timeLog(label),
+	            timers: () => this.timersShow(),
+	            trace: (...args) => this.trace(args),
+	            warn: (...args) => this.makeLog("warn", args),
+	        };
+	        this.api.exception = this.api.error;
+	    }
+
 
 	    /**
 	     * Replaces default console methods with
@@ -2035,23 +2067,23 @@ var liveExamples = (function () {
 	        if (this.active) {
 	            return;
 	        }
-	        console.assert = (bool, ...args) => this.assert(bool, args);
-	        console.count = (label) => this.count(label);
-	        console.countReset = (label) => this.countReset(label);
-	        console.counters = () => this.countersShow();
-	        console.clear = () => this.clear();
-	        console.debug = (...args) => this.debug(args);
-	        console.error = (...args) => this.makeLog("error", args);
-	        console.exception = console.error;
-	        console.info = (...args) => this.makeLog("info", args);
-	        console.log = (...args) => this.makeLog("log", args);
-	        console.table = (...args) => this.makeTableLog(args);
-	        console.time = (label) => this.time(label);
-	        console.timeEnd = (label) => this.timeEnd(label);
-	        console.timeLog = (label) => this.timeLog(label);
-	        console.timers = () => this.timersShow();
-	        console.trace = (...args) => this.trace(args);
-	        console.warn = (...args) => this.makeLog("warn", args);
+	        console.assert = this.api.assert;
+	        console.count = this.api.count;
+	        console.countReset = this.api.countReset;
+	        console.counters = this.api.counters;
+	        console.clear = this.api.clear;
+	        console.debug = this.api.debug;
+	        console.error = this.api.error;
+	        console.exception = this.api.exception;
+	        console.info = this.api.info;
+	        console.log = this.api.log;
+	        console.table = this.api.table;
+	        console.time = this.api.time;
+	        console.timeEnd = this.api.timeEnd;
+	        console.timeLog = this.api.timeLog;
+	        console.timers = this.api.timers;
+	        console.trace = this.api.trace;
+	        console.warn = this.api.warn;
 	        if (this.options.catchErrors) window.addEventListener("error", this.catchErrorFN, false);
 	        this.active = true;
 	    }
@@ -2880,16 +2912,295 @@ var liveExamples = (function () {
 	    }
 	}
 
+	const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
+	const AsyncFunction = (async function(){}).constructor;
+	const randID = () => `_${Math.random().toString(16).slice(2)}`;
+
+	window.waitPromise = name => {
+	    if (window.abortDemo) {
+	        return Promise.reject();
+	    }
+	       
+	    return new Promise((resolve, reject) => {
+
+	        const resolveFN = () => {
+	            window.removeEventListener("abort" + name, rejectFN, false);
+	            return resolve();
+	        };
+	    
+	        const rejectFN = () => {
+	            window.removeEventListener(name, resolveFN, false);
+	            return reject();
+	        };
+
+	        window.addEventListener(name, resolveFN, {
+	            capture: false,
+	            once: true,
+	        });
+	        
+	        window.addEventListener("abort" + name, rejectFN, {
+	            capture: false,
+	            once: true,
+	        });
+	    });
+	};
+
+
+	window.sleep = ms => new Promise(resolve => {
+	    const resumeIfNotPaused = async () => {
+	        if (window.demoIsPaused) {
+	            await window.demoPause;
+	        }
+	        return resolve();
+	    };
+	    setTimeout(resumeIfNotPaused, ms);
+	});
+
+
+	window.demoPauseEvt = new Event("demoPause");
+
+	const pauseDemoFN = contodo => {
+	    return () => {
+	        if (!window.isDemoing || window.demoIsPaused) {
+	            return;
+	        }
+	        contodo.restoreDefaultConsole();
+	        window.demoPause = window.waitPromise("demoPause");
+	        window.demoIsPaused = true;
+	    };
+	};
+
+	const resumeDemoFN = contodo => {
+	    return () => {
+	        if (!window.isDemoing || !window.demoIsPaused) {
+	            return;
+	        }
+	        contodo.initFunctions();
+	        window.dispatchEvent(window.demoPauseEvt);
+	        window.demoIsPaused = false;
+	    };
+	};
+
+	const stopDemoFN = (instanceId, code, jar, contodo) => {
+	    return () => {
+
+	        contodo.restoreDefaultConsole();
+	        contodo.clear(false);
+
+	        window.abortDemo = true;
+	        
+	        window.dispatchEvent(window.demoPauseEvt);
+	        window.dispatchEvent(window["abort" + instanceId]);
+
+	        jar.updateCode(code);
+	        jar.updateLines(code);
+	        
+	        window.isDemoing = false;
+
+	    };
+	};
+
+	const makeTypingFN = (code) => {
+	    return async jar => {
+	        let content = jar.toString();
+	        
+	        for (const char of [...code]) {
+	            content += char;
+	            jar.updateCode(content);
+	            jar.updateLines(content);
+	            await window.sleep(Math.floor(Math.random() * 50 + 30));
+	            
+	            if (window.abortDemo) {
+	                break;
+	            }
+	        }     
+	    };
+	};
+
+	const makeDemo = (id, code, jar, contodo) => {
+	    jar.updateLines("");
+	    jar.updateCode(""); 
+
+	    const instanceId = randID();
+	    window[instanceId] = new Event(instanceId);
+	    window["abort" + instanceId] = new Event("abort" + instanceId);
+
+	    const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
+	    const codeUnits = code.split(breakPointRegex);
+	    let breakpoints = [];
+
+	    const breakpointsArr = code.match(breakPointRegex);
+	    if (breakpointsArr) {
+	        breakpointsArr.forEach(bp => breakpoints.push(Number(bp.replace(/[^0-9]/g, ""))));
+	        breakpoints.push(0);
+	    }
+	    
+	    let cleanCode = "";
+	    let codeInstructions = `await window.waitPromise("${instanceId}");\n`;
+	    const typingInstructions = [];
+	    const lastIndex = codeUnits.length-1;
+
+	    codeUnits.forEach((codeUnit, i) => {
+
+	        cleanCode += codeUnit;
+	        const typingFN = makeTypingFN(codeUnit);
+
+	        typingInstructions.push(typingFN);
+	        typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
+	        typingInstructions.push(async () => await window.waitPromise(instanceId));
+
+	        codeInstructions += codeUnit;
+	        if (i < lastIndex) {
+	            codeInstructions += `await window.sleep(${Math.max(breakpoints[i], 10)});\n`;
+	            codeInstructions += `window.dispatchEvent(window.${instanceId});\n`;
+	            codeInstructions += `await waitPromise("${instanceId}");\n`;
+	        }
+	    });
+
+	    
+	    const demoFN = async () => {
+	         
+	        window.abortDemo = false;
+	        window.demoIsPaused = false;
+	        window.isDemoing = true;
+	        
+	        contodo.clear(false);
+	        contodo.initFunctions();
+	        
+	        jar.updateLines("");
+	        jar.updateCode("");
+	        
+	        try {
+	            (async () => {
+	                for (const fn of typingInstructions) {
+	                    try {
+	                        await fn(jar);
+	                    } catch {
+	                        return;
+	                    }
+	                    if (window.abortDemo) {
+	                        return;
+	                    }
+	                }
+	            })();
+	            const fn = new AsyncFunction(codeInstructions);
+	            window.FN = fn();
+	            await window.FN;
+	        } catch (err) {
+	            throwError(err, id);
+	        }
+	        
+	        // end waiter, if still hanging
+	        window.dispatchEvent(window[instanceId]);
+	        contodo.restoreDefaultConsole();
+	        window.isDemoing = false;
+	    };
+	    
+	    return [
+	        cleanCode,
+	        demoFN,
+	        pauseDemoFN(contodo),
+	        resumeDemoFN(contodo),
+	        stopDemoFN(instanceId, cleanCode, jar, contodo)
+	    ];
+	};
+
+
+
+	/**
+	 * Adjusts the information from an error stack.
+	 * @param {Object} error - Error object. 
+	 * @returns {string} - Stack string.
+	 */
+	const errorStackExtractor = (error, id) => {
+	    
+	    const stackArray = error.stack.split("\n");
+	    
+	    // remove irrelevant stack information deeper down
+	    let part;
+	    do {
+	        part = stackArray.pop();
+	    }
+	    while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
+
+	    // remove redundant error name and description (chrome)
+	    const redundancyReg = new RegExp(`^${error.name}`);
+	    if (stackArray.length && redundancyReg.test(stackArray[0])) {
+	        stackArray.shift();
+	    }
+
+	    if (stackArray.length) {
+	        
+	        const buildStackElem = (fn, line, col) => {
+	            line -=2;
+	            if (line < 0) {
+	                return null;
+	            }
+	            
+	            return `  > ${fn}@${id}, line: ${line}, col: ${col}`;
+	        };
+
+	        // chrome & edge
+	        if ((/\s*at\s/).test(stackArray[0])) {
+	            stackArray.forEach((elem, i) => {
+	                const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
+	                let [ line, col ] = elem.split(":")
+	                    .slice(-2)
+	                    .map(n => n.replace(/\D/g, "")|0);
+	                
+	                stackArray[i] = buildStackElem(fn, line, col);
+	            });
+	        } 
+	        
+	        // firefox
+	        else if ((/^\w+@/).test(stackArray[0])) {
+	            stackArray.forEach((elem, i) => {
+	                const fn = elem.split("@")[0];
+	                let [ line, col ] = elem.split(":")
+	                    .slice(-2)
+	                    .map(n => n.replace(/\D/g, "")|0);
+	                
+	                stackArray[i] = buildStackElem(fn, line, col);
+	            });
+	        }
+
+	        let stackStr = "";
+	        stackArray.forEach(elem => {
+	            if (elem) {
+	                stackStr += elem + "\n";
+	            }
+	        });
+
+	        return stackStr;
+	    }
+	    
+	    return null;
+	};
+
+	const throwError = (err, id) => {
+	    if (!err || !err.message) {
+	        return;
+	    }
+	    let msg = `${err.name}: ${err.message}`;
+	    const stack = errorStackExtractor(err, id);
+	    if (stack) {
+	        msg += "\n" + stack;
+	    }
+	    console.error(msg);
+	};
+
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.3.3
+	 * @version 0.4.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
-	 * @license GPL-3.0
+	 * @license MIT
 	 */
-	const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-	const AsyncFunction = (async function () {}).constructor;
 	const EXECUTED = new Event("executed");
+	const STOPPED = new Event("stopped");
+
+	const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+
 
 	/**
 	 * Constructor for an instance of a LiveExample.
@@ -2900,28 +3211,25 @@ var liveExamples = (function () {
 	    
 	    /**
 	     * Contains all steps for the node creation and
-	     * insertion.
-	     * @param {object} template - A html "<template>" node.
+	     * insertion into the page.
+	     * @param {object} template - A html <template> node.
 	     * @param {number} index - Index of the node for one document.
 	     */
 	    constructor(template, index) {
 
-	        // if the template has the attribute for
+	        // if the template has the attribute "for"
 	        // it is used for the id of instance
 	        this.id = template.getAttribute("for") || `live-example-${index+1}`;
 	        const className = template.getAttribute("class");
 
 	        const title = this.getTitle(template, index);
-	        const { code, autostart } = this.getCode(template);
-
-	        if (!code) {
-	            return null;
-	        }
+	        const { code, autostart, demo } = this.getCode(template);
 	        
-	        const example = this.makeCodeExample(title, code);
+	        const example = this.makeCodeExample(title, code, demo);
 	        example.id = this.id;
-	        example.className = className;
+	        example.classList.add(className);
 	        example.autostart = autostart;
+	        example.demo = demo;
 
 	        // insert the fresh node right before the
 	        // template node in the document
@@ -2959,19 +3267,24 @@ var liveExamples = (function () {
 	     */
 	    getCode(template) {
 	        
+	        let code = "";
+	        let autostart = false;
+	        let demo = false;
+
 	        const codeNode = template.content.querySelector("script");
-	        if (!codeNode) {
-	            console.warn("Every template needs a script tag with the code to display.");
-	            return null;
+	        
+	        if (codeNode) {
+	            code = codeNode.innerHTML;
+	            const pattern = code.match(/\s*\n[\t\s]*/);
+	            code = code
+	                .replace(new RegExp(pattern, "g"), "\n")
+	                .trim();
+	            
+	            autostart = bool(codeNode.dataset.run);
+	            demo = bool(codeNode.dataset.demo);
 	        }
 	        
-	        let code = codeNode.innerHTML;
-	        const pattern = code.match(/\s*\n[\t\s]*/);
-	        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
-
-	        const autostart = Boolean(codeNode.dataset.run);
-
-	        return { code, autostart };
+	        return { code, autostart, demo };
 	    }
 
 
@@ -3013,83 +3326,21 @@ var liveExamples = (function () {
 	        window.navigator.clipboard.writeText(code);
 
 	        const copied = document.querySelector("#le-copied");
+
+	        // reset animation in case it is running 
+	        clearTimeout(window.copyTimer);
+	        copied.getAnimations().forEach(anim => {
+	            anim.cancel();
+	            anim.play();
+	        });
+
+	        // start animation
 	        copied.classList.add("show");
-	        
-	        setTimeout(() => {
+	        window.copyTimer = setTimeout(() => {
 	            copied.classList.remove("show");
 	        }, 1500);
 	    };
 
-	    /**
-	     * Adjusts the information from an error stack.
-	     * @param {Object} error - Error object. 
-	     * @returns {string} - Stack string.
-	     */
-	    errorStackExtractor(error) {
-
-	        const stackArray = error.stack.split("\n");
-	        
-	        // remove irrelevant stack information deeper down
-	        let part;
-	        do {
-	            part = stackArray.pop();
-	        }
-	        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
-	    
-	        // remove redundant error name and description (chrome)
-	        const redundancyReg = new RegExp(`^${error.name}`);
-	        if (stackArray.length && redundancyReg.test(stackArray[0])) {
-	            stackArray.shift();
-	        }
-
-	        if (stackArray.length) {
-	            
-	            const buildStackElem = (fn, line, col) => {
-	                line -=2;
-	                if (line < 0) {
-	                    return null;
-	                }
-	                
-	                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
-	            };
-
-	            // chrome & edge
-	            if ((/\s*at\s/).test(stackArray[0])) {
-	                stackArray.forEach((elem, i) => {
-	                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
-	                    let [ line, col ] = elem.split(":")
-	                        .slice(-2)
-	                        .map(n => n.replace(/\D/g, "")|0);
-	                    
-	                    stackArray[i] = buildStackElem(fn, line, col);
-	                });
-	            } 
-	            
-	            // firefox
-	            else if ((/^\w+@/).test(stackArray[0])) {
-	                stackArray.forEach((elem, i) => {
-	                    const fn = elem.split("@")[0];
-	                    let [ line, col ] = elem.split(":")
-	                        .slice(-2)
-	                        .map(n => n.replace(/\D/g, "")|0);
-	                    
-	                    stackArray[i] = buildStackElem(fn, line, col);
-	                });
-	            }
-
-	            let stackStr = "";
-	            stackArray.forEach(elem => {
-	                if (elem) {
-	                    stackStr += elem + "\n";
-	                }
-	            });
-
-	            return stackStr;
-	        }
-	        
-	        return null;
-	    }
-	    
 
 	    /**
 	     * Main method. Finally the whole html node
@@ -3098,23 +3349,22 @@ var liveExamples = (function () {
 	     * @param {string} code - Initial code for the instance to display. 
 	     * @returns {object} - A document node (<div>) with all of its children.
 	     */
-	    makeCodeExample(title, code) { 
+	    makeCodeExample(title, code, isDemo) { 
 
 	        // create new html node
 	        const main = document.createElement("div");
 
-
 	        // the code part
 	        const codeWrapper = document.createElement("div");
-	        codeWrapper.className = "code";
+	        codeWrapper.classList.add("code");
 
 	        const lineNumbers = document.createElement("ol");
 	        
 	        const codeNode = document.createElement("code");
-	        codeNode.className = "language-js";
+	        codeNode.classList.add("language-js");
 
 	        const copyBtn = document.createElement("div");
-	        copyBtn.className = "copy";
+	        copyBtn.classList.add("copy");
 	        copyBtn.title = "copy to clipboard";
 	        copyBtn.addEventListener("click", this.toClipboard, false);
 
@@ -3125,39 +3375,67 @@ var liveExamples = (function () {
 
 	        // the title and controls part
 	        const titleWrapper = document.createElement("div");
-	        titleWrapper.className = "title-wrapper";
+	        titleWrapper.classList.add("title-wrapper");
 	        
 	        const titleNode = document.createElement("h1");
 	        titleNode.textContent = title;
 
 	        const controlsWrapper = document.createElement("div");
-	        controlsWrapper.className = "controls";
+	        controlsWrapper.classList.add("controls");
+
+	        let demoBtn,
+	            demoStopBtn,
+	            demoPauseBtn,
+	            demoResumeBtn;
+	        if (isDemo) {
+	            demoStopBtn = document.createElement("button");
+	            demoStopBtn.textContent = "stop";
+	            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
+	            controlsWrapper.append(demoStopBtn);
+	            
+	            demoBtn = document.createElement("button");
+	            demoBtn.textContent = "demo";
+	            demoBtn.classList.add("demoBtn", "stopped");
+	            controlsWrapper.append(demoBtn);
+
+	            demoPauseBtn = document.createElement("button");
+	            demoPauseBtn.textContent = "pause";
+	            demoPauseBtn.classList.add("demoPauseBtn", "demo", "running");
+	            controlsWrapper.append(demoPauseBtn);
+
+	            demoResumeBtn = document.createElement("button");
+	            demoResumeBtn.textContent = "play";
+	            demoResumeBtn.classList.add("demoResumeBtn", "demo", "paused");
+	            controlsWrapper.append(demoResumeBtn);
+	        }
 
 	        const resetBtn = document.createElement("button");
 	        resetBtn.textContent = "reset";
+	        resetBtn.classList.add("resetBtn","regular");
+	        controlsWrapper.append(resetBtn);
 
 	        const executeBtn = document.createElement("button");
 	        executeBtn.textContent = "run";
-
-	        controlsWrapper.append(resetBtn);
+	        executeBtn.classList.add("executeBtn", "regular");
 	        controlsWrapper.append(executeBtn);
 
 	        titleWrapper.append(titleNode);
 	        titleWrapper.append(controlsWrapper);
 
 
-	        // initialize jar instance
-	        const updateLines = this.makeLineFN(lineNumbers);
-	        // eslint-disable-next-line no-undef
-	        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
-	            tab: " ".repeat(4),
-	        });
 
-	        jar.onUpdate(updateLines);
-	        updateLines(code);
-	        jar.updateCode(code);
-	        
-	        
+	        // initialize jar instance
+	        const jar = CodeJar(
+	            codeNode,
+	            // eslint-disable-next-line no-undef
+	            editor => Prism.highlightElement(editor), {
+	                tab: " ".repeat(4),
+	            }
+	        );
+	        jar.updateLines = this.makeLineFN(lineNumbers);
+	        jar.onUpdate(jar.updateLines);
+
+	    
 	        // append code and title to main
 	        main.append(codeWrapper);
 	        main.append(titleWrapper);
@@ -3172,21 +3450,93 @@ var liveExamples = (function () {
 	            }
 	        );
 	        contodo.createDocumentNode();
+
 	        
-	        const resetFN = () => {
+	        let runDemo, stopDemo, pauseDemo, resumeDemo;
+	        
+	        // test and prepare for demo mode
+	        if (isDemo) {      
+	            [   
+	                code,
+	                runDemo,
+	                pauseDemo,
+	                resumeDemo,
+	                stopDemo
+	            ] = makeDemo(this.id, code, jar, contodo);
+	        
+	            main.runDemo = () => {
+	                if (window.isDemoing) {
+	                    throw new Error("A demo is currently running. Starting was blocked.");
+	                }
+	                
+	                if (main.mode === "regular") {
+	                    setDemoMode();
+	                }
+
+	                main.classList.remove("stopped");
+	                main.classList.add("running");
+
+	                runDemo()
+	                    .finally(() => {
+	                        setRegularMode();
+	                        main.dispatchEvent(STOPPED);
+
+	                        main.classList.remove("running");
+	                        main.classList.add("stopped");
+	                    });
+	            };
+
+	            main.pauseDemo = () => {
+	                pauseDemo();
+	                main.classList.remove("running");
+	                main.classList.add("paused");
+	            };
+
+	            main.resumeDemo = () => {
+	                resumeDemo();
+	                main.classList.remove("paused");
+	                main.classList.add("running");
+	            };
+
+	            main.stopDemo = () => {
+	                stopDemo();
+	                main.classList.remove("running");
+	                main.classList.add("stopped");
+	            };
+
+	            demoBtn.addEventListener("click", main.runDemo, false);
+	            demoPauseBtn.addEventListener("click", main.pauseDemo, false);
+	            demoResumeBtn.addEventListener("click", main.resumeDemo, false);
+	            demoStopBtn.addEventListener("click", main.stopDemo, false);
+
+	        } else {
+	            jar.updateLines(code);
+	            jar.updateCode(code);
+	        }
+
+	        
+	        main.reset = () => {
+	            if (window.isDemoing) {
+	                return;
+	            }
 	            contodo.clear(false);
 	            jar.updateCode(code);
-	            updateLines(code);
+	            jar.updateLines(code);
 	        };
 
-	        // establish button methods
-	        resetBtn.addEventListener("click", resetFN, false);
-	        main.reset = resetFN;
-
+	        // bind reset to resetBtn
+	        resetBtn.addEventListener("click", main.reset, false);
 
 	        // this is a regular async fn, but protected
-	        // against renaming by eg. terser
-	        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+	        // against renaming by eg. terser, hence the
+	        // weird construction (the function name must
+	        // be protected to get readable error messages)
+
+	        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
+	            if (window.isDemoing) {
+	                return;
+	            }
+
 	            contodo.clear(false);
 	            contodo.initFunctions();
 
@@ -3194,19 +3544,37 @@ var liveExamples = (function () {
 	                const fn = new AsyncFunction(jar.toString());
 	                await fn();
 	            } catch (err) {
-	                let msg = `${err.name}: ${err.message}`;
-	                const stack = this.errorStackExtractor(err);
-	                if (stack) {
-	                    msg += "\n" + stack;
-	                }
-	                console.error(msg); 
+	                throwError(err, this.id);
 	            }
 	            contodo.restoreDefaultConsole();
 	            main.dispatchEvent(EXECUTED);       
 	        }}[RUNNER_FUNCTION_NAME];
 
-	        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
-	        main.run = liveExampleCodeRunner;
+	        // bind code execution to executeBtn
+	        executeBtn.addEventListener("click", main.run, false);
+
+	        const setDemoMode = (initial=false) => {
+	            main.mode = "demo";
+	            main.classList.add(
+	                "demo",
+	                initial 
+	                    ? "waiting"
+	                    : "stopped"
+	            );
+	            main.classList.remove("regular");
+	        };
+
+	        const setRegularMode = () => {
+	            main.mode = "regular";
+	            main.classList.add("regular");
+	            main.classList.remove("demo", "paused", "stopped");
+	        };
+
+	        if (isDemo) {
+	            setDemoMode(true);
+	        } else {
+	            setRegularMode();
+	        }
 
 	        return main;
 	    }
@@ -3229,12 +3597,34 @@ var liveExamples = (function () {
 	    const applyNodes = () => {
 	        const templates = document.querySelectorAll("template.live-example");
 	        const autostartExamples = [];
+	        let autostartDemoCount = 0;
 
 	        templates.forEach((template, i) => {
 	            const example = new LiveExample(template, i++);
-	            if (example && example.autostart) {
+
+	            if (!example) {
+	                return;
+	            }
+	        
+	            if (example.autostart) {
+	                if (example.demo) {
+	                    if (autostartDemoCount) {
+	                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
+	                    }
+	                    example.classList.remove("waiting");
+	                    example.classList.add("stopped");
+	                    autostartDemoCount ++;
+	                }
+	                console.log("autostartDemoCount", autostartDemoCount);
+	                console.log(example);
 	                autostartExamples.push(example);
 	            }
+	            
+	            else if (example.demo) {
+	                example.classList.add("stopped");
+	                example.classList.remove("waiting");
+	            }
+
 	        });
 
 	        const copiedInfo = document.createElement("section");
@@ -3246,12 +3636,18 @@ var liveExamples = (function () {
 	        copiedInfo.append(copiedInfoText);
 	        document.body.append(copiedInfo);
 
+	        console.log(autostartExamples);
+
 	        // make sure to run the auto run examples serially
 	        const autoExe = () => {
 	            const example = autostartExamples.shift();
 	            if (example) {
-	                example.addEventListener("executed", autoExe, false);
-	                example.run();
+	                if (example.demo) {
+	                    example.runDemo();
+	                } else {
+	                    example.addEventListener("executed", autoExe, false);
+	                    example.run();
+	                }
 	            }
 	        };
 	        autoExe();

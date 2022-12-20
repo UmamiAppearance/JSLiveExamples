@@ -145,10 +145,7 @@ const makeDemo = (id, code, jar, contodo) => {
 
     
     const demoFN = async () => {
-        if (window.isDemoing) {
-            throw new Error("A demo is currently running. Starting was blocked.");
-        } 
-
+         
         window.abortDemo = false;
         window.demoIsPaused = false;
         window.isDemoing = true;

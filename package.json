@@ -28,7 +28,7 @@
     "live"
   ],
   "author": "UmamiAppearance",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/UmamiAppearance/JSLiveExamples/issues"
   },
@@ -37,13 +37,13 @@
     "@rollup/plugin-terser": "^0.1.0",
     "clean-css": "^5.3.1",
     "codejar": "^3.6.0",
-    "contodo": "^0.2.9",
-    "eslint": "^8.29.0",
+    "contodo": "^0.3.0",
+    "eslint": "^8.30.0",
     "http-server": "^14.1.1",
-    "no-bro-cote": "^0.2.7",
+    "no-bro-cote": "^0.2.8",
     "prismjs": "^1.29.0",
-    "rollup": "^3.7.4",
-    "rollup-plugin-import-manager": "^0.3.4",
-    "rollup-plugin-your-function": "^0.4.4"
+    "rollup": "^3.7.5",
+    "rollup-plugin-import-manager": "^0.3.5",
+    "rollup-plugin-your-function": "^0.4.5"
   }
 }
