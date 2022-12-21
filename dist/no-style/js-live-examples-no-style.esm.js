@@ -1897,7 +1897,7 @@ const isIdentifier = (str) => {
 /**
  * [contodo]{@link https://github.com/UmamiAppearance/contodo}
  *
- * @version 0.3.0
+ * @version 0.4.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */
@@ -1937,6 +1937,7 @@ class ConTodo {
         this.options = {
             autostart: hasOption("autostart") ? Boolean(options.autostart) : true,
             catchErrors: hasOption("catchErrors") ? Boolean(options.catchErrors) : false,
+            clearButton: hasOption("clearButton") ? Boolean(options.clearButton) : false,
             height: hasOption("height") ? options.height : "inherit",
             maxEntries: hasOption("maxEntries") ? Math.max(parseInt(Number(options.maxEntries), 10), 0) : 0,
             preventDefault: hasOption("preventDefault") ? Boolean(options.preventDefault) : false,
@@ -1956,30 +1957,33 @@ class ConTodo {
         }
         
         // Store Default Console Methods
-        this.defaultConsole = {
-            assert: console.assert.bind(console),
-            count: console.count.bind(console),
-            countReset: console.countReset.bind(console),
-            clear: console.clear.bind(console),
-            debug: console.debug.bind(console),
-            error: console.error.bind(console),
-            exception: console.exception ? console.exception.bind(console) : null,
-            info: console.info.bind(console),
-            log: console.log.bind(console),
-            table: console.table.bind(console),
-            time: console.time.bind(console),
-            timeEnd: console.timeEnd.bind(console),
-            timeLog: console.timeLog.bind(console),
-            trace: console.trace.bind(console),
-            warn: console.warn.bind(console)
-        };
+        if (!window._console) {
+            window._console = {
+                assert: console.assert.bind(console),
+                count: console.count.bind(console),
+                countReset: console.countReset.bind(console),
+                clear: console.clear.bind(console),
+                debug: console.debug.bind(console),
+                error: console.error.bind(console),
+                exception: console.exception ? console.exception.bind(console) : null,
+                info: console.info.bind(console),
+                log: console.log.bind(console),
+                table: console.table.bind(console),
+                time: console.time.bind(console),
+                timeEnd: console.timeEnd.bind(console),
+                timeLog: console.timeLog.bind(console),
+                trace: console.trace.bind(console),
+                warn: console.warn.bind(console)
+            };
+        }
    
         // Class values
         this.active = false;
-        this.counters = new Object();
+        this.counters = {};
         this.mainElem = null;
+        this.clearBtn = null;
         this.style = null;
-        this.timers = new Object;
+        this.timers = {};
 
         // Bind Error Function to Class
         this.catchErrorFN = this.catchErrorFN.bind(this);
@@ -2001,9 +2005,20 @@ class ConTodo {
     createDocumentNode() {
         if (!this.mainElem) {
             this.mainElem = document.createElement("code");
-            this.parentNode.append(this.mainElem);
             this.mainElem.classList.add("contodo");
             this.mainElem.style.height = this.options.height;
+            this.parentNode.append(this.mainElem);
+
+            if (this.options.clearButton) {
+                this.mainElem.classList.add("clearBtn");
+                this.clearBtn = document.createElement("a");
+                this.clearBtn.textContent = "clear";
+                this.clearBtn.title = "clear console";
+                this.clearBtn.addEventListener("click", () => { this.clear(false); }, false);
+                this.clearBtn.classList.add("contodo-clear");
+                this.parentNode.append(this.clearBtn);
+            }
+            
             this.logCount = 0;
         }
         if (this.options.applyCSS) {
@@ -2023,6 +2038,10 @@ class ConTodo {
             return;
         }
         this.mainElem.remove();
+        if (this.clearBtn) {
+            this.clearBtn.remove();
+            this.clearBtn = null;
+        }
         this.mainElem = null;
     }
 
@@ -2093,23 +2112,23 @@ class ConTodo {
         if (!this.active) {
             return;
         }
-        console.assert = this.defaultConsole.assert;
-        console.count = this.defaultConsole.count;
-        console.countReset = this.defaultConsole.countReset;
+        console.assert = window._console.assert;
+        console.count = window._console.count;
+        console.countReset = window._console.countReset;
         delete console.counters;
-        console.clear = this.defaultConsole.clear;
-        console.debug = this.defaultConsole.debug;
-        console.error = this.defaultConsole.error;
-        console.exception = this.defaultConsole.exception;
-        console.info = this.defaultConsole.info;
-        console.log = this.defaultConsole.log;
-        console.table = this.defaultConsole.table;
-        console.time = this.defaultConsole.time;
-        console.timeEnd = this.defaultConsole.timeEnd;
-        console.timeLog = this.defaultConsole.timeLog;
+        console.clear = window._console.clear;
+        console.debug = window._console.debug;
+        console.error = window._console.error;
+        console.exception = window._console.exception;
+        console.info = window._console.info;
+        console.log = window._console.log;
+        console.table = window._console.table;
+        console.time = window._console.time;
+        console.timeEnd = window._console.timeEnd;
+        console.timeLog = window._console.timeLog;
         delete console.timers;
-        console.trace = this.defaultConsole.trace;
-        console.warn = this.defaultConsole.warn;
+        console.trace = window._console.trace;
+        console.warn = window._console.warn;
         if (this.options.catchErrors) window.removeEventListener("error", this.catchErrorFN, false);
         this.active = false;
     }
@@ -2178,7 +2197,7 @@ class ConTodo {
         };
 
         if (!preventDefaultLog) {
-            this.defaultConsole[type](...args);
+            window._console[type](...args);
         }
 
         const newLog = this.#makeDivLogEntry(type);
@@ -2223,7 +2242,7 @@ class ConTodo {
      */
     makeTableLog(args, preventDefaultLog=this.options.preventDefault) {
         if (!preventDefaultLog) {
-            this.defaultConsole.table(...args);
+            window._console.table(...args);
         }
 
         // Helper function. Test wether the data
@@ -2365,7 +2384,7 @@ class ConTodo {
      */
     #foundEdgeCaseError(input) {
         console.error("You found an edge case, which is not covered yet.\nPlease create an issue mentioning your input at:\nhttps://github.com/UmamiAppearance/contodo/issues");
-        this.defaultConsole.warn(input);
+        window._console.warn(input);
         
     }
 
@@ -2667,7 +2686,7 @@ class ConTodo {
      */
     assert(bool, args) {
         if (!this.options.preventDefault) {
-            this.defaultConsole.assert(bool, ...args);
+            window._console.assert(bool, ...args);
         }
         if (!bool) {
             this.makeLog("error", ["Assertion failed:", ...args], true);
@@ -2721,7 +2740,7 @@ class ConTodo {
      */
     clear(info=true) {
         if (!this.options.preventDefault && info) {
-            this.defaultConsole.clear();
+            window._console.clear();
         }
         this.mainElem.innerHTML = "";
         this.logCount = 0;
@@ -2740,7 +2759,7 @@ class ConTodo {
      */
     debug(args) {
         if (!this.options.preventDefault) {
-            this.defaultConsole.debug(...args);
+            window._console.debug(...args);
         }
         if (this.options.showDebugging) {
             this.makeLog("log", args, true);
@@ -2762,7 +2781,7 @@ class ConTodo {
             this.makeLog("warn", [msg], true);
 
             if (!this.options.preventDefault) {
-                this.defaultConsole.warn(msg);
+                window._console.warn(msg);
             }
         }
     }
@@ -2794,7 +2813,7 @@ class ConTodo {
 
         this.makeLog(type, [msg], true);
         if (!this.options.preventDefault) {
-            this.defaultConsole[type](msg);
+            window._console[type](msg);
         }
         
         return label;
@@ -2823,7 +2842,7 @@ class ConTodo {
      */
     timersShow() {
         const now = window.performance.now();
-        const timers = new Object();
+        const timers = {};
         for (const timer in this.timers) {
             timers[timer] = `${now - this.timers[timer]} ms`;
         }
@@ -2904,7 +2923,7 @@ class ConTodo {
                 msg.push(`  ${line.name}${" ".repeat(lenLeft-line.len)}${line.file}\n`);
             }
 
-            this.defaultConsole.log(...msg);
+            window._console.log(...msg);
         }
     }
 }
@@ -3380,10 +3399,11 @@ class LiveExample {
         const controlsWrapper = document.createElement("div");
         controlsWrapper.classList.add("controls");
 
-        let demoBtn,
-            demoStopBtn,
-            demoPauseBtn,
-            demoResumeBtn;
+        let demoBtn;
+        let demoStopBtn;
+        let demoPauseBtn;
+        let demoResumeBtn;
+
         if (isDemo) {
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
@@ -3443,13 +3463,17 @@ class LiveExample {
             main,
             {
                 autostart: false,
+                clearButton: true,
                 preventDefault: true
             }
         );
         contodo.createDocumentNode();
 
         
-        let runDemo, stopDemo, pauseDemo, resumeDemo;
+        let runDemo;
+        let stopDemo;
+        let pauseDemo;
+        let resumeDemo;
         
         // test and prepare for demo mode
         if (isDemo) {      
@@ -3470,6 +3494,7 @@ class LiveExample {
                     setDemoMode();
                 }
 
+                markProcessing();
                 main.classList.remove("stopped");
                 main.classList.add("running");
 
@@ -3480,6 +3505,7 @@ class LiveExample {
 
                         main.classList.remove("running");
                         main.classList.add("stopped");
+                        endProcessing();
                     });
             };
 
@@ -3499,6 +3525,7 @@ class LiveExample {
                 stopDemo();
                 main.classList.remove("running");
                 main.classList.add("stopped");
+                endProcessing();
             };
 
             demoBtn.addEventListener("click", main.runDemo, false);
@@ -3534,6 +3561,8 @@ class LiveExample {
                 return;
             }
 
+            markProcessing();
+
             contodo.clear(false);
             contodo.initFunctions();
 
@@ -3544,6 +3573,7 @@ class LiveExample {
                 throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
+            endProcessing();
             main.dispatchEvent(EXECUTED);       
         }}[RUNNER_FUNCTION_NAME];
 
@@ -3565,6 +3595,18 @@ class LiveExample {
             main.mode = "regular";
             main.classList.add("regular");
             main.classList.remove("demo", "paused", "stopped");
+        };
+
+        const markProcessing = () => {
+            window.EXAMPLE_PROCESSING = true;
+            document.body.classList.add("example-processing");
+            main.classList.add("processing");
+        };
+
+        const endProcessing = () => {
+            window.EXAMPLE_PROCESSING = false;
+            document.body.classList.remove("example-processing");
+            main.classList.remove("processing");
         };
 
         if (isDemo) {
@@ -3591,6 +3633,7 @@ const liveExamples = (() => {
      * information, that the code was copied to the
      * clipboard.
      */
+    // TODO: work on this
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
         const autostartExamples = [];
@@ -3612,8 +3655,6 @@ const liveExamples = (() => {
                     example.classList.add("stopped");
                     autostartDemoCount ++;
                 }
-                console.log("autostartDemoCount", autostartDemoCount);
-                console.log(example);
                 autostartExamples.push(example);
             }
             
@@ -3633,8 +3674,6 @@ const liveExamples = (() => {
         copiedInfo.append(copiedInfoText);
         document.body.append(copiedInfo);
 
-        console.log(autostartExamples);
-
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
@@ -3642,6 +3681,9 @@ const liveExamples = (() => {
                 if (example.demo) {
                     example.runDemo();
                 } else {
+                    if (window.EXAMPLE_PROCESSING) {
+                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
+                    }
                     example.addEventListener("executed", autoExe, false);
                     example.run();
                 }

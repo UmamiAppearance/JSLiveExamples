@@ -1900,7 +1900,7 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.3.0
+	 * @version 0.4.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
@@ -1940,6 +1940,7 @@ var liveExamples = (function () {
 	        this.options = {
 	            autostart: hasOption("autostart") ? Boolean(options.autostart) : true,
 	            catchErrors: hasOption("catchErrors") ? Boolean(options.catchErrors) : false,
+	            clearButton: hasOption("clearButton") ? Boolean(options.clearButton) : false,
 	            height: hasOption("height") ? options.height : "inherit",
 	            maxEntries: hasOption("maxEntries") ? Math.max(parseInt(Number(options.maxEntries), 10), 0) : 0,
 	            preventDefault: hasOption("preventDefault") ? Boolean(options.preventDefault) : false,
@@ -1959,30 +1960,33 @@ var liveExamples = (function () {
 	        }
 	        
 	        // Store Default Console Methods
-	        this.defaultConsole = {
-	            assert: console.assert.bind(console),
-	            count: console.count.bind(console),
-	            countReset: console.countReset.bind(console),
-	            clear: console.clear.bind(console),
-	            debug: console.debug.bind(console),
-	            error: console.error.bind(console),
-	            exception: console.exception ? console.exception.bind(console) : null,
-	            info: console.info.bind(console),
-	            log: console.log.bind(console),
-	            table: console.table.bind(console),
-	            time: console.time.bind(console),
-	            timeEnd: console.timeEnd.bind(console),
-	            timeLog: console.timeLog.bind(console),
-	            trace: console.trace.bind(console),
-	            warn: console.warn.bind(console)
-	        };
+	        if (!window._console) {
+	            window._console = {
+	                assert: console.assert.bind(console),
+	                count: console.count.bind(console),
+	                countReset: console.countReset.bind(console),
+	                clear: console.clear.bind(console),
+	                debug: console.debug.bind(console),
+	                error: console.error.bind(console),
+	                exception: console.exception ? console.exception.bind(console) : null,
+	                info: console.info.bind(console),
+	                log: console.log.bind(console),
+	                table: console.table.bind(console),
+	                time: console.time.bind(console),
+	                timeEnd: console.timeEnd.bind(console),
+	                timeLog: console.timeLog.bind(console),
+	                trace: console.trace.bind(console),
+	                warn: console.warn.bind(console)
+	            };
+	        }
 	   
 	        // Class values
 	        this.active = false;
-	        this.counters = new Object();
+	        this.counters = {};
 	        this.mainElem = null;
+	        this.clearBtn = null;
 	        this.style = null;
-	        this.timers = new Object;
+	        this.timers = {};
 
 	        // Bind Error Function to Class
 	        this.catchErrorFN = this.catchErrorFN.bind(this);
@@ -2004,9 +2008,20 @@ var liveExamples = (function () {
 	    createDocumentNode() {
 	        if (!this.mainElem) {
 	            this.mainElem = document.createElement("code");
-	            this.parentNode.append(this.mainElem);
 	            this.mainElem.classList.add("contodo");
 	            this.mainElem.style.height = this.options.height;
+	            this.parentNode.append(this.mainElem);
+
+	            if (this.options.clearButton) {
+	                this.mainElem.classList.add("clearBtn");
+	                this.clearBtn = document.createElement("a");
+	                this.clearBtn.textContent = "clear";
+	                this.clearBtn.title = "clear console";
+	                this.clearBtn.addEventListener("click", () => { this.clear(false); }, false);
+	                this.clearBtn.classList.add("contodo-clear");
+	                this.parentNode.append(this.clearBtn);
+	            }
+	            
 	            this.logCount = 0;
 	        }
 	        if (this.options.applyCSS) {
@@ -2026,6 +2041,10 @@ var liveExamples = (function () {
 	            return;
 	        }
 	        this.mainElem.remove();
+	        if (this.clearBtn) {
+	            this.clearBtn.remove();
+	            this.clearBtn = null;
+	        }
 	        this.mainElem = null;
 	    }
 
@@ -2096,23 +2115,23 @@ var liveExamples = (function () {
 	        if (!this.active) {
 	            return;
 	        }
-	        console.assert = this.defaultConsole.assert;
-	        console.count = this.defaultConsole.count;
-	        console.countReset = this.defaultConsole.countReset;
+	        console.assert = window._console.assert;
+	        console.count = window._console.count;
+	        console.countReset = window._console.countReset;
 	        delete console.counters;
-	        console.clear = this.defaultConsole.clear;
-	        console.debug = this.defaultConsole.debug;
-	        console.error = this.defaultConsole.error;
-	        console.exception = this.defaultConsole.exception;
-	        console.info = this.defaultConsole.info;
-	        console.log = this.defaultConsole.log;
-	        console.table = this.defaultConsole.table;
-	        console.time = this.defaultConsole.time;
-	        console.timeEnd = this.defaultConsole.timeEnd;
-	        console.timeLog = this.defaultConsole.timeLog;
+	        console.clear = window._console.clear;
+	        console.debug = window._console.debug;
+	        console.error = window._console.error;
+	        console.exception = window._console.exception;
+	        console.info = window._console.info;
+	        console.log = window._console.log;
+	        console.table = window._console.table;
+	        console.time = window._console.time;
+	        console.timeEnd = window._console.timeEnd;
+	        console.timeLog = window._console.timeLog;
 	        delete console.timers;
-	        console.trace = this.defaultConsole.trace;
-	        console.warn = this.defaultConsole.warn;
+	        console.trace = window._console.trace;
+	        console.warn = window._console.warn;
 	        if (this.options.catchErrors) window.removeEventListener("error", this.catchErrorFN, false);
 	        this.active = false;
 	    }
@@ -2181,7 +2200,7 @@ var liveExamples = (function () {
 	        };
 
 	        if (!preventDefaultLog) {
-	            this.defaultConsole[type](...args);
+	            window._console[type](...args);
 	        }
 
 	        const newLog = this.#makeDivLogEntry(type);
@@ -2226,7 +2245,7 @@ var liveExamples = (function () {
 	     */
 	    makeTableLog(args, preventDefaultLog=this.options.preventDefault) {
 	        if (!preventDefaultLog) {
-	            this.defaultConsole.table(...args);
+	            window._console.table(...args);
 	        }
 
 	        // Helper function. Test wether the data
@@ -2368,7 +2387,7 @@ var liveExamples = (function () {
 	     */
 	    #foundEdgeCaseError(input) {
 	        console.error("You found an edge case, which is not covered yet.\nPlease create an issue mentioning your input at:\nhttps://github.com/UmamiAppearance/contodo/issues");
-	        this.defaultConsole.warn(input);
+	        window._console.warn(input);
 	        
 	    }
 
@@ -2670,7 +2689,7 @@ var liveExamples = (function () {
 	     */
 	    assert(bool, args) {
 	        if (!this.options.preventDefault) {
-	            this.defaultConsole.assert(bool, ...args);
+	            window._console.assert(bool, ...args);
 	        }
 	        if (!bool) {
 	            this.makeLog("error", ["Assertion failed:", ...args], true);
@@ -2724,7 +2743,7 @@ var liveExamples = (function () {
 	     */
 	    clear(info=true) {
 	        if (!this.options.preventDefault && info) {
-	            this.defaultConsole.clear();
+	            window._console.clear();
 	        }
 	        this.mainElem.innerHTML = "";
 	        this.logCount = 0;
@@ -2743,7 +2762,7 @@ var liveExamples = (function () {
 	     */
 	    debug(args) {
 	        if (!this.options.preventDefault) {
-	            this.defaultConsole.debug(...args);
+	            window._console.debug(...args);
 	        }
 	        if (this.options.showDebugging) {
 	            this.makeLog("log", args, true);
@@ -2765,7 +2784,7 @@ var liveExamples = (function () {
 	            this.makeLog("warn", [msg], true);
 
 	            if (!this.options.preventDefault) {
-	                this.defaultConsole.warn(msg);
+	                window._console.warn(msg);
 	            }
 	        }
 	    }
@@ -2797,7 +2816,7 @@ var liveExamples = (function () {
 
 	        this.makeLog(type, [msg], true);
 	        if (!this.options.preventDefault) {
-	            this.defaultConsole[type](msg);
+	            window._console[type](msg);
 	        }
 	        
 	        return label;
@@ -2826,7 +2845,7 @@ var liveExamples = (function () {
 	     */
 	    timersShow() {
 	        const now = window.performance.now();
-	        const timers = new Object();
+	        const timers = {};
 	        for (const timer in this.timers) {
 	            timers[timer] = `${now - this.timers[timer]} ms`;
 	        }
@@ -2907,12 +2926,12 @@ var liveExamples = (function () {
 	                msg.push(`  ${line.name}${" ".repeat(lenLeft-line.len)}${line.file}\n`);
 	            }
 
-	            this.defaultConsole.log(...msg);
+	            window._console.log(...msg);
 	        }
 	    }
 	}
 
-	var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;margin:auto 0}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
+	var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}.contodo-clear{display:inline-block;text-decoration:underline;cursor:pointer;font-size:.9em;margin:0 0 0 calc(100% - 2.8em);background-color:rgba(255,255,255,.9);border-radius:.2em;z-index:1}.contodo.clearBtn{margin-bottom:-2em}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;margin:auto 0}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap;transition:opacity 250ms ease-in-out}.example-processing .live-example:not(.processing) .controls{opacity:.5;pointer-events:none}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
 
 	var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-family:monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#800}.token.punctuation{color:#111b27}.token.delimiter.important,.token.selector .parent,.token.tag,.token.tag .token.punctuation{color:#006d6d}.token.attr-name,.token.boolean,.token.boolean.important,.token.constant,.token.number,.token.selector .token.attribute{color:#755f00}.token.class-name,.token.key,.token.parameter,.token.property,.token.property-access,.token.variable{color:#005a8e}.token.attr-value,.token.color,.token.inserted,.token.selector .token.value,.token.string,.token.string .token.url-link{color:#080}.token.builtin,.token.keyword-array,.token.package,.token.regex{color:#af00af}.token.function,.token.selector .token.class,.token.selector .token.id{color:#7c00aa}.token.atrule .token.rule,.token.combinator,.token.keyword,.token.operator,.token.pseudo-class,.token.pseudo-element,.token.selector,.token.unit{color:#008}.token.deleted,.token.important{color:#c22f2e}.token.keyword-this,.token.this{color:#005a8e}.token.bold,.token.important,.token.keyword-this,.token.this{font-weight:700}.token.delimiter.important{font-weight:inherit}.token.italic{font-style:italic}.token.entity{cursor:help}.language-markdown .token.title,.language-markdown .token.title .token.punctuation{color:#005a8e;font-weight:700}.language-markdown .token.blockquote.punctuation{color:#af00af}.language-markdown .token.code{color:#006d6d}.language-markdown .token.hr.punctuation{color:#005a8e}.language-markdown .token.url>.token.content{color:#116b00}.language-markdown .token.url-link{color:#755f00}.language-markdown .token.list.punctuation{color:#af00af}.language-markdown .token.table-header{color:#111b27}.language-json .token.operator{color:#111b27}.language-scss .token.variable{color:#006d6d}";
 
@@ -3390,10 +3409,11 @@ var liveExamples = (function () {
 	        const controlsWrapper = document.createElement("div");
 	        controlsWrapper.classList.add("controls");
 
-	        let demoBtn,
-	            demoStopBtn,
-	            demoPauseBtn,
-	            demoResumeBtn;
+	        let demoBtn;
+	        let demoStopBtn;
+	        let demoPauseBtn;
+	        let demoResumeBtn;
+
 	        if (isDemo) {
 	            demoStopBtn = document.createElement("button");
 	            demoStopBtn.textContent = "stop";
@@ -3453,13 +3473,17 @@ var liveExamples = (function () {
 	            main,
 	            {
 	                autostart: false,
+	                clearButton: true,
 	                preventDefault: true
 	            }
 	        );
 	        contodo.createDocumentNode();
 
 	        
-	        let runDemo, stopDemo, pauseDemo, resumeDemo;
+	        let runDemo;
+	        let stopDemo;
+	        let pauseDemo;
+	        let resumeDemo;
 	        
 	        // test and prepare for demo mode
 	        if (isDemo) {      
@@ -3480,6 +3504,7 @@ var liveExamples = (function () {
 	                    setDemoMode();
 	                }
 
+	                markProcessing();
 	                main.classList.remove("stopped");
 	                main.classList.add("running");
 
@@ -3490,6 +3515,7 @@ var liveExamples = (function () {
 
 	                        main.classList.remove("running");
 	                        main.classList.add("stopped");
+	                        endProcessing();
 	                    });
 	            };
 
@@ -3509,6 +3535,7 @@ var liveExamples = (function () {
 	                stopDemo();
 	                main.classList.remove("running");
 	                main.classList.add("stopped");
+	                endProcessing();
 	            };
 
 	            demoBtn.addEventListener("click", main.runDemo, false);
@@ -3544,6 +3571,8 @@ var liveExamples = (function () {
 	                return;
 	            }
 
+	            markProcessing();
+
 	            contodo.clear(false);
 	            contodo.initFunctions();
 
@@ -3554,6 +3583,7 @@ var liveExamples = (function () {
 	                throwError(err, this.id);
 	            }
 	            contodo.restoreDefaultConsole();
+	            endProcessing();
 	            main.dispatchEvent(EXECUTED);       
 	        }}[RUNNER_FUNCTION_NAME];
 
@@ -3575,6 +3605,18 @@ var liveExamples = (function () {
 	            main.mode = "regular";
 	            main.classList.add("regular");
 	            main.classList.remove("demo", "paused", "stopped");
+	        };
+
+	        const markProcessing = () => {
+	            window.EXAMPLE_PROCESSING = true;
+	            document.body.classList.add("example-processing");
+	            main.classList.add("processing");
+	        };
+
+	        const endProcessing = () => {
+	            window.EXAMPLE_PROCESSING = false;
+	            document.body.classList.remove("example-processing");
+	            main.classList.remove("processing");
 	        };
 
 	        if (isDemo) {
@@ -3608,6 +3650,7 @@ var liveExamples = (function () {
 	     * information, that the code was copied to the
 	     * clipboard.
 	     */
+	    // TODO: work on this
 	    const applyNodes = () => {
 	        const templates = document.querySelectorAll("template.live-example");
 	        const autostartExamples = [];
@@ -3629,8 +3672,6 @@ var liveExamples = (function () {
 	                    example.classList.add("stopped");
 	                    autostartDemoCount ++;
 	                }
-	                console.log("autostartDemoCount", autostartDemoCount);
-	                console.log(example);
 	                autostartExamples.push(example);
 	            }
 	            
@@ -3650,8 +3691,6 @@ var liveExamples = (function () {
 	        copiedInfo.append(copiedInfoText);
 	        document.body.append(copiedInfo);
 
-	        console.log(autostartExamples);
-
 	        // make sure to run the auto run examples serially
 	        const autoExe = () => {
 	            const example = autostartExamples.shift();
@@ -3659,6 +3698,9 @@ var liveExamples = (function () {
 	                if (example.demo) {
 	                    example.runDemo();
 	                } else {
+	                    if (window.EXAMPLE_PROCESSING) {
+	                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
+	                    }
 	                    example.addEventListener("executed", autoExe, false);
 	                    example.run();
 	                }

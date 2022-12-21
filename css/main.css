@@ -171,7 +171,10 @@ div.live-example {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    transition: opacity 250ms ease-in-out;
+    transition: opacity 200ms ease-in-out;
+}
+.example-processing .live-example:not(.processing) .code, .example-processing .live-example:not(.processing) .contodo {
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-15 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>...waiting...</text>\</svg>");
 }
 .example-processing .live-example:not(.processing) .controls {
     opacity: 0.5;

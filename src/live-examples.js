@@ -271,7 +271,6 @@ class LiveExample {
             main,
             {
                 autostart: false,
-                clearButton: true,
                 preventDefault: true
             }
         );
@@ -302,7 +301,7 @@ class LiveExample {
                     setDemoMode();
                 }
 
-                markProcessing();
+                startProcessing();
                 main.classList.remove("stopped");
                 main.classList.add("running");
 
@@ -369,7 +368,7 @@ class LiveExample {
                 return;
             }
 
-            markProcessing();
+            startProcessing();
 
             contodo.clear(false);
             contodo.initFunctions();
@@ -381,8 +380,7 @@ class LiveExample {
                 throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
-            endProcessing();
-            main.dispatchEvent(EXECUTED);       
+            endProcessing();       
         }}[RUNNER_FUNCTION_NAME];
 
         // bind code execution to executeBtn
@@ -405,16 +403,15 @@ class LiveExample {
             main.classList.remove("demo", "paused", "stopped");
         };
 
-        const markProcessing = () => {
-            window.EXAMPLE_PROCESSING = true;
+        const startProcessing = () => {
             document.body.classList.add("example-processing");
             main.classList.add("processing");
         };
 
         const endProcessing = () => {
-            window.EXAMPLE_PROCESSING = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
+            main.dispatchEvent(EXECUTED);
         };
 
         if (isDemo) {
@@ -448,11 +445,9 @@ const liveExamples = (() => {
      * information, that the code was copied to the
      * clipboard.
      */
-    // TODO: work on this
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
         const autostartExamples = [];
-        let autostartDemoCount = 0;
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
@@ -462,18 +457,8 @@ const liveExamples = (() => {
             }
         
             if (example.autostart) {
-                if (example.demo) {
-                    if (autostartDemoCount) {
-                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
-                    }
-                    example.classList.remove("waiting");
-                    example.classList.add("stopped");
-                    autostartDemoCount ++;
-                }
                 autostartExamples.push(example);
-            }
-            
-            else if (example.demo) {
+            } else if (example.demo) {
                 example.classList.add("stopped");
                 example.classList.remove("waiting");
             }
@@ -493,13 +478,12 @@ const liveExamples = (() => {
         const autoExe = () => {
             const example = autostartExamples.shift();
             if (example) {
+                example.addEventListener("executed", autoExe, false);
                 if (example.demo) {
+                    example.classList.add("stopped");
+                    example.classList.remove("waiting");
                     example.runDemo();
                 } else {
-                    if (window.EXAMPLE_PROCESSING) {
-                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
-                    }
-                    example.addEventListener("executed", autoExe, false);
                     example.run();
                 }
             }
