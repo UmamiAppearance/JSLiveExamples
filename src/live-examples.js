@@ -207,10 +207,11 @@ class LiveExample {
         const controlsWrapper = document.createElement("div");
         controlsWrapper.classList.add("controls");
 
-        let demoBtn,
-            demoStopBtn,
-            demoPauseBtn,
-            demoResumeBtn;
+        let demoBtn;
+        let demoStopBtn;
+        let demoPauseBtn;
+        let demoResumeBtn;
+
         if (isDemo) {
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
@@ -270,13 +271,17 @@ class LiveExample {
             main,
             {
                 autostart: false,
+                clearButton: true,
                 preventDefault: true
             }
         );
         contodo.createDocumentNode();
 
         
-        let runDemo, stopDemo, pauseDemo, resumeDemo;
+        let runDemo;
+        let stopDemo;
+        let pauseDemo;
+        let resumeDemo;
         
         // test and prepare for demo mode
         if (isDemo) {      
@@ -297,6 +302,7 @@ class LiveExample {
                     setDemoMode();
                 }
 
+                markProcessing();
                 main.classList.remove("stopped");
                 main.classList.add("running");
 
@@ -307,6 +313,7 @@ class LiveExample {
 
                         main.classList.remove("running");
                         main.classList.add("stopped");
+                        endProcessing();
                     });
             };
 
@@ -326,6 +333,7 @@ class LiveExample {
                 stopDemo();
                 main.classList.remove("running");
                 main.classList.add("stopped");
+                endProcessing();
             };
 
             demoBtn.addEventListener("click", main.runDemo, false);
@@ -361,6 +369,8 @@ class LiveExample {
                 return;
             }
 
+            markProcessing();
+
             contodo.clear(false);
             contodo.initFunctions();
 
@@ -371,6 +381,7 @@ class LiveExample {
                 throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
+            endProcessing();
             main.dispatchEvent(EXECUTED);       
         }}[RUNNER_FUNCTION_NAME];
 
@@ -392,6 +403,18 @@ class LiveExample {
             main.mode = "regular";
             main.classList.add("regular");
             main.classList.remove("demo", "paused", "stopped");
+        };
+
+        const markProcessing = () => {
+            window.EXAMPLE_PROCESSING = true;
+            document.body.classList.add("example-processing");
+            main.classList.add("processing");
+        };
+
+        const endProcessing = () => {
+            window.EXAMPLE_PROCESSING = false;
+            document.body.classList.remove("example-processing");
+            main.classList.remove("processing");
         };
 
         if (isDemo) {
@@ -425,6 +448,7 @@ const liveExamples = (() => {
      * information, that the code was copied to the
      * clipboard.
      */
+    // TODO: work on this
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
         const autostartExamples = [];
@@ -446,8 +470,6 @@ const liveExamples = (() => {
                     example.classList.add("stopped");
                     autostartDemoCount ++;
                 }
-                console.log("autostartDemoCount", autostartDemoCount);
-                console.log(example);
                 autostartExamples.push(example);
             }
             
@@ -467,8 +489,6 @@ const liveExamples = (() => {
         copiedInfo.append(copiedInfoText);
         document.body.append(copiedInfo);
 
-        console.log(autostartExamples);
-
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
@@ -476,6 +496,9 @@ const liveExamples = (() => {
                 if (example.demo) {
                     example.runDemo();
                 } else {
+                    if (window.EXAMPLE_PROCESSING) {
+                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
+                    }
                     example.addEventListener("executed", autoExe, false);
                     example.run();
                 }
