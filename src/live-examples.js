@@ -23,8 +23,14 @@ const CSS = mainCSS + prismCSS;
 const EXECUTED = new Event("executed");
 const STOPPED = new Event("stopped");
 
-const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
-
+const bool = (b, True=false) => {  
+    const boolFromAttrStr = b => (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+    
+    if (True) {
+        return typeof b === "undefined" || boolFromAttrStr(b);
+    }
+    return typeof b !== "undefined" && boolFromAttrStr(b);
+};
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -47,14 +53,18 @@ class LiveExample {
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
-        const { code, autostart, demo } = this.getCode(template);
+        const { code, options } = this.getAttributes(template);
         
-        const example = this.makeCodeExample(title, code, demo);
+        const example = this.makeCodeExample(title, code, options);
         example.id = this.id;
-        example.classList.add(className);
-        example.autostart = autostart;
-        example.demo = demo;
+        example.autostart = options.autostart;
+        example.demo = options.demo;
 
+        example.classList.add(className);
+        if (!options.buttons) example.classList.add("no-buttons");
+        if (!options.scroll) example.classList.add("no-scroll");
+
+        
         // insert the fresh node right before the
         // template node in the document
         template.parentNode.insertBefore(example, template);
@@ -84,19 +94,25 @@ class LiveExample {
 
 
     /**
-     * Extracts the code from given a <script> - tag
-     * from the <template> node.
+     * Extracts the code and other attributes from a given
+     * <script> - tag from the <template> node.
      * @param {object} template - A html "<template>" node. 
-     * @returns {string} - The code as a string.
+     * @returns {Object} - The extracted code and options.
      */
-    getCode(template) {
+    getAttributes(template) {
         
         let code = "";
-        let autostart = false;
-        let demo = false;
+        const options = {
+            autostart: false,
+            buttons: true,
+            demo: false,
+            scroll: true,
+            transform: true
+        };
+
 
         const codeNode = template.content.querySelector("script");
-        
+
         if (codeNode) {
             code = codeNode.innerHTML;
             const pattern = code.match(/\s*\n[\t\s]*/);
@@ -104,11 +120,31 @@ class LiveExample {
                 .replace(new RegExp(pattern, "g"), "\n")
                 .trim();
             
-            autostart = bool(codeNode.dataset.run);
-            demo = bool(codeNode.dataset.demo);
+            // backwards compatibility
+            let autostart = bool(codeNode.dataset.run, false);
+            if (autostart) {
+                console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
+                
+                options.autostart = true;
+
+                return {
+                    code,
+                    options
+                };
+            }
+        }
+   
+        const metaNode = template.content.querySelector("meta");
+        
+        if (metaNode) {
+            options.autostart = bool(metaNode.dataset.run, false);
+            options.buttons = bool(metaNode.dataset.buttons, true);
+            options.demo = bool(metaNode.dataset.demo, false);
+            options.scroll = bool(metaNode.dataset.scroll, true);
+            options.transform = bool(metaNode.dataset.transform, true);
         }
         
-        return { code, autostart, demo };
+        return { code, options };
     }
 
 
@@ -173,7 +209,7 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code, isDemo) { 
+    makeCodeExample(title, code, options) { 
 
         // create new html node
         const main = document.createElement("div");
@@ -207,12 +243,13 @@ class LiveExample {
         const controlsWrapper = document.createElement("div");
         controlsWrapper.classList.add("controls");
 
+        // if is a demo create demo specific buttons
         let demoBtn;
         let demoStopBtn;
         let demoPauseBtn;
         let demoResumeBtn;
 
-        if (isDemo) {
+        if (options.demo) {
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
             demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
@@ -234,6 +271,7 @@ class LiveExample {
             controlsWrapper.append(demoResumeBtn);
         }
 
+        // create regular buttons
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
         resetBtn.classList.add("resetBtn","regular");
@@ -277,13 +315,14 @@ class LiveExample {
         contodo.createDocumentNode();
 
         
+        // prepare main functions for demo mode
+        // or prepare for regular mode
         let runDemo;
         let stopDemo;
         let pauseDemo;
         let resumeDemo;
         
-        // test and prepare for demo mode
-        if (isDemo) {      
+        if (options.demo) {      
             [   
                 code,
                 runDemo,
@@ -307,7 +346,9 @@ class LiveExample {
 
                 runDemo()
                     .finally(() => {
-                        setRegularMode();
+                        if (options.transform) {
+                            setRegularMode();
+                        }
                         main.dispatchEvent(STOPPED);
 
                         main.classList.remove("running");
@@ -346,6 +387,7 @@ class LiveExample {
         }
 
         
+        // install run and reset functions 
         main.reset = () => {
             if (window.isDemoing) {
                 return;
@@ -386,6 +428,8 @@ class LiveExample {
         // bind code execution to executeBtn
         executeBtn.addEventListener("click", main.run, false);
 
+
+        // establish some helper functions
         const setDemoMode = (initial=false) => {
             main.mode = "demo";
             main.classList.add(
@@ -414,7 +458,8 @@ class LiveExample {
             main.dispatchEvent(EXECUTED);
         };
 
-        if (isDemo) {
+        // finally set to the requested mode
+        if (options.demo) {
             setDemoMode(true);
         } else {
             setRegularMode();
@@ -441,9 +486,8 @@ const liveExamples = (() => {
 
     /**
      * Function to generate example instances for 
-     * every template and node for displaying the
-     * information, that the code was copied to the
-     * clipboard.
+     * every template. All "autostart" instances,
+     * are also executed serially from top to bottom.
      */
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");

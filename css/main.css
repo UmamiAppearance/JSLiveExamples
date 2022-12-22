@@ -98,7 +98,7 @@ div.live-example {
 .live-example.regular .demo, .live-example.demo .regular, .live-example.stopped .running, .live-example.running .stopped, .live-example.running .paused:not(.running), .live-example.paused .running:not(.paused), .live-example.stopped .paused, .live-example.paused .stopped {
     display: none;
 }
-.live-example.demo.waiting .controls {
+.live-example.demo.waiting .controls, .live-example.no-buttons .controls {
     visibility: hidden;
 }
 .live-example.demo code {

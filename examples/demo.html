@@ -49,35 +49,23 @@
             
                 <template class="live-example">
                     <h1>Example: Hello World!</h1>
-                    <script data-run="true" data-demo="true">
+
+                    <meta 
+                        data-run="true"
+                        data-demo="true"
+                        data-scroll="true"
+                        data-transform="true"
+                    >
+
+                    <script>
                         const helloWorld = () => {
                             console.log("Hello World!");
                         };
-                        
-                        helloWorld();
-                        ___(1000);
-                        console.log(new Date().toISOString());
-                        ___(2000);
-
+                        ___(750);
                         helloWorld();
                     </script>
                 </template>
 
-                <template class="live-example">
-                    <h1>Example: Hello World2!</h1>
-                    <script data-run="no" data-demo="y">
-                        const helloWorld = () => {
-                            console.log("Hello World!");
-                        };
-                        
-                        helloWorld();
-                        ___(1000);
-                        console.log(new Date().toISOString());
-                        ___(1000);
-
-                        helloWorld();
-                    </script>
-                </template>
             </section>
         </main>
         

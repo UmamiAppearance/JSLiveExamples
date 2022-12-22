@@ -2,6 +2,12 @@ const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 const AsyncFunction = (async function(){}).constructor;
 const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
+/**
+ * A promise, which remains in a pending state
+ * until a event occurs.
+ * @param {string} name - Event name. 
+ * @returns {Object} - Wait Promise.
+ */
 window.waitPromise = name => {
     if (window.abortDemo) {
         return Promise.reject();
@@ -31,7 +37,12 @@ window.waitPromise = name => {
     });
 };
 
-
+/**
+ * Async Sleep function, which can also wait
+ * until a pause event resolves.
+ * @param {*} ms 
+ * @returns 
+ */
 window.sleep = ms => new Promise(resolve => {
     const resumeIfNotPaused = async () => {
         if (window.demoIsPaused) {
@@ -45,6 +56,12 @@ window.sleep = ms => new Promise(resolve => {
 
 window.demoPauseEvt = new Event("demoPause");
 
+/**
+ * Generates a pause function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo 
+ * @returns {function} - Pause function.
+ */
 const pauseDemoFN = contodo => {
     return () => {
         if (!window.isDemoing || window.demoIsPaused) {
@@ -56,6 +73,12 @@ const pauseDemoFN = contodo => {
     };
 };
 
+/**
+ * Generates a resume function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo 
+ * @returns {function} - resume function.
+ */
 const resumeDemoFN = contodo => {
     return () => {
         if (!window.isDemoing || !window.demoIsPaused) {
@@ -67,6 +90,15 @@ const resumeDemoFN = contodo => {
     };
 };
 
+/**
+ * Generates a stop function. Which can
+ * control all parts of a LiveExample.
+ * @param {string} instanceId - ID of the instance.
+ * @param {string} code - Source code of the example.
+ * @param {Object} jar - Code jar instance.
+ * @param {Object} contodo - Contodo instance.
+ * @returns {function} - Pause function.
+ */
 const stopDemoFN = (instanceId, code, jar, contodo) => {
     return () => {
 
@@ -86,6 +118,13 @@ const stopDemoFN = (instanceId, code, jar, contodo) => {
     };
 };
 
+
+/**
+ * Generates a function, which emulates keyboard typing
+ * on a CodeJar instance.
+ * @param {string} code - The source code for the typing emulation.
+ * @returns {function} - Typing function.
+ */
 const makeTypingFN = (code) => {
     return async jar => {
         let content = jar.toString();
@@ -94,7 +133,7 @@ const makeTypingFN = (code) => {
             content += char;
             jar.updateCode(content);
             jar.updateLines(content);
-            await window.sleep(Math.floor(Math.random() * 50 + 30));
+            await window.sleep(Math.floor(Math.random() * 60 + 30));
             
             if (window.abortDemo) {
                 break;
@@ -103,6 +142,16 @@ const makeTypingFN = (code) => {
     };
 };
 
+
+/**
+ * Generates all required functions for running
+ * a LiveExample in demo mode.
+ * @param {string} id - Id of the html-node. 
+ * @param {string} code - The source code (with breakpoints) 
+ * @param {Object} jar - A CodeJar instance. 
+ * @param {Object} contodo - A contodo instance. 
+ * @returns {array[]} - An array with the required functions and the source code with the breakpoints removed.
+ */
 const makeDemo = (id, code, jar, contodo) => {
     jar.updateLines("");
     jar.updateCode(""); 
