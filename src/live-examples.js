@@ -23,14 +23,6 @@ const CSS = mainCSS + prismCSS;
 const EXECUTED = new Event("executed");
 const STOPPED = new Event("stopped");
 
-const bool = (b, True=false) => {  
-    const boolFromAttrStr = b => (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
-    
-    if (True) {
-        return typeof b === "undefined" || boolFromAttrStr(b);
-    }
-    return typeof b !== "undefined" && boolFromAttrStr(b);
-};
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -100,14 +92,43 @@ class LiveExample {
      * @returns {Object} - The extracted code and options.
      */
     getAttributes(template) {
+
+        const getBool = (val, True=false) => {  
+            const boolFromAttrStr = val => (val === "" || !(/^(?:false|no?|0)$/i).test(String(val)));
+            
+            if (True) {
+                return typeof val === "undefined" || boolFromAttrStr(val);
+            }
+            return typeof val !== "undefined" && boolFromAttrStr(val);
+        };
+        
+        const getNum = (val, fallback, name) => {
+            if (typeof val === "undefined") {
+                return fallback;
+            }
+        
+            let n = parseInt(val, 10);
+        
+            if (isNaN(n) || n < 1) {
+                n = fallback;
+                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to 1. Using default value ${fallback}`);
+            }
+        
+            return n;
+        };
+        
         
         let code = "";
+
+        // default values
         const options = {
             autostart: false,
             buttons: true,
             demo: false,
             scroll: true,
-            transform: true
+            transform: true,
+            typingSpeed: 60,
+            typingVariation: 80
         };
 
 
@@ -121,7 +142,7 @@ class LiveExample {
                 .trim();
             
             // backwards compatibility
-            let autostart = bool(codeNode.dataset.run, false);
+            let autostart = getBool(codeNode.dataset.run, false);
             if (autostart) {
                 console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
                 
@@ -137,11 +158,32 @@ class LiveExample {
         const metaNode = template.content.querySelector("meta");
         
         if (metaNode) {
-            options.autostart = bool(metaNode.dataset.run, false);
-            options.buttons = bool(metaNode.dataset.buttons, true);
-            options.demo = bool(metaNode.dataset.demo, false);
-            options.scroll = bool(metaNode.dataset.scroll, true);
-            options.transform = bool(metaNode.dataset.transform, true);
+            options.autostart = getBool(metaNode.dataset.run, false);
+            options.buttons = getBool(metaNode.dataset.buttons, true);
+            options.demo = getBool(metaNode.dataset.demo, false);
+            options.scroll = getBool(metaNode.dataset.scroll, true);
+            options.transform = getBool(metaNode.dataset.transform, true);
+
+            const defaultTypingSpeed = options.typingSpeed;
+            const defaultTypingVariation = options.typingVariation;
+            
+            options.typingSpeed = getNum(
+                metaNode.dataset.typingSpeed,
+                defaultTypingSpeed,
+                "typing-speed"
+            );
+            options.typingVariation = getNum(
+                metaNode.dataset.typingVariation,
+                defaultTypingVariation,
+                "typing-variation"
+            );
+
+            if (options.typingVariation/2 > options.typingSpeed) {
+                options.typingSpeed = defaultTypingSpeed;
+                options.typingVariation = defaultTypingVariation;
+
+                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${defaultTypingSpeed}, typing-variation: ${defaultTypingVariation}].`);
+            }
         }
         
         return { code, options };
@@ -329,7 +371,7 @@ class LiveExample {
                 pauseDemo,
                 resumeDemo,
                 stopDemo
-            ] = makeDemo(this.id, code, jar, contodo);
+            ] = makeDemo(this.id, code, jar, contodo, options);
         
             main.runDemo = () => {
                 if (window.isDemoing) {

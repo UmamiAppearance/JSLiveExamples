@@ -125,7 +125,12 @@ const stopDemoFN = (instanceId, code, jar, contodo) => {
  * @param {string} code - The source code for the typing emulation.
  * @returns {function} - Typing function.
  */
-const makeTypingFN = (code) => {
+const makeTypingFN = (code, speed, variation) => {
+    const minRN = speed - variation/2;
+    const maxRN = minRN + variation;
+    window._console.log(speed, variation);
+    window._console.log(minRN, maxRN);
+
     return async jar => {
         let content = jar.toString();
         
@@ -133,7 +138,7 @@ const makeTypingFN = (code) => {
             content += char;
             jar.updateCode(content);
             jar.updateLines(content);
-            await window.sleep(Math.floor(Math.random() * 60 + 30));
+            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
             if (window.abortDemo) {
                 break;
@@ -152,7 +157,7 @@ const makeTypingFN = (code) => {
  * @param {Object} contodo - A contodo instance. 
  * @returns {array[]} - An array with the required functions and the source code with the breakpoints removed.
  */
-const makeDemo = (id, code, jar, contodo) => {
+const makeDemo = (id, code, jar, contodo, options) => {
     jar.updateLines("");
     jar.updateCode(""); 
 
@@ -178,7 +183,7 @@ const makeDemo = (id, code, jar, contodo) => {
     codeUnits.forEach((codeUnit, i) => {
 
         cleanCode += codeUnit;
-        const typingFN = makeTypingFN(codeUnit);
+        const typingFN = makeTypingFN(codeUnit, options.typingSpeed, options.typingVariation);
 
         typingInstructions.push(typingFN);
         typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
