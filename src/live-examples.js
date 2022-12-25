@@ -102,16 +102,16 @@ class LiveExample {
             return typeof val !== "undefined" && boolFromAttrStr(val);
         };
         
-        const getNum = (val, fallback, name) => {
+        const getInt = (val, fallback, name) => {
             if (typeof val === "undefined") {
                 return fallback;
             }
         
             let n = parseInt(val, 10);
         
-            if (isNaN(n) || n < 1) {
+            if (isNaN(n) || n < 0) {
                 n = fallback;
-                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to 1. Using default value ${fallback}`);
+                window._console.warn(`The number input for ${name} must be a positive integer. Using default value ${fallback}`);
             }
         
             return n;
@@ -125,6 +125,7 @@ class LiveExample {
             autostart: false,
             buttons: true,
             demo: false,
+            executionDelay: 250,
             scroll: true,
             transform: true,
             typingSpeed: 60,
@@ -161,18 +162,23 @@ class LiveExample {
             options.autostart = getBool(metaNode.dataset.run, false);
             options.buttons = getBool(metaNode.dataset.buttons, true);
             options.demo = getBool(metaNode.dataset.demo, false);
+            options.executionDelay = getInt(
+                metaNode.dataset.executionDelay,
+                options.executionDelay,
+                "execution-delay"
+            );
             options.scroll = getBool(metaNode.dataset.scroll, true);
             options.transform = getBool(metaNode.dataset.transform, true);
 
             const defaultTypingSpeed = options.typingSpeed;
             const defaultTypingVariation = options.typingVariation;
             
-            options.typingSpeed = getNum(
+            options.typingSpeed = getInt(
                 metaNode.dataset.typingSpeed,
                 defaultTypingSpeed,
                 "typing-speed"
             );
-            options.typingVariation = getNum(
+            options.typingVariation = getInt(
                 metaNode.dataset.typingVariation,
                 defaultTypingVariation,
                 "typing-variation"

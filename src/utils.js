@@ -125,12 +125,10 @@ const stopDemoFN = (instanceId, code, jar, contodo) => {
  * @param {string} code - The source code for the typing emulation.
  * @returns {function} - Typing function.
  */
-const makeTypingFN = (code, speed, variation) => {
-    const minRN = speed - variation/2;
-    const maxRN = minRN + variation;
-    window._console.log(speed, variation);
-    window._console.log(minRN, maxRN);
-
+const makeTypingFN = (code, options) => {
+    const minRN = options.typingSpeed - options.typingVariation/2;
+    const maxRN = minRN + options.typingVariation;
+    
     return async jar => {
         let content = jar.toString();
         
@@ -143,7 +141,11 @@ const makeTypingFN = (code, speed, variation) => {
             if (window.abortDemo) {
                 break;
             }
-        }     
+        }    
+        
+        if (options.executionDelay) {
+            await window.sleep(options.executionDelay);
+        }
     };
 };
 
@@ -183,7 +185,7 @@ const makeDemo = (id, code, jar, contodo, options) => {
     codeUnits.forEach((codeUnit, i) => {
 
         cleanCode += codeUnit;
-        const typingFN = makeTypingFN(codeUnit, options.typingSpeed, options.typingVariation);
+        const typingFN = makeTypingFN(codeUnit, options);
 
         typingInstructions.push(typingFN);
         typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
