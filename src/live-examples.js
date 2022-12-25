@@ -124,6 +124,7 @@ class LiveExample {
         const options = {
             autostart: false,
             buttons: true,
+            caret: true,
             demo: false,
             executionDelay: 250,
             scroll: true,
@@ -161,6 +162,7 @@ class LiveExample {
         if (metaNode) {
             options.autostart = getBool(metaNode.dataset.run, false);
             options.buttons = getBool(metaNode.dataset.buttons, true);
+            options.caret = getBool(metaNode.dataset.caret, false);
             options.demo = getBool(metaNode.dataset.demo, false);
             options.executionDelay = getInt(
                 metaNode.dataset.executionDelay,
@@ -301,6 +303,10 @@ class LiveExample {
         let demoResumeBtn;
 
         if (options.demo) {
+            if (options.caret) {
+                main.classList.add("caret");
+            }
+
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
             demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");

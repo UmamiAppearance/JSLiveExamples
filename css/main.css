@@ -105,12 +105,16 @@ div.live-example {
     pointer-events: none;
     user-select: none;
 }
-.live-example.demo:not(.stopped) .code code::after {
-    content: "|";
-    color: black;
+.live-example.demo.caret:not(.stopped) .code code::after {
+    content: "";
+    background-color: black;
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    margin-left: 1px;
 }
-.live-example.demo:not(.stopped):not(.typing) .code code::after {
-    animation: caret 1s step-end infinite;
+.live-example.demo.caret:not(.stopped):not(.typing) .code code::after {
+    animation: caret 1.5s step-end infinite;
 }
 @keyframes caret {
     50% { opacity: 0; }
