@@ -59,14 +59,16 @@ window.demoPauseEvt = new Event("demoPause");
 /**
  * Generates a pause function. Which can
  * control a contodo instance.
- * @param {Object} contodo 
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
  * @returns {function} - Pause function.
  */
-const pauseDemoFN = contodo => {
+const pauseDemoFN = (contodo, jar) => {
     return () => {
         if (!window.isDemoing || window.demoIsPaused) {
             return;
         }
+        jar.typing = false;
         contodo.restoreDefaultConsole();
         window.demoPause = window.waitPromise("demoPause");
         window.demoIsPaused = true;
@@ -76,10 +78,11 @@ const pauseDemoFN = contodo => {
 /**
  * Generates a resume function. Which can
  * control a contodo instance.
- * @param {Object} contodo 
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
  * @returns {function} - resume function.
  */
-const resumeDemoFN = contodo => {
+const resumeDemoFN = (contodo, jar) => {
     return () => {
         if (!window.isDemoing || !window.demoIsPaused) {
             return;
@@ -87,6 +90,7 @@ const resumeDemoFN = contodo => {
         contodo.initFunctions();
         window.dispatchEvent(window.demoPauseEvt);
         window.demoIsPaused = false;
+        jar.typing = true;
     };
 };
 
@@ -131,11 +135,14 @@ const makeTypingFN = (code, options) => {
     
     return async jar => {
         let content = jar.toString();
+        jar.typing = true;
         
         for (const char of [...code]) {
             content += char;
-            jar.updateCode(content);
-            jar.updateLines(content);
+            window.requestAnimationFrame(() => {
+                jar.updateCode(content);
+                jar.updateLines(content);
+            });
             await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
             if (window.abortDemo) {
@@ -143,6 +150,8 @@ const makeTypingFN = (code, options) => {
             }
         }    
         
+        jar.typing = false;
+
         if (options.executionDelay) {
             await window.sleep(options.executionDelay);
         }
@@ -241,8 +250,8 @@ const makeDemo = (id, code, jar, contodo, options) => {
     return [
         cleanCode,
         demoFN,
-        pauseDemoFN(contodo),
-        resumeDemoFN(contodo),
+        pauseDemoFN(contodo, jar),
+        resumeDemoFN(contodo, jar),
         stopDemoFN(instanceId, cleanCode, jar, contodo)
     ];
 };

@@ -102,16 +102,16 @@ class LiveExample {
             return typeof val !== "undefined" && boolFromAttrStr(val);
         };
         
-        const getInt = (val, fallback, name) => {
+        const getInt = (val, fallback, min, name) => {
             if (typeof val === "undefined") {
                 return fallback;
             }
         
             let n = parseInt(val, 10);
         
-            if (isNaN(n) || n < 0) {
+            if (isNaN(n) || n < min) {
                 n = fallback;
-                window._console.warn(`The number input for ${name} must be a positive integer. Using default value ${fallback}`);
+                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to ${min}. Using default value ${fallback}`);
             }
         
             return n;
@@ -165,6 +165,7 @@ class LiveExample {
             options.executionDelay = getInt(
                 metaNode.dataset.executionDelay,
                 options.executionDelay,
+                0,
                 "execution-delay"
             );
             options.scroll = getBool(metaNode.dataset.scroll, true);
@@ -176,11 +177,13 @@ class LiveExample {
             options.typingSpeed = getInt(
                 metaNode.dataset.typingSpeed,
                 defaultTypingSpeed,
+                1,
                 "typing-speed"
             );
             options.typingVariation = getInt(
                 metaNode.dataset.typingVariation,
                 defaultTypingVariation,
+                1,
                 "typing-variation"
             );
 
@@ -345,6 +348,17 @@ class LiveExample {
         );
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
+        Object.defineProperty(jar, "typing", {
+            set(typing) {
+                if (typing) {
+                    main.classList.add("typing");
+                } else {
+                    main.classList.remove("typing");
+                }
+            }
+        });
+
+        window.JAR = jar;
 
     
         // append code and title to main

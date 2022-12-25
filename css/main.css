@@ -105,6 +105,16 @@ div.live-example {
     pointer-events: none;
     user-select: none;
 }
+.live-example.demo:not(.stopped) .code code::after {
+    content: "|";
+    color: black;
+}
+.live-example.demo:not(.stopped):not(.typing) .code code::after {
+    animation: caret 1s step-end infinite;
+}
+@keyframes caret {
+    50% { opacity: 0; }
+}
 .live-example.demo > .code {
     background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\</svg>");
 }
