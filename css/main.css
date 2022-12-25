@@ -179,7 +179,18 @@ div.live-example {
 }
 .live-example h1 {
     font-size: 1.4em;
+    line-height: 1.4em;
     margin: auto 0;
+}
+.live-example h1::before {
+    content: ".";
+    opacity: 0;
+    max-width: 0;
+    transition: max-width 200ms;
+    display: inline-block;
+    overflow: hidden;
+    height: 1.4em;
+    vertical-align: bottom;
 }
 .live-example .controls {
     display: flex;
@@ -193,6 +204,15 @@ div.live-example {
 .example-processing .live-example:not(.processing) .controls, .example-processing .processing .executeBtn, .example-processing .processing .resetBtn {
     opacity: 0.5;
     pointer-events: none;
+}
+.example-processing .live-example h1::before {
+    animation: loading 3s cubic-bezier(0.075, 0.82, 0.165, 1) infinite;
+    max-width: 10px;
+}
+@keyframes loading {
+    50% {
+        opacity: 1;
+    }
 }
 .live-example button {
     font-weight: 500;
