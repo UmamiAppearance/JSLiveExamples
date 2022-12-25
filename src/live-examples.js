@@ -400,8 +400,8 @@ class LiveExample {
             ] = makeDemo(this.id, code, jar, contodo, options);
         
             main.runDemo = () => {
-                if (window.isDemoing) {
-                    throw new Error("A demo is currently running. Starting was blocked.");
+                if (window.isProcessing) {
+                    return false;
                 }
                 
                 if (main.mode === "regular") {
@@ -426,22 +426,35 @@ class LiveExample {
             };
 
             main.pauseDemo = () => {
+                if (window.isProcessing && window.isProcessing !== this.id) {
+                    return false;
+                }
                 pauseDemo();
                 main.classList.remove("running");
                 main.classList.add("paused");
+                return true;
             };
 
             main.resumeDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
                 resumeDemo();
                 main.classList.remove("paused");
                 main.classList.add("running");
+                return true;
             };
 
             main.stopDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+
                 stopDemo();
                 main.classList.remove("running");
                 main.classList.add("stopped");
                 endProcessing();
+                return true;
             };
 
             demoBtn.addEventListener("click", main.runDemo, false);
@@ -457,12 +470,13 @@ class LiveExample {
         
         // install run and reset functions 
         main.reset = () => {
-            if (window.isDemoing) {
-                return;
+            if (window.isProcessing) {
+                return false;
             }
             contodo.clear(false);
             jar.updateCode(code);
             jar.updateLines(code);
+            return true;
         };
 
         // bind reset to resetBtn
@@ -474,8 +488,8 @@ class LiveExample {
         // be protected to get readable error messages)
 
         main.run = {[RUNNER_FUNCTION_NAME]: async () => {
-            if (window.isDemoing) {
-                return;
+            if (window.isProcessing) {
+                return false;
             }
 
             startProcessing();
@@ -490,7 +504,8 @@ class LiveExample {
                 throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
-            endProcessing();       
+            endProcessing();
+            return true; 
         }}[RUNNER_FUNCTION_NAME];
 
         // bind code execution to executeBtn
@@ -516,11 +531,13 @@ class LiveExample {
         };
 
         const startProcessing = () => {
+            window.isProcessing = this.id;
             document.body.classList.add("example-processing");
             main.classList.add("processing");
         };
 
         const endProcessing = () => {
+            window.isProcessing = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
             main.dispatchEvent(EXECUTED);
