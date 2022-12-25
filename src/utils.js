@@ -116,6 +116,7 @@ const stopDemoFN = (instanceId, code, jar, contodo) => {
 
         jar.updateCode(code);
         jar.updateLines(code);
+        jar.typing = false;
         
         window.isDemoing = false;
 

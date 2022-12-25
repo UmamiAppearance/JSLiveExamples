@@ -160,30 +160,32 @@ class LiveExample {
         const metaNode = template.content.querySelector("meta");
         
         if (metaNode) {
-            options.autostart = getBool(metaNode.dataset.run, false);
-            options.buttons = getBool(metaNode.dataset.buttons, true);
-            options.caret = getBool(metaNode.dataset.caret, false);
-            options.demo = getBool(metaNode.dataset.demo, false);
+            const data = metaNode.dataset;
+
+            options.autostart = getBool(data.run, false);
+            options.buttons = getBool(data.buttons, true);
+            options.caret = getBool(data.caret, false);
+            options.demo = getBool(data.demo, false);
             options.executionDelay = getInt(
-                metaNode.dataset.executionDelay,
+                data.executionDelay,
                 options.executionDelay,
                 0,
                 "execution-delay"
             );
-            options.scroll = getBool(metaNode.dataset.scroll, true);
-            options.transform = getBool(metaNode.dataset.transform, true);
+            options.scroll = getBool(data.scroll, true);
+            options.transform = getBool(data.transform, true);
 
             const defaultTypingSpeed = options.typingSpeed;
             const defaultTypingVariation = options.typingVariation;
             
             options.typingSpeed = getInt(
-                metaNode.dataset.typingSpeed,
+                data.typingSpeed,
                 defaultTypingSpeed,
                 1,
                 "typing-speed"
             );
             options.typingVariation = getInt(
-                metaNode.dataset.typingVariation,
+                data.typingVariation,
                 defaultTypingVariation,
                 1,
                 "typing-variation"
@@ -363,8 +365,6 @@ class LiveExample {
                 }
             }
         });
-
-        window.JAR = jar;
 
     
         // append code and title to main
