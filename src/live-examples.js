@@ -20,8 +20,22 @@ import {
 
 
 const CSS = mainCSS + prismCSS;
+
+const AUTO_EXECUTED = new Event("autoexecuted");
 const EXECUTED = new Event("executed");
 const STOPPED = new Event("stopped");
+
+const OPTIONS = {
+    autostart: false,
+    buttons: true,
+    caret: true,
+    demo: false,
+    executionDelay: 250,
+    scroll: true,
+    transform: true,
+    typingSpeed: 60,
+    typingVariation: 80
+};
 
 
 /**
@@ -52,7 +66,7 @@ class LiveExample {
         example.autostart = options.autostart;
         example.demo = options.demo;
 
-        example.classList.add(className);
+        example.classList.add(...className.split(" "));
         if (!options.buttons) example.classList.add("no-buttons");
         if (!options.scroll) example.classList.add("no-scroll");
 
@@ -120,19 +134,8 @@ class LiveExample {
         
         let code = "";
 
-        // default values
-        const options = {
-            autostart: false,
-            buttons: true,
-            caret: true,
-            demo: false,
-            executionDelay: 250,
-            scroll: true,
-            transform: true,
-            typingSpeed: 60,
-            typingVariation: 80
-        };
-
+        // copy default values
+        const options = { ...OPTIONS };
 
         const codeNode = template.content.querySelector("script");
 
@@ -377,6 +380,7 @@ class LiveExample {
             main,
             {
                 autostart: false,
+                clearButton: false,
                 preventDefault: true
             }
         );
@@ -606,6 +610,7 @@ const liveExamples = (() => {
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
+            
             if (example) {
                 example.addEventListener("executed", autoExe, false);
                 if (example.demo) {
@@ -615,6 +620,11 @@ const liveExamples = (() => {
                 } else {
                     example.run();
                 }
+            }
+
+            else {
+                window.dispatchEvent(AUTO_EXECUTED);
+                window.liveExamplesAutoExecuted = true;
             }
         };
         autoExe();

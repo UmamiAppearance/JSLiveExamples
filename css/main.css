@@ -206,7 +206,7 @@ div.live-example {
     pointer-events: none;
 }
 .example-processing .live-example h1::before {
-    animation: loading 3s cubic-bezier(0.075, 0.82, 0.165, 1) infinite;
+    animation: loading 2s cubic-bezier(0.075, 0.82, 0.165, 1) infinite;
     max-width: 10px;
 }
 .example-processing .live-example.paused h1::before {

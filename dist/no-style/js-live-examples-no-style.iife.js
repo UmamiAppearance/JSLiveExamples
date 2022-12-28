@@ -1900,10 +1900,29 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.4.0
+	 * @version 0.4.1
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
+
+	// Store Default Console Methods
+	window._console = {
+	    assert: console.assert.bind(console),
+	    count: console.count.bind(console),
+	    countReset: console.countReset.bind(console),
+	    clear: console.clear.bind(console),
+	    debug: console.debug.bind(console),
+	    error: console.error.bind(console),
+	    exception: console.exception ? console.exception.bind(console) : null,
+	    info: console.info.bind(console),
+	    log: console.log.bind(console),
+	    table: console.table.bind(console),
+	    time: console.time.bind(console),
+	    timeEnd: console.timeEnd.bind(console),
+	    timeLog: console.timeLog.bind(console),
+	    trace: console.trace.bind(console),
+	    warn: console.warn.bind(console)
+	};
 
 
 	/**
@@ -1958,28 +1977,7 @@ var liveExamples = (function () {
 	            }
 	            this.options.applyCSS = false;
 	        }
-	        
-	        // Store Default Console Methods
-	        if (!window._console) {
-	            window._console = {
-	                assert: console.assert.bind(console),
-	                count: console.count.bind(console),
-	                countReset: console.countReset.bind(console),
-	                clear: console.clear.bind(console),
-	                debug: console.debug.bind(console),
-	                error: console.error.bind(console),
-	                exception: console.exception ? console.exception.bind(console) : null,
-	                info: console.info.bind(console),
-	                log: console.log.bind(console),
-	                table: console.table.bind(console),
-	                time: console.time.bind(console),
-	                timeEnd: console.timeEnd.bind(console),
-	                timeLog: console.timeLog.bind(console),
-	                trace: console.trace.bind(console),
-	                warn: console.warn.bind(console)
-	            };
-	        }
-	   
+	         
 	        // Class values
 	        this.active = false;
 	        this.counters = {};
@@ -2935,6 +2933,12 @@ var liveExamples = (function () {
 	const AsyncFunction = (async function(){}).constructor;
 	const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
+	/**
+	 * A promise, which remains in a pending state
+	 * until a event occurs.
+	 * @param {string} name - Event name. 
+	 * @returns {Object} - Wait Promise.
+	 */
 	window.waitPromise = name => {
 	    if (window.abortDemo) {
 	        return Promise.reject();
@@ -2964,7 +2968,12 @@ var liveExamples = (function () {
 	    });
 	};
 
-
+	/**
+	 * Async Sleep function, which can also wait
+	 * until a pause event resolves.
+	 * @param {*} ms 
+	 * @returns 
+	 */
 	window.sleep = ms => new Promise(resolve => {
 	    const resumeIfNotPaused = async () => {
 	        if (window.demoIsPaused) {
@@ -2978,18 +2987,33 @@ var liveExamples = (function () {
 
 	window.demoPauseEvt = new Event("demoPause");
 
-	const pauseDemoFN = contodo => {
+	/**
+	 * Generates a pause function. Which can
+	 * control a contodo instance.
+	 * @param {Object} contodo - contodo instance.
+	 * @param {Object} jar - Code Jar instance.
+	 * @returns {function} - Pause function.
+	 */
+	const pauseDemoFN = (contodo, jar) => {
 	    return () => {
 	        if (!window.isDemoing || window.demoIsPaused) {
 	            return;
 	        }
+	        jar.typing = false;
 	        contodo.restoreDefaultConsole();
 	        window.demoPause = window.waitPromise("demoPause");
 	        window.demoIsPaused = true;
 	    };
 	};
 
-	const resumeDemoFN = contodo => {
+	/**
+	 * Generates a resume function. Which can
+	 * control a contodo instance.
+	 * @param {Object} contodo - contodo instance.
+	 * @param {Object} jar - Code Jar instance.
+	 * @returns {function} - resume function.
+	 */
+	const resumeDemoFN = (contodo, jar) => {
 	    return () => {
 	        if (!window.isDemoing || !window.demoIsPaused) {
 	            return;
@@ -2997,9 +3021,19 @@ var liveExamples = (function () {
 	        contodo.initFunctions();
 	        window.dispatchEvent(window.demoPauseEvt);
 	        window.demoIsPaused = false;
+	        jar.typing = true;
 	    };
 	};
 
+	/**
+	 * Generates a stop function. Which can
+	 * control all parts of a LiveExample.
+	 * @param {string} instanceId - ID of the instance.
+	 * @param {string} code - Source code of the example.
+	 * @param {Object} jar - Code jar instance.
+	 * @param {Object} contodo - Contodo instance.
+	 * @returns {function} - Pause function.
+	 */
 	const stopDemoFN = (instanceId, code, jar, contodo) => {
 	    return () => {
 
@@ -3013,30 +3047,60 @@ var liveExamples = (function () {
 
 	        jar.updateCode(code);
 	        jar.updateLines(code);
+	        jar.typing = false;
 	        
 	        window.isDemoing = false;
 
 	    };
 	};
 
-	const makeTypingFN = (code) => {
+
+	/**
+	 * Generates a function, which emulates keyboard typing
+	 * on a CodeJar instance.
+	 * @param {string} code - The source code for the typing emulation.
+	 * @returns {function} - Typing function.
+	 */
+	const makeTypingFN = (code, options) => {
+	    const minRN = options.typingSpeed - options.typingVariation/2;
+	    const maxRN = minRN + options.typingVariation;
+	    
 	    return async jar => {
 	        let content = jar.toString();
+	        jar.typing = true;
 	        
 	        for (const char of [...code]) {
 	            content += char;
-	            jar.updateCode(content);
-	            jar.updateLines(content);
-	            await window.sleep(Math.floor(Math.random() * 50 + 30));
+	            window.requestAnimationFrame(() => {
+	                jar.updateCode(content);
+	                jar.updateLines(content);
+	            });
+	            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
 	            
 	            if (window.abortDemo) {
 	                break;
 	            }
-	        }     
+	        }    
+	        
+	        jar.typing = false;
+
+	        if (options.executionDelay) {
+	            await window.sleep(options.executionDelay);
+	        }
 	    };
 	};
 
-	const makeDemo = (id, code, jar, contodo) => {
+
+	/**
+	 * Generates all required functions for running
+	 * a LiveExample in demo mode.
+	 * @param {string} id - Id of the html-node. 
+	 * @param {string} code - The source code (with breakpoints) 
+	 * @param {Object} jar - A CodeJar instance. 
+	 * @param {Object} contodo - A contodo instance. 
+	 * @returns {array[]} - An array with the required functions and the source code with the breakpoints removed.
+	 */
+	const makeDemo = (id, code, jar, contodo, options) => {
 	    jar.updateLines("");
 	    jar.updateCode(""); 
 
@@ -3044,7 +3108,11 @@ var liveExamples = (function () {
 	    window[instanceId] = new Event(instanceId);
 	    window["abort" + instanceId] = new Event("abort" + instanceId);
 
-	    const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
+	    // REGEX: 
+	    // * ignore whitespace but exclude newline
+	    // * look for three underscores
+	    // * optionally followed by a number between brackets 
+	    const breakPointRegex = /^[^\S\r\n]*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
 	    const codeUnits = code.split(breakPointRegex);
 	    let breakpoints = [];
 
@@ -3062,7 +3130,7 @@ var liveExamples = (function () {
 	    codeUnits.forEach((codeUnit, i) => {
 
 	        cleanCode += codeUnit;
-	        const typingFN = makeTypingFN(codeUnit);
+	        const typingFN = makeTypingFN(codeUnit, options);
 
 	        typingInstructions.push(typingFN);
 	        typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
@@ -3118,8 +3186,8 @@ var liveExamples = (function () {
 	    return [
 	        cleanCode,
 	        demoFN,
-	        pauseDemoFN(contodo),
-	        resumeDemoFN(contodo),
+	        pauseDemoFN(contodo, jar),
+	        resumeDemoFN(contodo, jar),
 	        stopDemoFN(instanceId, cleanCode, jar, contodo)
 	    ];
 	};
@@ -3215,10 +3283,22 @@ var liveExamples = (function () {
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
+
+	const AUTO_EXECUTED = new Event("autoexecuted");
 	const EXECUTED = new Event("executed");
 	const STOPPED = new Event("stopped");
 
-	const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+	const OPTIONS = {
+	    autostart: false,
+	    buttons: true,
+	    caret: true,
+	    demo: false,
+	    executionDelay: 250,
+	    scroll: true,
+	    transform: true,
+	    typingSpeed: 60,
+	    typingVariation: 80
+	};
 
 
 	/**
@@ -3242,14 +3322,18 @@ var liveExamples = (function () {
 	        const className = template.getAttribute("class");
 
 	        const title = this.getTitle(template, index);
-	        const { code, autostart, demo } = this.getCode(template);
+	        const { code, options } = this.getAttributes(template);
 	        
-	        const example = this.makeCodeExample(title, code, demo);
+	        const example = this.makeCodeExample(title, code, options);
 	        example.id = this.id;
-	        example.classList.add(className);
-	        example.autostart = autostart;
-	        example.demo = demo;
+	        example.autostart = options.autostart;
+	        example.demo = options.demo;
 
+	        example.classList.add(...className.split(" "));
+	        if (!options.buttons) example.classList.add("no-buttons");
+	        if (!options.scroll) example.classList.add("no-scroll");
+
+	        
 	        // insert the fresh node right before the
 	        // template node in the document
 	        template.parentNode.insertBefore(example, template);
@@ -3279,19 +3363,45 @@ var liveExamples = (function () {
 
 
 	    /**
-	     * Extracts the code from given a <script> - tag
-	     * from the <template> node.
+	     * Extracts the code and other attributes from a given
+	     * <script> - tag from the <template> node.
 	     * @param {object} template - A html "<template>" node. 
-	     * @returns {string} - The code as a string.
+	     * @returns {Object} - The extracted code and options.
 	     */
-	    getCode(template) {
+	    getAttributes(template) {
+
+	        const getBool = (val, True=false) => {  
+	            const boolFromAttrStr = val => (val === "" || !(/^(?:false|no?|0)$/i).test(String(val)));
+	            
+	            if (True) {
+	                return typeof val === "undefined" || boolFromAttrStr(val);
+	            }
+	            return typeof val !== "undefined" && boolFromAttrStr(val);
+	        };
+	        
+	        const getInt = (val, fallback, min, name) => {
+	            if (typeof val === "undefined") {
+	                return fallback;
+	            }
+	        
+	            let n = parseInt(val, 10);
+	        
+	            if (isNaN(n) || n < min) {
+	                n = fallback;
+	                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to ${min}. Using default value ${fallback}`);
+	            }
+	        
+	            return n;
+	        };
+	        
 	        
 	        let code = "";
-	        let autostart = false;
-	        let demo = false;
+
+	        // copy default values
+	        const options = { ...OPTIONS };
 
 	        const codeNode = template.content.querySelector("script");
-	        
+
 	        if (codeNode) {
 	            code = codeNode.innerHTML;
 	            const pattern = code.match(/\s*\n[\t\s]*/);
@@ -3299,11 +3409,63 @@ var liveExamples = (function () {
 	                .replace(new RegExp(pattern, "g"), "\n")
 	                .trim();
 	            
-	            autostart = bool(codeNode.dataset.run);
-	            demo = bool(codeNode.dataset.demo);
+	            // backwards compatibility
+	            let autostart = getBool(codeNode.dataset.run, false);
+	            if (autostart) {
+	                console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
+	                
+	                options.autostart = true;
+
+	                return {
+	                    code,
+	                    options
+	                };
+	            }
+	        }
+	   
+	        const metaNode = template.content.querySelector("meta");
+	        
+	        if (metaNode) {
+	            const data = metaNode.dataset;
+
+	            options.autostart = getBool(data.run, false);
+	            options.buttons = getBool(data.buttons, true);
+	            options.caret = getBool(data.caret, false);
+	            options.demo = getBool(data.demo, false);
+	            options.executionDelay = getInt(
+	                data.executionDelay,
+	                options.executionDelay,
+	                0,
+	                "execution-delay"
+	            );
+	            options.scroll = getBool(data.scroll, true);
+	            options.transform = getBool(data.transform, true);
+
+	            const defaultTypingSpeed = options.typingSpeed;
+	            const defaultTypingVariation = options.typingVariation;
+	            
+	            options.typingSpeed = getInt(
+	                data.typingSpeed,
+	                defaultTypingSpeed,
+	                1,
+	                "typing-speed"
+	            );
+	            options.typingVariation = getInt(
+	                data.typingVariation,
+	                defaultTypingVariation,
+	                1,
+	                "typing-variation"
+	            );
+
+	            if (options.typingVariation/2 > options.typingSpeed) {
+	                options.typingSpeed = defaultTypingSpeed;
+	                options.typingVariation = defaultTypingVariation;
+
+	                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${defaultTypingSpeed}, typing-variation: ${defaultTypingVariation}].`);
+	            }
 	        }
 	        
-	        return { code, autostart, demo };
+	        return { code, options };
 	    }
 
 
@@ -3368,7 +3530,7 @@ var liveExamples = (function () {
 	     * @param {string} code - Initial code for the instance to display. 
 	     * @returns {object} - A document node (<div>) with all of its children.
 	     */
-	    makeCodeExample(title, code, isDemo) { 
+	    makeCodeExample(title, code, options) { 
 
 	        // create new html node
 	        const main = document.createElement("div");
@@ -3402,12 +3564,17 @@ var liveExamples = (function () {
 	        const controlsWrapper = document.createElement("div");
 	        controlsWrapper.classList.add("controls");
 
+	        // if is a demo create demo specific buttons
 	        let demoBtn;
 	        let demoStopBtn;
 	        let demoPauseBtn;
 	        let demoResumeBtn;
 
-	        if (isDemo) {
+	        if (options.demo) {
+	            if (options.caret) {
+	                main.classList.add("caret");
+	            }
+
 	            demoStopBtn = document.createElement("button");
 	            demoStopBtn.textContent = "stop";
 	            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
@@ -3429,6 +3596,7 @@ var liveExamples = (function () {
 	            controlsWrapper.append(demoResumeBtn);
 	        }
 
+	        // create regular buttons
 	        const resetBtn = document.createElement("button");
 	        resetBtn.textContent = "reset";
 	        resetBtn.classList.add("resetBtn","regular");
@@ -3454,6 +3622,15 @@ var liveExamples = (function () {
 	        );
 	        jar.updateLines = this.makeLineFN(lineNumbers);
 	        jar.onUpdate(jar.updateLines);
+	        Object.defineProperty(jar, "typing", {
+	            set(typing) {
+	                if (typing) {
+	                    main.classList.add("typing");
+	                } else {
+	                    main.classList.remove("typing");
+	                }
+	            }
+	        });
 
 	    
 	        // append code and title to main
@@ -3466,44 +3643,47 @@ var liveExamples = (function () {
 	            main,
 	            {
 	                autostart: false,
-	                clearButton: true,
+	                clearButton: false,
 	                preventDefault: true
 	            }
 	        );
 	        contodo.createDocumentNode();
 
 	        
+	        // prepare main functions for demo mode
+	        // or prepare for regular mode
 	        let runDemo;
 	        let stopDemo;
 	        let pauseDemo;
 	        let resumeDemo;
 	        
-	        // test and prepare for demo mode
-	        if (isDemo) {      
+	        if (options.demo) {      
 	            [   
 	                code,
 	                runDemo,
 	                pauseDemo,
 	                resumeDemo,
 	                stopDemo
-	            ] = makeDemo(this.id, code, jar, contodo);
+	            ] = makeDemo(this.id, code, jar, contodo, options);
 	        
 	            main.runDemo = () => {
-	                if (window.isDemoing) {
-	                    throw new Error("A demo is currently running. Starting was blocked.");
+	                if (window.isProcessing) {
+	                    return false;
 	                }
 	                
 	                if (main.mode === "regular") {
 	                    setDemoMode();
 	                }
 
-	                markProcessing();
+	                startProcessing();
 	                main.classList.remove("stopped");
 	                main.classList.add("running");
 
 	                runDemo()
 	                    .finally(() => {
-	                        setRegularMode();
+	                        if (options.transform) {
+	                            setRegularMode();
+	                        }
 	                        main.dispatchEvent(STOPPED);
 
 	                        main.classList.remove("running");
@@ -3513,22 +3693,35 @@ var liveExamples = (function () {
 	            };
 
 	            main.pauseDemo = () => {
+	                if (window.isProcessing && window.isProcessing !== this.id) {
+	                    return false;
+	                }
 	                pauseDemo();
 	                main.classList.remove("running");
 	                main.classList.add("paused");
+	                return true;
 	            };
 
 	            main.resumeDemo = () => {
+	                if (window.isProcessing !== this.id) {
+	                    return false;
+	                }
 	                resumeDemo();
 	                main.classList.remove("paused");
 	                main.classList.add("running");
+	                return true;
 	            };
 
 	            main.stopDemo = () => {
+	                if (window.isProcessing !== this.id) {
+	                    return false;
+	                }
+
 	                stopDemo();
 	                main.classList.remove("running");
 	                main.classList.add("stopped");
 	                endProcessing();
+	                return true;
 	            };
 
 	            demoBtn.addEventListener("click", main.runDemo, false);
@@ -3542,13 +3735,15 @@ var liveExamples = (function () {
 	        }
 
 	        
+	        // install run and reset functions 
 	        main.reset = () => {
-	            if (window.isDemoing) {
-	                return;
+	            if (window.isProcessing) {
+	                return false;
 	            }
 	            contodo.clear(false);
 	            jar.updateCode(code);
 	            jar.updateLines(code);
+	            return true;
 	        };
 
 	        // bind reset to resetBtn
@@ -3560,11 +3755,11 @@ var liveExamples = (function () {
 	        // be protected to get readable error messages)
 
 	        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
-	            if (window.isDemoing) {
-	                return;
+	            if (window.isProcessing) {
+	                return false;
 	            }
 
-	            markProcessing();
+	            startProcessing();
 
 	            contodo.clear(false);
 	            contodo.initFunctions();
@@ -3577,12 +3772,14 @@ var liveExamples = (function () {
 	            }
 	            contodo.restoreDefaultConsole();
 	            endProcessing();
-	            main.dispatchEvent(EXECUTED);       
+	            return true; 
 	        }}[RUNNER_FUNCTION_NAME];
 
 	        // bind code execution to executeBtn
 	        executeBtn.addEventListener("click", main.run, false);
 
+
+	        // establish some helper functions
 	        const setDemoMode = (initial=false) => {
 	            main.mode = "demo";
 	            main.classList.add(
@@ -3600,19 +3797,21 @@ var liveExamples = (function () {
 	            main.classList.remove("demo", "paused", "stopped");
 	        };
 
-	        const markProcessing = () => {
-	            window.EXAMPLE_PROCESSING = true;
+	        const startProcessing = () => {
+	            window.isProcessing = this.id;
 	            document.body.classList.add("example-processing");
 	            main.classList.add("processing");
 	        };
 
 	        const endProcessing = () => {
-	            window.EXAMPLE_PROCESSING = false;
+	            window.isProcessing = false;
 	            document.body.classList.remove("example-processing");
 	            main.classList.remove("processing");
+	            main.dispatchEvent(EXECUTED);
 	        };
 
-	        if (isDemo) {
+	        // finally set to the requested mode
+	        if (options.demo) {
 	            setDemoMode(true);
 	        } else {
 	            setRegularMode();
@@ -3632,15 +3831,12 @@ var liveExamples = (function () {
 
 	    /**
 	     * Function to generate example instances for 
-	     * every template and node for displaying the
-	     * information, that the code was copied to the
-	     * clipboard.
+	     * every template. All "autostart" instances,
+	     * are also executed serially from top to bottom.
 	     */
-	    // TODO: work on this
 	    const applyNodes = () => {
 	        const templates = document.querySelectorAll("template.live-example");
 	        const autostartExamples = [];
-	        let autostartDemoCount = 0;
 
 	        templates.forEach((template, i) => {
 	            const example = new LiveExample(template, i++);
@@ -3650,18 +3846,8 @@ var liveExamples = (function () {
 	            }
 	        
 	            if (example.autostart) {
-	                if (example.demo) {
-	                    if (autostartDemoCount) {
-	                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
-	                    }
-	                    example.classList.remove("waiting");
-	                    example.classList.add("stopped");
-	                    autostartDemoCount ++;
-	                }
 	                autostartExamples.push(example);
-	            }
-	            
-	            else if (example.demo) {
+	            } else if (example.demo) {
 	                example.classList.add("stopped");
 	                example.classList.remove("waiting");
 	            }
@@ -3680,16 +3866,21 @@ var liveExamples = (function () {
 	        // make sure to run the auto run examples serially
 	        const autoExe = () => {
 	            const example = autostartExamples.shift();
+	            
 	            if (example) {
+	                example.addEventListener("executed", autoExe, false);
 	                if (example.demo) {
+	                    example.classList.add("stopped");
+	                    example.classList.remove("waiting");
 	                    example.runDemo();
 	                } else {
-	                    if (window.EXAMPLE_PROCESSING) {
-	                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
-	                    }
-	                    example.addEventListener("executed", autoExe, false);
 	                    example.run();
 	                }
+	            }
+
+	            else {
+	                window.dispatchEvent(AUTO_EXECUTED);
+	                window.liveExamplesAutoExecuted = true;
 	            }
 	        };
 	        autoExe();

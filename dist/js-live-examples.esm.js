@@ -1897,10 +1897,29 @@ const isIdentifier = (str) => {
 /**
  * [contodo]{@link https://github.com/UmamiAppearance/contodo}
  *
- * @version 0.4.0
+ * @version 0.4.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */
+
+// Store Default Console Methods
+window._console = {
+    assert: console.assert.bind(console),
+    count: console.count.bind(console),
+    countReset: console.countReset.bind(console),
+    clear: console.clear.bind(console),
+    debug: console.debug.bind(console),
+    error: console.error.bind(console),
+    exception: console.exception ? console.exception.bind(console) : null,
+    info: console.info.bind(console),
+    log: console.log.bind(console),
+    table: console.table.bind(console),
+    time: console.time.bind(console),
+    timeEnd: console.timeEnd.bind(console),
+    timeLog: console.timeLog.bind(console),
+    trace: console.trace.bind(console),
+    warn: console.warn.bind(console)
+};
 
 
 /**
@@ -1955,28 +1974,7 @@ class ConTodo {
             }
             this.options.applyCSS = false;
         }
-        
-        // Store Default Console Methods
-        if (!window._console) {
-            window._console = {
-                assert: console.assert.bind(console),
-                count: console.count.bind(console),
-                countReset: console.countReset.bind(console),
-                clear: console.clear.bind(console),
-                debug: console.debug.bind(console),
-                error: console.error.bind(console),
-                exception: console.exception ? console.exception.bind(console) : null,
-                info: console.info.bind(console),
-                log: console.log.bind(console),
-                table: console.table.bind(console),
-                time: console.time.bind(console),
-                timeEnd: console.timeEnd.bind(console),
-                timeLog: console.timeLog.bind(console),
-                trace: console.trace.bind(console),
-                warn: console.warn.bind(console)
-            };
-        }
-   
+         
         // Class values
         this.active = false;
         this.counters = {};
@@ -2928,7 +2926,7 @@ class ConTodo {
     }
 }
 
-var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}.contodo-clear{display:inline-block;text-decoration:underline;cursor:pointer;font-size:.9em;margin:0 0 0 calc(100% - 2.8em);background-color:rgba(255,255,255,.9);border-radius:.2em;z-index:1}.contodo.clearBtn{margin-bottom:-2em}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;margin:auto 0}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap;transition:opacity 250ms ease-in-out}.example-processing .live-example:not(.processing) .controls{opacity:.5;pointer-events:none}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
+var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}.contodo-clear{display:inline-block;text-decoration:underline;cursor:pointer;font-size:.9em;margin:0 0 0 calc(100% - 2.8em);background-color:rgba(255,255,255,.9);border-radius:.2em;z-index:1}.contodo.clearBtn{margin-bottom:-2em}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls,.live-example.no-buttons .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo.caret:not(.stopped) .code code::after{content:\"\";background-color:#000;display:inline-block;width:1px;height:20px;margin-left:1px}.live-example.demo.caret:not(.stopped):not(.typing) .code code::after{animation:caret 1.5s step-end infinite}@keyframes caret{50%{opacity:0}}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;line-height:1.4em;margin:auto 0}.live-example h1::before{content:\".\";opacity:0;max-width:0;transition:max-width .2s;display:inline-block;overflow:hidden;height:1.4em;vertical-align:bottom}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap;transition:opacity .2s ease-in-out}.example-processing .live-example:not(.processing) .code,.example-processing .live-example:not(.processing) .contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-15 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>...waiting...</text>\\</svg>\")}.example-processing .live-example:not(.processing) .controls,.example-processing .processing .executeBtn,.example-processing .processing .resetBtn{opacity:.5;pointer-events:none}.example-processing .live-example h1::before{animation:loading 2s cubic-bezier(.075,.82,.165,1) infinite;max-width:10px}.example-processing .live-example.paused h1::before{opacity:1}@keyframes loading{50%{opacity:1}}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
 
 var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-family:monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#800}.token.punctuation{color:#111b27}.token.delimiter.important,.token.selector .parent,.token.tag,.token.tag .token.punctuation{color:#006d6d}.token.attr-name,.token.boolean,.token.boolean.important,.token.constant,.token.number,.token.selector .token.attribute{color:#755f00}.token.class-name,.token.key,.token.parameter,.token.property,.token.property-access,.token.variable{color:#005a8e}.token.attr-value,.token.color,.token.inserted,.token.selector .token.value,.token.string,.token.string .token.url-link{color:#080}.token.builtin,.token.keyword-array,.token.package,.token.regex{color:#af00af}.token.function,.token.selector .token.class,.token.selector .token.id{color:#7c00aa}.token.atrule .token.rule,.token.combinator,.token.keyword,.token.operator,.token.pseudo-class,.token.pseudo-element,.token.selector,.token.unit{color:#008}.token.deleted,.token.important{color:#c22f2e}.token.keyword-this,.token.this{color:#005a8e}.token.bold,.token.important,.token.keyword-this,.token.this{font-weight:700}.token.delimiter.important{font-weight:inherit}.token.italic{font-style:italic}.token.entity{cursor:help}.language-markdown .token.title,.language-markdown .token.title .token.punctuation{color:#005a8e;font-weight:700}.language-markdown .token.blockquote.punctuation{color:#af00af}.language-markdown .token.code{color:#006d6d}.language-markdown .token.hr.punctuation{color:#005a8e}.language-markdown .token.url>.token.content{color:#116b00}.language-markdown .token.url-link{color:#755f00}.language-markdown .token.list.punctuation{color:#af00af}.language-markdown .token.table-header{color:#111b27}.language-json .token.operator{color:#111b27}.language-scss .token.variable{color:#006d6d}";
 
@@ -2936,6 +2934,12 @@ const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
 const AsyncFunction = (async function(){}).constructor;
 const randID = () => `_${Math.random().toString(16).slice(2)}`;
 
+/**
+ * A promise, which remains in a pending state
+ * until a event occurs.
+ * @param {string} name - Event name. 
+ * @returns {Object} - Wait Promise.
+ */
 window.waitPromise = name => {
     if (window.abortDemo) {
         return Promise.reject();
@@ -2965,7 +2969,12 @@ window.waitPromise = name => {
     });
 };
 
-
+/**
+ * Async Sleep function, which can also wait
+ * until a pause event resolves.
+ * @param {*} ms 
+ * @returns 
+ */
 window.sleep = ms => new Promise(resolve => {
     const resumeIfNotPaused = async () => {
         if (window.demoIsPaused) {
@@ -2979,18 +2988,33 @@ window.sleep = ms => new Promise(resolve => {
 
 window.demoPauseEvt = new Event("demoPause");
 
-const pauseDemoFN = contodo => {
+/**
+ * Generates a pause function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
+ * @returns {function} - Pause function.
+ */
+const pauseDemoFN = (contodo, jar) => {
     return () => {
         if (!window.isDemoing || window.demoIsPaused) {
             return;
         }
+        jar.typing = false;
         contodo.restoreDefaultConsole();
         window.demoPause = window.waitPromise("demoPause");
         window.demoIsPaused = true;
     };
 };
 
-const resumeDemoFN = contodo => {
+/**
+ * Generates a resume function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
+ * @returns {function} - resume function.
+ */
+const resumeDemoFN = (contodo, jar) => {
     return () => {
         if (!window.isDemoing || !window.demoIsPaused) {
             return;
@@ -2998,9 +3022,19 @@ const resumeDemoFN = contodo => {
         contodo.initFunctions();
         window.dispatchEvent(window.demoPauseEvt);
         window.demoIsPaused = false;
+        jar.typing = true;
     };
 };
 
+/**
+ * Generates a stop function. Which can
+ * control all parts of a LiveExample.
+ * @param {string} instanceId - ID of the instance.
+ * @param {string} code - Source code of the example.
+ * @param {Object} jar - Code jar instance.
+ * @param {Object} contodo - Contodo instance.
+ * @returns {function} - Pause function.
+ */
 const stopDemoFN = (instanceId, code, jar, contodo) => {
     return () => {
 
@@ -3014,30 +3048,60 @@ const stopDemoFN = (instanceId, code, jar, contodo) => {
 
         jar.updateCode(code);
         jar.updateLines(code);
+        jar.typing = false;
         
         window.isDemoing = false;
 
     };
 };
 
-const makeTypingFN = (code) => {
+
+/**
+ * Generates a function, which emulates keyboard typing
+ * on a CodeJar instance.
+ * @param {string} code - The source code for the typing emulation.
+ * @returns {function} - Typing function.
+ */
+const makeTypingFN = (code, options) => {
+    const minRN = options.typingSpeed - options.typingVariation/2;
+    const maxRN = minRN + options.typingVariation;
+    
     return async jar => {
         let content = jar.toString();
+        jar.typing = true;
         
         for (const char of [...code]) {
             content += char;
-            jar.updateCode(content);
-            jar.updateLines(content);
-            await window.sleep(Math.floor(Math.random() * 50 + 30));
+            window.requestAnimationFrame(() => {
+                jar.updateCode(content);
+                jar.updateLines(content);
+            });
+            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
             if (window.abortDemo) {
                 break;
             }
-        }     
+        }    
+        
+        jar.typing = false;
+
+        if (options.executionDelay) {
+            await window.sleep(options.executionDelay);
+        }
     };
 };
 
-const makeDemo = (id, code, jar, contodo) => {
+
+/**
+ * Generates all required functions for running
+ * a LiveExample in demo mode.
+ * @param {string} id - Id of the html-node. 
+ * @param {string} code - The source code (with breakpoints) 
+ * @param {Object} jar - A CodeJar instance. 
+ * @param {Object} contodo - A contodo instance. 
+ * @returns {array[]} - An array with the required functions and the source code with the breakpoints removed.
+ */
+const makeDemo = (id, code, jar, contodo, options) => {
     jar.updateLines("");
     jar.updateCode(""); 
 
@@ -3045,7 +3109,11 @@ const makeDemo = (id, code, jar, contodo) => {
     window[instanceId] = new Event(instanceId);
     window["abort" + instanceId] = new Event("abort" + instanceId);
 
-    const breakPointRegex = /^\s*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
+    // REGEX: 
+    // * ignore whitespace but exclude newline
+    // * look for three underscores
+    // * optionally followed by a number between brackets 
+    const breakPointRegex = /^[^\S\r\n]*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
     const codeUnits = code.split(breakPointRegex);
     let breakpoints = [];
 
@@ -3063,7 +3131,7 @@ const makeDemo = (id, code, jar, contodo) => {
     codeUnits.forEach((codeUnit, i) => {
 
         cleanCode += codeUnit;
-        const typingFN = makeTypingFN(codeUnit);
+        const typingFN = makeTypingFN(codeUnit, options);
 
         typingInstructions.push(typingFN);
         typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
@@ -3119,8 +3187,8 @@ const makeDemo = (id, code, jar, contodo) => {
     return [
         cleanCode,
         demoFN,
-        pauseDemoFN(contodo),
-        resumeDemoFN(contodo),
+        pauseDemoFN(contodo, jar),
+        resumeDemoFN(contodo, jar),
         stopDemoFN(instanceId, cleanCode, jar, contodo)
     ];
 };
@@ -3219,10 +3287,22 @@ const throwError = (err, id) => {
 
 
 const CSS = mainCSS + prismCSS;
+
+const AUTO_EXECUTED = new Event("autoexecuted");
 const EXECUTED = new Event("executed");
 const STOPPED = new Event("stopped");
 
-const bool = (b) => typeof b !== "undefined" && (b === "" || !(/^(?:false|no?|0)$/i).test(String(b)));
+const OPTIONS = {
+    autostart: false,
+    buttons: true,
+    caret: true,
+    demo: false,
+    executionDelay: 250,
+    scroll: true,
+    transform: true,
+    typingSpeed: 60,
+    typingVariation: 80
+};
 
 
 /**
@@ -3246,14 +3326,18 @@ class LiveExample {
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
-        const { code, autostart, demo } = this.getCode(template);
+        const { code, options } = this.getAttributes(template);
         
-        const example = this.makeCodeExample(title, code, demo);
+        const example = this.makeCodeExample(title, code, options);
         example.id = this.id;
-        example.classList.add(className);
-        example.autostart = autostart;
-        example.demo = demo;
+        example.autostart = options.autostart;
+        example.demo = options.demo;
 
+        example.classList.add(...className.split(" "));
+        if (!options.buttons) example.classList.add("no-buttons");
+        if (!options.scroll) example.classList.add("no-scroll");
+
+        
         // insert the fresh node right before the
         // template node in the document
         template.parentNode.insertBefore(example, template);
@@ -3283,19 +3367,45 @@ class LiveExample {
 
 
     /**
-     * Extracts the code from given a <script> - tag
-     * from the <template> node.
+     * Extracts the code and other attributes from a given
+     * <script> - tag from the <template> node.
      * @param {object} template - A html "<template>" node. 
-     * @returns {string} - The code as a string.
+     * @returns {Object} - The extracted code and options.
      */
-    getCode(template) {
+    getAttributes(template) {
+
+        const getBool = (val, True=false) => {  
+            const boolFromAttrStr = val => (val === "" || !(/^(?:false|no?|0)$/i).test(String(val)));
+            
+            if (True) {
+                return typeof val === "undefined" || boolFromAttrStr(val);
+            }
+            return typeof val !== "undefined" && boolFromAttrStr(val);
+        };
+        
+        const getInt = (val, fallback, min, name) => {
+            if (typeof val === "undefined") {
+                return fallback;
+            }
+        
+            let n = parseInt(val, 10);
+        
+            if (isNaN(n) || n < min) {
+                n = fallback;
+                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to ${min}. Using default value ${fallback}`);
+            }
+        
+            return n;
+        };
+        
         
         let code = "";
-        let autostart = false;
-        let demo = false;
+
+        // copy default values
+        const options = { ...OPTIONS };
 
         const codeNode = template.content.querySelector("script");
-        
+
         if (codeNode) {
             code = codeNode.innerHTML;
             const pattern = code.match(/\s*\n[\t\s]*/);
@@ -3303,11 +3413,63 @@ class LiveExample {
                 .replace(new RegExp(pattern, "g"), "\n")
                 .trim();
             
-            autostart = bool(codeNode.dataset.run);
-            demo = bool(codeNode.dataset.demo);
+            // backwards compatibility
+            let autostart = getBool(codeNode.dataset.run, false);
+            if (autostart) {
+                console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
+                
+                options.autostart = true;
+
+                return {
+                    code,
+                    options
+                };
+            }
+        }
+   
+        const metaNode = template.content.querySelector("meta");
+        
+        if (metaNode) {
+            const data = metaNode.dataset;
+
+            options.autostart = getBool(data.run, false);
+            options.buttons = getBool(data.buttons, true);
+            options.caret = getBool(data.caret, false);
+            options.demo = getBool(data.demo, false);
+            options.executionDelay = getInt(
+                data.executionDelay,
+                options.executionDelay,
+                0,
+                "execution-delay"
+            );
+            options.scroll = getBool(data.scroll, true);
+            options.transform = getBool(data.transform, true);
+
+            const defaultTypingSpeed = options.typingSpeed;
+            const defaultTypingVariation = options.typingVariation;
+            
+            options.typingSpeed = getInt(
+                data.typingSpeed,
+                defaultTypingSpeed,
+                1,
+                "typing-speed"
+            );
+            options.typingVariation = getInt(
+                data.typingVariation,
+                defaultTypingVariation,
+                1,
+                "typing-variation"
+            );
+
+            if (options.typingVariation/2 > options.typingSpeed) {
+                options.typingSpeed = defaultTypingSpeed;
+                options.typingVariation = defaultTypingVariation;
+
+                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${defaultTypingSpeed}, typing-variation: ${defaultTypingVariation}].`);
+            }
         }
         
-        return { code, autostart, demo };
+        return { code, options };
     }
 
 
@@ -3372,7 +3534,7 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code, isDemo) { 
+    makeCodeExample(title, code, options) { 
 
         // create new html node
         const main = document.createElement("div");
@@ -3406,12 +3568,17 @@ class LiveExample {
         const controlsWrapper = document.createElement("div");
         controlsWrapper.classList.add("controls");
 
+        // if is a demo create demo specific buttons
         let demoBtn;
         let demoStopBtn;
         let demoPauseBtn;
         let demoResumeBtn;
 
-        if (isDemo) {
+        if (options.demo) {
+            if (options.caret) {
+                main.classList.add("caret");
+            }
+
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
             demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
@@ -3433,6 +3600,7 @@ class LiveExample {
             controlsWrapper.append(demoResumeBtn);
         }
 
+        // create regular buttons
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
         resetBtn.classList.add("resetBtn","regular");
@@ -3458,6 +3626,15 @@ class LiveExample {
         );
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
+        Object.defineProperty(jar, "typing", {
+            set(typing) {
+                if (typing) {
+                    main.classList.add("typing");
+                } else {
+                    main.classList.remove("typing");
+                }
+            }
+        });
 
     
         // append code and title to main
@@ -3470,44 +3647,47 @@ class LiveExample {
             main,
             {
                 autostart: false,
-                clearButton: true,
+                clearButton: false,
                 preventDefault: true
             }
         );
         contodo.createDocumentNode();
 
         
+        // prepare main functions for demo mode
+        // or prepare for regular mode
         let runDemo;
         let stopDemo;
         let pauseDemo;
         let resumeDemo;
         
-        // test and prepare for demo mode
-        if (isDemo) {      
+        if (options.demo) {      
             [   
                 code,
                 runDemo,
                 pauseDemo,
                 resumeDemo,
                 stopDemo
-            ] = makeDemo(this.id, code, jar, contodo);
+            ] = makeDemo(this.id, code, jar, contodo, options);
         
             main.runDemo = () => {
-                if (window.isDemoing) {
-                    throw new Error("A demo is currently running. Starting was blocked.");
+                if (window.isProcessing) {
+                    return false;
                 }
                 
                 if (main.mode === "regular") {
                     setDemoMode();
                 }
 
-                markProcessing();
+                startProcessing();
                 main.classList.remove("stopped");
                 main.classList.add("running");
 
                 runDemo()
                     .finally(() => {
-                        setRegularMode();
+                        if (options.transform) {
+                            setRegularMode();
+                        }
                         main.dispatchEvent(STOPPED);
 
                         main.classList.remove("running");
@@ -3517,22 +3697,35 @@ class LiveExample {
             };
 
             main.pauseDemo = () => {
+                if (window.isProcessing && window.isProcessing !== this.id) {
+                    return false;
+                }
                 pauseDemo();
                 main.classList.remove("running");
                 main.classList.add("paused");
+                return true;
             };
 
             main.resumeDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
                 resumeDemo();
                 main.classList.remove("paused");
                 main.classList.add("running");
+                return true;
             };
 
             main.stopDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+
                 stopDemo();
                 main.classList.remove("running");
                 main.classList.add("stopped");
                 endProcessing();
+                return true;
             };
 
             demoBtn.addEventListener("click", main.runDemo, false);
@@ -3546,13 +3739,15 @@ class LiveExample {
         }
 
         
+        // install run and reset functions 
         main.reset = () => {
-            if (window.isDemoing) {
-                return;
+            if (window.isProcessing) {
+                return false;
             }
             contodo.clear(false);
             jar.updateCode(code);
             jar.updateLines(code);
+            return true;
         };
 
         // bind reset to resetBtn
@@ -3564,11 +3759,11 @@ class LiveExample {
         // be protected to get readable error messages)
 
         main.run = {[RUNNER_FUNCTION_NAME]: async () => {
-            if (window.isDemoing) {
-                return;
+            if (window.isProcessing) {
+                return false;
             }
 
-            markProcessing();
+            startProcessing();
 
             contodo.clear(false);
             contodo.initFunctions();
@@ -3581,12 +3776,14 @@ class LiveExample {
             }
             contodo.restoreDefaultConsole();
             endProcessing();
-            main.dispatchEvent(EXECUTED);       
+            return true; 
         }}[RUNNER_FUNCTION_NAME];
 
         // bind code execution to executeBtn
         executeBtn.addEventListener("click", main.run, false);
 
+
+        // establish some helper functions
         const setDemoMode = (initial=false) => {
             main.mode = "demo";
             main.classList.add(
@@ -3604,19 +3801,21 @@ class LiveExample {
             main.classList.remove("demo", "paused", "stopped");
         };
 
-        const markProcessing = () => {
-            window.EXAMPLE_PROCESSING = true;
+        const startProcessing = () => {
+            window.isProcessing = this.id;
             document.body.classList.add("example-processing");
             main.classList.add("processing");
         };
 
         const endProcessing = () => {
-            window.EXAMPLE_PROCESSING = false;
+            window.isProcessing = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
+            main.dispatchEvent(EXECUTED);
         };
 
-        if (isDemo) {
+        // finally set to the requested mode
+        if (options.demo) {
             setDemoMode(true);
         } else {
             setRegularMode();
@@ -3643,15 +3842,12 @@ const liveExamples = (() => {
 
     /**
      * Function to generate example instances for 
-     * every template and node for displaying the
-     * information, that the code was copied to the
-     * clipboard.
+     * every template. All "autostart" instances,
+     * are also executed serially from top to bottom.
      */
-    // TODO: work on this
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
         const autostartExamples = [];
-        let autostartDemoCount = 0;
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
@@ -3661,18 +3857,8 @@ const liveExamples = (() => {
             }
         
             if (example.autostart) {
-                if (example.demo) {
-                    if (autostartDemoCount) {
-                        throw new Error("Only one demo can run at a time, hence only one demo can be automatically start.");
-                    }
-                    example.classList.remove("waiting");
-                    example.classList.add("stopped");
-                    autostartDemoCount ++;
-                }
                 autostartExamples.push(example);
-            }
-            
-            else if (example.demo) {
+            } else if (example.demo) {
                 example.classList.add("stopped");
                 example.classList.remove("waiting");
             }
@@ -3691,16 +3877,21 @@ const liveExamples = (() => {
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
+            
             if (example) {
+                example.addEventListener("executed", autoExe, false);
                 if (example.demo) {
+                    example.classList.add("stopped");
+                    example.classList.remove("waiting");
                     example.runDemo();
                 } else {
-                    if (window.EXAMPLE_PROCESSING) {
-                        window._console.warn(`Could not autostart example '${example.id}' due to a processing example.`);
-                    }
-                    example.addEventListener("executed", autoExe, false);
                     example.run();
                 }
+            }
+
+            else {
+                window.dispatchEvent(AUTO_EXECUTED);
+                window.liveExamplesAutoExecuted = true;
             }
         };
         autoExe();
