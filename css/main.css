@@ -107,10 +107,11 @@ div.live-example {
 }
 .live-example.demo.caret:not(.stopped) .code code::after {
     content: "";
+    position: absolute;
     background-color: black;
     display: inline-block;
     width: 1px;
-    height: 20px;
+    height: 19px;
     margin-left: 1px;
 }
 .live-example.demo.caret:not(.stopped):not(.typing) .code code::after {
@@ -182,7 +183,7 @@ div.live-example {
     line-height: 1.4em;
     margin: auto 0;
 }
-.live-example h1::before {
+.live-example.indicator h1::before {
     content: ".";
     opacity: 0;
     max-width: 0;
@@ -205,11 +206,11 @@ div.live-example {
     opacity: 0.5;
     pointer-events: none;
 }
-.example-processing .live-example h1::before {
+.example-processing .live-example.indicator h1::before {
     animation: loading 2s cubic-bezier(0.075, 0.82, 0.165, 1) infinite;
     max-width: 10px;
 }
-.example-processing .live-example.paused h1::before {
+.example-processing .live-example.indicator.paused h1::before {
     opacity: 1;
 }
 @keyframes loading {

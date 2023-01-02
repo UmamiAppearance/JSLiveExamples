@@ -140,10 +140,8 @@ const makeTypingFN = (code, options) => {
         
         for (const char of [...code]) {
             content += char;
-            window.requestAnimationFrame(() => {
-                jar.updateCode(content);
-                jar.updateLines(content);
-            });
+            jar.updateCode(content);
+            jar.updateLines(content);
             await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
             if (window.abortDemo) {
@@ -212,7 +210,6 @@ const makeDemo = (id, code, jar, contodo, options) => {
             codeInstructions += `await waitPromise("${instanceId}");\n`;
         }
     });
-
     
     const demoFN = async () => {
          
