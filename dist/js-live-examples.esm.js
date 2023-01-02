@@ -1,4 +1,4 @@
-/* PrismJS 1.28.0
+/* PrismJS 1.29.0
 https://prismjs.com/download.html#themes=prism&languages=clike+javascript */
 /// <reference lib="WebWorker"/>
 
@@ -2926,7 +2926,7 @@ class ConTodo {
     }
 }
 
-var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}.contodo-clear{display:inline-block;text-decoration:underline;cursor:pointer;font-size:.9em;margin:0 0 0 calc(100% - 2.8em);background-color:rgba(255,255,255,.9);border-radius:.2em;z-index:1}.contodo.clearBtn{margin-bottom:-2em}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls,.live-example.no-buttons .controls{visibility:hidden}.live-example.demo code{pointer-events:none;user-select:none}.live-example.demo.caret:not(.stopped) .code code::after{content:\"\";background-color:#000;display:inline-block;width:1px;height:20px;margin-left:1px}.live-example.demo.caret:not(.stopped):not(.typing) .code code::after{animation:caret 1.5s step-end infinite}@keyframes caret{50%{opacity:0}}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;line-height:1.4em;margin:auto 0}.live-example h1::before{content:\".\";opacity:0;max-width:0;transition:max-width .2s;display:inline-block;overflow:hidden;height:1.4em;vertical-align:bottom}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap;transition:opacity .2s ease-in-out}.example-processing .live-example:not(.processing) .code,.example-processing .live-example:not(.processing) .contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-15 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>...waiting...</text>\\</svg>\")}.example-processing .live-example:not(.processing) .controls,.example-processing .processing .executeBtn,.example-processing .processing .resetBtn{opacity:.5;pointer-events:none}.example-processing .live-example h1::before{animation:loading 2s cubic-bezier(.075,.82,.165,1) infinite;max-width:10px}.example-processing .live-example.paused h1::before{opacity:1}@keyframes loading{50%{opacity:1}}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
+var mainCSS = ".contodo{position:inherit;display:block;font-family:monospace;font-size:inherit;min-width:100px;min-height:100px;height:160px!important;white-space:break-spaces;overflow:auto;margin:auto;color:#000;scroll-behavior:smooth}.no-scroll .contodo{height:auto!important}.contodo>.log{border-color:rgba(157,157,157,.2);border-width:0 0 1pt 0;border-style:solid;padding:2px 5px}.contodo>.log:first-child{border-width:1pt 0}.contodo>.warn{background-color:#ffff97bb}.contodo>.warn>span.string{color:#505000}.contodo>.error{background-color:#eeaeaebb}.contodo>.error>span.string{color:#640000}.contodo>.time{opacity:.5;font-size:80%}.contodo .null{color:grey}.contodo .bigint,.contodo .boolean,.contodo .number,.contodo .object{color:#32963c}.contodo .array-string,.contodo .fn-args,.contodo .symbol,.contodo .trace-head{color:#f0f}.contodo .function,.contodo .object,.contodo .trace-file{color:#2864fa}.contodo table{width:100%;text-align:left;border-spacing:0;border-collapse:collapse;border:2px #333;border-style:solid none;background-color:#fff}.contodo th,.contodo thead{font-weight:700}.contodo thead>tr,.contodo tr:nth-child(2n){background-color:rgba(200,200,220,.1)}.contodo td,.contodo th{padding:3px 0;border:1px solid rgba(157,157,157,.2);width:1%}.contodo-clear{display:inline-block;text-decoration:underline;cursor:pointer;font-size:.9em;margin:0 0 0 calc(100% - 2.8em);background-color:rgba(255,255,255,.9);border-radius:.2em;z-index:1}.contodo.clearBtn{margin-bottom:-2em}div.live-example{font-size:14px;background-color:rgba(244,249,245,.5);min-width:340px;width:80%;margin:.5em auto;padding:.5em}.live-example.demo .regular,.live-example.paused .running:not(.paused),.live-example.paused .stopped,.live-example.regular .demo,.live-example.running .paused:not(.running),.live-example.running .stopped,.live-example.stopped .paused,.live-example.stopped .running{display:none}.live-example.demo.waiting .controls,.live-example.no-buttons .controls{visibility:hidden}.example-processing code{pointer-events:none;user-select:none}.live-example.demo.caret:not(.stopped) .code code::after{content:\"\";position:absolute;background-color:#000;display:inline-block;width:1px;height:19px;margin-left:1px}.live-example.demo.caret:not(.stopped):not(.typing) .code code::after{animation:caret 1.5s step-end infinite}@keyframes caret{50%{opacity:0}}.live-example.demo>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\\</svg>\")}.live-example>.code,.live-example>.contodo,.live-example>div.title-wrapper{border:3px dashed #005}.live-example>.code{min-height:160px;display:flex;flex-direction:row;justify-content:space-between;padding:.5em}.live-example>.code>ol{font-family:monospace;line-height:1.5em;margin:0;background-color:rgba(143,188,143,.7)}.live-example>.code>code{background-color:rgba(100,110,100,.025);padding:0 0 0 5px;display:block;font-size:inherit;white-space:pre!important;width:-webkit-fill-available;width:-moz-available;width:fill-available}.live-example .copy{min-width:26px;min-height:26px;margin:auto 0 0 -26px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path fill=\"none\" stroke=\"dimgrey\" stroke-width=\"5\" d=\"m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z\"></path></svg>');background-color:rgba(245,249,246,.9);background-repeat:no-repeat;background-size:contain;border-radius:6px;cursor:pointer}.live-example>.code,.live-example>.contodo{background-repeat:no-repeat;background-position:right 10px}.live-example>.code{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>code</text>\\</svg>\")}.live-example>.contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>console output</text></svg>\");background-color:transparent;padding:.5em}.live-example>div.title-wrapper{border-width:0 3px;display:flex;justify-content:space-between;padding:.5em}.live-example h1{font-size:1.4em;line-height:1.4em;margin:auto 0}.live-example.indicator h1::before{content:\".\";opacity:0;max-width:0;transition:max-width .2s;display:inline-block;overflow:hidden;height:1.4em;vertical-align:bottom}.live-example .controls{display:flex;flex-direction:row;flex-wrap:nowrap;transition:opacity .2s ease-in-out}.example-processing .live-example:not(.processing) .code,.example-processing .live-example:not(.processing) .contodo{background-image:url(\"data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-15 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>...waiting...</text>\\</svg>\")}.example-processing .live-example:not(.processing) .controls,.example-processing .processing .executeBtn,.example-processing .processing .resetBtn{opacity:.5;pointer-events:none}.example-processing .live-example.indicator h1::before{animation:loading 2s cubic-bezier(.075,.82,.165,1) infinite;max-width:10px}.example-processing .live-example.indicator.paused h1::before{opacity:1}@keyframes loading{50%{opacity:1}}.live-example button{font-weight:500;margin:0 5px;padding:.5em 1em;font-size:1.2em;background-color:rgba(143,188,143,.7);border:2px solid #005;cursor:pointer}.live-example button:hover{background-color:#8fbc8f}.live-example button:active{background-color:#315c31;box-shadow:inset 0 0 0 2px #324d32;color:#fffee0}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:5.4rem}section#le-copied{pointer-events:none;position:fixed;margin:auto;display:none;width:100%;text-align:center;top:40%;opacity:0}section#le-copied.show{display:block;animation:show 1.5s cubic-bezier(.8,.03,.58,1)}@keyframes show{50%{opacity:1}}#le-copied article{background-color:#778899;display:inline-block;width:auto;padding:20px;color:#fff;font-weight:700;border-radius:6px;border:1px solid #d3d3d3;box-shadow:0 0 2px #ccc}@media screen and (max-width:768px){div.live-example{width:calc(100% - 1em);font-size:12px}.live-example h1{font-size:1.3em}.live-example button{padding:.4em .9em}.live-example button.demoPauseBtn,.live-example button.demoResumeBtn{width:4.4rem}}";
 
 var prismCSS = "code[class*=language-],pre[class*=language-]{color:#111b27;font-family:monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-]{white-space:normal}.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#800}.token.punctuation{color:#111b27}.token.delimiter.important,.token.selector .parent,.token.tag,.token.tag .token.punctuation{color:#006d6d}.token.attr-name,.token.boolean,.token.boolean.important,.token.constant,.token.number,.token.selector .token.attribute{color:#755f00}.token.class-name,.token.key,.token.parameter,.token.property,.token.property-access,.token.variable{color:#005a8e}.token.attr-value,.token.color,.token.inserted,.token.selector .token.value,.token.string,.token.string .token.url-link{color:#080}.token.builtin,.token.keyword-array,.token.package,.token.regex{color:#af00af}.token.function,.token.selector .token.class,.token.selector .token.id{color:#7c00aa}.token.atrule .token.rule,.token.combinator,.token.keyword,.token.operator,.token.pseudo-class,.token.pseudo-element,.token.selector,.token.unit{color:#008}.token.deleted,.token.important{color:#c22f2e}.token.keyword-this,.token.this{color:#005a8e}.token.bold,.token.important,.token.keyword-this,.token.this{font-weight:700}.token.delimiter.important{font-weight:inherit}.token.italic{font-style:italic}.token.entity{cursor:help}.language-markdown .token.title,.language-markdown .token.title .token.punctuation{color:#005a8e;font-weight:700}.language-markdown .token.blockquote.punctuation{color:#af00af}.language-markdown .token.code{color:#006d6d}.language-markdown .token.hr.punctuation{color:#005a8e}.language-markdown .token.url>.token.content{color:#116b00}.language-markdown .token.url-link{color:#755f00}.language-markdown .token.list.punctuation{color:#af00af}.language-markdown .token.table-header{color:#111b27}.language-json .token.operator{color:#111b27}.language-scss .token.variable{color:#006d6d}";
 
@@ -3069,19 +3069,31 @@ const makeTypingFN = (code, options) => {
     return async jar => {
         let content = jar.toString();
         jar.typing = true;
+        const charArray = [...code];
+        let last;
         
-        for (const char of [...code]) {
+        for (const char of charArray) {
+
             content += char;
-            window.requestAnimationFrame(() => {
+
+            // if a newline is followed by a space:
+            // continue (respect indentation)
+            // print the character in any other case
+
+            if (!(last === "\n" && char === " ")) {
+                last = char;
+
                 jar.updateCode(content);
                 jar.updateLines(content);
-            });
-            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
+                
+                await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
-            if (window.abortDemo) {
-                break;
             }
-        }    
+
+            if (window.abortDemo) {
+                return;
+            }
+        }
         
         jar.typing = false;
 
@@ -3144,7 +3156,6 @@ const makeDemo = (id, code, jar, contodo, options) => {
             codeInstructions += `await waitPromise("${instanceId}");\n`;
         }
     });
-
     
     const demoFN = async () => {
          
@@ -3295,9 +3306,10 @@ const STOPPED = new Event("stopped");
 const OPTIONS = {
     autostart: false,
     buttons: true,
-    caret: true,
+    caret: false,
     demo: false,
     executionDelay: 250,
+    indicator: true,
     scroll: true,
     transform: true,
     typingSpeed: 60,
@@ -3432,40 +3444,41 @@ class LiveExample {
         if (metaNode) {
             const data = metaNode.dataset;
 
-            options.autostart = getBool(data.run, false);
-            options.buttons = getBool(data.buttons, true);
-            options.caret = getBool(data.caret, false);
-            options.demo = getBool(data.demo, false);
+            options.autostart = getBool(data.run, OPTIONS.autostart);
+            options.buttons = getBool(data.buttons, OPTIONS.buttons);
+            options.caret = getBool(data.caret, OPTIONS.caret);
+            options.demo = getBool(data.demo, OPTIONS.demo);
             options.executionDelay = getInt(
                 data.executionDelay,
-                options.executionDelay,
+                OPTIONS.executionDelay,
                 0,
                 "execution-delay"
             );
-            options.scroll = getBool(data.scroll, true);
-            options.transform = getBool(data.transform, true);
-
-            const defaultTypingSpeed = options.typingSpeed;
-            const defaultTypingVariation = options.typingVariation;
+            options.indicator = getBool(data.indicator, OPTIONS.indicator);
+            options.scroll = getBool(data.scroll, OPTIONS.scroll);
             
+            options.transform = (/^perm/i).test(data.transform)
+                ? "perm"
+                : getBool(data.transform, OPTIONS.transform);
+
             options.typingSpeed = getInt(
                 data.typingSpeed,
-                defaultTypingSpeed,
+                OPTIONS.typingSpeed,
                 1,
                 "typing-speed"
             );
             options.typingVariation = getInt(
                 data.typingVariation,
-                defaultTypingVariation,
+                OPTIONS.typingVariation,
                 1,
                 "typing-variation"
             );
 
             if (options.typingVariation/2 > options.typingSpeed) {
-                options.typingSpeed = defaultTypingSpeed;
-                options.typingVariation = defaultTypingVariation;
+                options.typingSpeed = OPTIONS.typingSpeed;
+                options.typingVariation = OPTIONS.typingVariation;
 
-                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${defaultTypingSpeed}, typing-variation: ${defaultTypingVariation}].`);
+                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
             }
         }
         
@@ -3483,8 +3496,9 @@ class LiveExample {
 
         let storedLines = 0;
         
-        const updateLines = (code) => {
+        return code => {
             const lines = code.split("\n").length;
+            
             if (lines !== storedLines) {
                 while (lines < storedLines) {
                     lineNumNode.childNodes[lines-1].remove();
@@ -3496,8 +3510,6 @@ class LiveExample {
                 }
             }
         };
-
-        return updateLines;
     }
 
 
@@ -3579,6 +3591,10 @@ class LiveExample {
                 main.classList.add("caret");
             }
 
+            if (options.indicator) {
+                main.classList.add("indicator");
+            }
+
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
             demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
@@ -3624,6 +3640,11 @@ class LiveExample {
                 tab: " ".repeat(4),
             }
         );
+
+        // store the original attribute of 'contenteditable'
+        // which differs between browsers
+        const editable = codeNode.getAttribute("contenteditable");
+
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
         Object.defineProperty(jar, "typing", {
@@ -3686,12 +3707,19 @@ class LiveExample {
                 runDemo()
                     .finally(() => {
                         if (options.transform) {
+                            if (options.transform === "perm") {
+                                demoBtn.style.visibility = "hidden";
+                            }
                             setRegularMode();
                         }
-                        main.dispatchEvent(STOPPED);
+                        
+                        else {
+                            main.classList.add("stopped");
+                        }
 
                         main.classList.remove("running");
-                        main.classList.add("stopped");
+
+                        main.dispatchEvent(STOPPED);
                         endProcessing();
                     });
             };
@@ -3805,12 +3833,14 @@ class LiveExample {
             window.isProcessing = this.id;
             document.body.classList.add("example-processing");
             main.classList.add("processing");
+            codeNode.setAttribute("contenteditable", false);
         };
 
         const endProcessing = () => {
             window.isProcessing = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
+            codeNode.setAttribute("contenteditable", editable);
             main.dispatchEvent(EXECUTED);
         };
 

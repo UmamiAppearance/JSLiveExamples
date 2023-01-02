@@ -38,12 +38,12 @@
     "clean-css": "^5.3.1",
     "codejar": "^3.6.0",
     "contodo": "^0.4.1",
-    "eslint": "^8.30.0",
+    "eslint": "^8.31.0",
     "http-server": "^14.1.1",
-    "no-bro-cote": "^0.2.9",
+    "no-bro-cote": "^0.2.10",
     "prismjs": "^1.29.0",
-    "rollup": "^3.9.0",
-    "rollup-plugin-import-manager": "^0.3.5",
-    "rollup-plugin-your-function": "^0.4.5"
+    "rollup": "^3.9.1",
+    "rollup-plugin-import-manager": "^0.3.6",
+    "rollup-plugin-your-function": "^0.4.6"
   }
 }

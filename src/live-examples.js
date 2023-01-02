@@ -362,8 +362,11 @@ class LiveExample {
                 tab: " ".repeat(4),
             }
         );
-        window.JAR = jar;
-        window.CN = codeNode;
+
+        // store the original attribute of 'contenteditable'
+        // which differs between browsers
+        const editable = codeNode.getAttribute("contenteditable");
+
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
         Object.defineProperty(jar, "typing", {
@@ -559,7 +562,7 @@ class LiveExample {
             window.isProcessing = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
-            codeNode.setAttribute("contenteditable", "plaintext-only");
+            codeNode.setAttribute("contenteditable", editable);
             main.dispatchEvent(EXECUTED);
         };
 

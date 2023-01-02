@@ -137,17 +137,31 @@ const makeTypingFN = (code, options) => {
     return async jar => {
         let content = jar.toString();
         jar.typing = true;
+        const charArray = [...code];
+        let last;
         
-        for (const char of [...code]) {
+        for (const char of charArray) {
+
             content += char;
-            jar.updateCode(content);
-            jar.updateLines(content);
-            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
+
+            // if a newline is followed by a space:
+            // continue (respect indentation)
+            // print the character in any other case
+
+            if (!(last === "\n" && char === " ")) {
+                last = char;
+
+                jar.updateCode(content);
+                jar.updateLines(content);
+                
+                await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
-            if (window.abortDemo) {
-                break;
             }
-        }    
+
+            if (window.abortDemo) {
+                return;
+            }
+        }
         
         jar.typing = false;
 

@@ -101,7 +101,7 @@ div.live-example {
 .live-example.demo.waiting .controls, .live-example.no-buttons .controls {
     visibility: hidden;
 }
-.live-example.demo code {
+.example-processing code {
     pointer-events: none;
     user-select: none;
 }

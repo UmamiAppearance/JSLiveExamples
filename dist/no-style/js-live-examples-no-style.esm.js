@@ -1,4 +1,4 @@
-/* PrismJS 1.28.0
+/* PrismJS 1.29.0
 https://prismjs.com/download.html#themes=prism&languages=clike+javascript */
 /// <reference lib="WebWorker"/>
 
@@ -3065,19 +3065,31 @@ const makeTypingFN = (code, options) => {
     return async jar => {
         let content = jar.toString();
         jar.typing = true;
+        const charArray = [...code];
+        let last;
         
-        for (const char of [...code]) {
+        for (const char of charArray) {
+
             content += char;
-            window.requestAnimationFrame(() => {
+
+            // if a newline is followed by a space:
+            // continue (respect indentation)
+            // print the character in any other case
+
+            if (!(last === "\n" && char === " ")) {
+                last = char;
+
                 jar.updateCode(content);
                 jar.updateLines(content);
-            });
-            await window.sleep(Math.floor(Math.random() * maxRN + minRN));
+                
+                await window.sleep(Math.floor(Math.random() * maxRN + minRN));
             
-            if (window.abortDemo) {
-                break;
             }
-        }    
+
+            if (window.abortDemo) {
+                return;
+            }
+        }
         
         jar.typing = false;
 
@@ -3140,7 +3152,6 @@ const makeDemo = (id, code, jar, contodo, options) => {
             codeInstructions += `await waitPromise("${instanceId}");\n`;
         }
     });
-
     
     const demoFN = async () => {
          
@@ -3288,9 +3299,10 @@ const STOPPED = new Event("stopped");
 const OPTIONS = {
     autostart: false,
     buttons: true,
-    caret: true,
+    caret: false,
     demo: false,
     executionDelay: 250,
+    indicator: true,
     scroll: true,
     transform: true,
     typingSpeed: 60,
@@ -3425,40 +3437,41 @@ class LiveExample {
         if (metaNode) {
             const data = metaNode.dataset;
 
-            options.autostart = getBool(data.run, false);
-            options.buttons = getBool(data.buttons, true);
-            options.caret = getBool(data.caret, false);
-            options.demo = getBool(data.demo, false);
+            options.autostart = getBool(data.run, OPTIONS.autostart);
+            options.buttons = getBool(data.buttons, OPTIONS.buttons);
+            options.caret = getBool(data.caret, OPTIONS.caret);
+            options.demo = getBool(data.demo, OPTIONS.demo);
             options.executionDelay = getInt(
                 data.executionDelay,
-                options.executionDelay,
+                OPTIONS.executionDelay,
                 0,
                 "execution-delay"
             );
-            options.scroll = getBool(data.scroll, true);
-            options.transform = getBool(data.transform, true);
-
-            const defaultTypingSpeed = options.typingSpeed;
-            const defaultTypingVariation = options.typingVariation;
+            options.indicator = getBool(data.indicator, OPTIONS.indicator);
+            options.scroll = getBool(data.scroll, OPTIONS.scroll);
             
+            options.transform = (/^perm/i).test(data.transform)
+                ? "perm"
+                : getBool(data.transform, OPTIONS.transform);
+
             options.typingSpeed = getInt(
                 data.typingSpeed,
-                defaultTypingSpeed,
+                OPTIONS.typingSpeed,
                 1,
                 "typing-speed"
             );
             options.typingVariation = getInt(
                 data.typingVariation,
-                defaultTypingVariation,
+                OPTIONS.typingVariation,
                 1,
                 "typing-variation"
             );
 
             if (options.typingVariation/2 > options.typingSpeed) {
-                options.typingSpeed = defaultTypingSpeed;
-                options.typingVariation = defaultTypingVariation;
+                options.typingSpeed = OPTIONS.typingSpeed;
+                options.typingVariation = OPTIONS.typingVariation;
 
-                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${defaultTypingSpeed}, typing-variation: ${defaultTypingVariation}].`);
+                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
             }
         }
         
@@ -3476,8 +3489,9 @@ class LiveExample {
 
         let storedLines = 0;
         
-        const updateLines = (code) => {
+        return code => {
             const lines = code.split("\n").length;
+            
             if (lines !== storedLines) {
                 while (lines < storedLines) {
                     lineNumNode.childNodes[lines-1].remove();
@@ -3489,8 +3503,6 @@ class LiveExample {
                 }
             }
         };
-
-        return updateLines;
     }
 
 
@@ -3572,6 +3584,10 @@ class LiveExample {
                 main.classList.add("caret");
             }
 
+            if (options.indicator) {
+                main.classList.add("indicator");
+            }
+
             demoStopBtn = document.createElement("button");
             demoStopBtn.textContent = "stop";
             demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
@@ -3617,6 +3633,11 @@ class LiveExample {
                 tab: " ".repeat(4),
             }
         );
+
+        // store the original attribute of 'contenteditable'
+        // which differs between browsers
+        const editable = codeNode.getAttribute("contenteditable");
+
         jar.updateLines = this.makeLineFN(lineNumbers);
         jar.onUpdate(jar.updateLines);
         Object.defineProperty(jar, "typing", {
@@ -3679,12 +3700,19 @@ class LiveExample {
                 runDemo()
                     .finally(() => {
                         if (options.transform) {
+                            if (options.transform === "perm") {
+                                demoBtn.style.visibility = "hidden";
+                            }
                             setRegularMode();
                         }
-                        main.dispatchEvent(STOPPED);
+                        
+                        else {
+                            main.classList.add("stopped");
+                        }
 
                         main.classList.remove("running");
-                        main.classList.add("stopped");
+
+                        main.dispatchEvent(STOPPED);
                         endProcessing();
                     });
             };
@@ -3798,12 +3826,14 @@ class LiveExample {
             window.isProcessing = this.id;
             document.body.classList.add("example-processing");
             main.classList.add("processing");
+            codeNode.setAttribute("contenteditable", false);
         };
 
         const endProcessing = () => {
             window.isProcessing = false;
             document.body.classList.remove("example-processing");
             main.classList.remove("processing");
+            codeNode.setAttribute("contenteditable", editable);
             main.dispatchEvent(EXECUTED);
         };
 
