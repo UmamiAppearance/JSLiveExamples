@@ -1,6 +1,6 @@
 import { test } from "no-bro-cote";
 
-test.htmlPage = "./test/fixtures/regular.html";
+test.htmlPage = "./test/fixtures/main.html";
 test.addImport("import liveExamples from './dist/js-live-examples.esm.js';");
 
 const eventPromise = (elem, e) => new Promise(resolve => elem.addEventListener(e, resolve, {once: true}));

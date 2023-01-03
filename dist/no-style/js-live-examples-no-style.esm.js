@@ -3118,9 +3118,10 @@ const makeDemo = (id, code, jar, contodo, options) => {
     window["abort" + instanceId] = new Event("abort" + instanceId);
 
     // REGEX: 
-    // * ignore whitespace but exclude newline
+    // * ignore whitespace but exclude previous newline
     // * look for three underscores
-    // * optionally followed by a number between brackets 
+    // * optionally followed by a number between brackets
+    // * select the whole line (including newline)
     const breakPointRegex = /^[^\S\r\n]*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
     const codeUnits = code.split(breakPointRegex);
     let breakpoints = [];
@@ -3299,7 +3300,7 @@ const STOPPED = new Event("stopped");
 const OPTIONS = {
     autostart: false,
     buttons: true,
-    caret: false,
+    caret: true,
     demo: false,
     executionDelay: 250,
     indicator: true,
@@ -3471,7 +3472,7 @@ class LiveExample {
                 options.typingSpeed = OPTIONS.typingSpeed;
                 options.typingVariation = OPTIONS.typingVariation;
 
-                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
+                window._console.warn(`The maximum value for typing variation is twice the typing speed. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
             }
         }
         

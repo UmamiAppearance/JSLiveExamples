@@ -190,9 +190,10 @@ const makeDemo = (id, code, jar, contodo, options) => {
     window["abort" + instanceId] = new Event("abort" + instanceId);
 
     // REGEX: 
-    // * ignore whitespace but exclude newline
+    // * ignore whitespace but exclude previous newline
     // * look for three underscores
-    // * optionally followed by a number between brackets 
+    // * optionally followed by a number between brackets
+    // * select the whole line (including newline)
     const breakPointRegex = /^[^\S\r\n]*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
     const codeUnits = code.split(breakPointRegex);
     let breakpoints = [];

@@ -28,7 +28,7 @@ const STOPPED = new Event("stopped");
 const OPTIONS = {
     autostart: false,
     buttons: true,
-    caret: false,
+    caret: true,
     demo: false,
     executionDelay: 250,
     indicator: true,
@@ -200,7 +200,7 @@ class LiveExample {
                 options.typingSpeed = OPTIONS.typingSpeed;
                 options.typingVariation = OPTIONS.typingVariation;
 
-                window._console.warn(`The typing speed must as least be double as high as the variation. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
+                window._console.warn(`The maximum value for typing variation is twice the typing speed. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
             }
         }
         
