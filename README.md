@@ -144,7 +144,7 @@ The template node for the [hello-world-example](https://umamiappearance.github.i
     </script>
 </template>
 ```
-The brackets for the breakpoint are optional, but can be used to pass a number, which is the number of milliseconds before the next codeblock is getting executed (e.g. `___(2000)` for two seconds).  
+The brackets for the breakpoint are optional, but can be used to pass a number, which is the number of milliseconds before the next codeblock is getting executed (e.g. `___(2000)` for two seconds). The main purpose of a breakpoint is, that the code before the breakpoint is getting executed, before the journey continues.
   
 You can use as many breakpoints as you like. The complete line with a breakpoint is getting removed from the visible code.
 
