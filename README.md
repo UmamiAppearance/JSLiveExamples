@@ -112,16 +112,16 @@ To pass options to an example, use a `<meta>` tag inside of the template and pas
 
 | key                   | type                   | default     | effect                                                         |
 | --------------------- | ---------------------- | ----------- | -------------------------------------------------------------- |
-| data-buttons          | _Boolean_              | `true`      | _removes the buttons if set to `false`_                        |
-| data-caret            | _Boolean_              | `true`      | _if `true` a caret is emulated for the typing animation_       |
-| data-demo             | _Boolean_              | `false`     | _enables the [demo-mode](#demo-mode) if set to `true`          |
-| data-execution-delay  | _Number_               | `250`       | _delay in ms before current code block is getting executed_    |
-| data-indicator        | _Boolean_              | `true`      | _if `true` a blinking dot indicates a running demo or code_    |
-| data-run              | _Boolean_              | `true`      | _if `true` the example/demo is started/executed automatically_ |
-| data-scroll           | _Boolean_              | `true`      | _if `false` the console grows infinitely_                      |
-| data-transform        | _Boolean (or Keyword)_ | `true`      | _if `true` a demo transforms into a regular example after it is done (pass the keyword `"perm"` to keep it in the regular state_ ) |
-| data-typing-speed     | _Number_               | `60`        | _value in ms for the speed of the typing emulation_            |
-| data-typing-variation | _Number_               | `80`        | _value in ms for the randomly added imperfection when typing gets emulated_ |
+| data-buttons          | _Boolean_              | `true`      | removes the buttons if set to false                            |
+| data-caret            | _Boolean_              | `true`      | if true a caret is emulated for the typing animation           |
+| data-demo             | _Boolean_              | `false`     | enables the [demo-mode](#demo-mode) if set to true             |
+| data-execution-delay  | _Number_               | `250`       | delay in _ms_ before current code block is getting executed    |
+| data-indicator        | _Boolean_              | `true`      | if true a blinking dot indicates a running demo or code        |
+| data-run              | _Boolean_              | `true`      | if true the example/demo is started/executed automatically     |
+| data-scroll           | _Boolean_              | `true`      | if false the console node grows infinitely                     |
+| data-transform        | _Boolean (or Keyword)_ | `true`      | if true a demo transforms into a regular example after it is done _(pass the keyword `"perm"` to keep it in the regular state)_ |
+| data-typing-speed     | _Number_               | `60`        | value in _ms_ for the speed of the typing emulation            |
+| data-typing-variation | _Number_               | `80`        | value in _ms_ for the randomly added imperfection when typing gets emulated |
 
 
 ### Demo-Mode
@@ -149,16 +149,16 @@ The brackets for the breakpoint are optional, but can be used to pass a number, 
 You can use as many breakpoints as you like. The complete line with a breakpoint is getting removed from the visible code.
 
 ### Methods
-Apart from the buttons, an example-node has direct access to its methods. *(Note, that demo specific methods are only available if the [demo-mode](#demo-mode) is set)*
+Apart from the buttons, an example-node has direct access to its methods *(note, that demo specific methods are only available if the [demo-mode](#demo-mode) is set)*.
 
-| method          | effect                           |
-| --------------- | -------------------------------- |
-| `.run()`        | _executes the code_              |
-| `.reset()`      | _resets the code block_          |
-| `.runDemo()`    | _runs a demo_                    |
-| `.pauseDemo()`  | _pauses a demo_                  |
-| `.resumeDemo()` | _resumes a paused demo_          |
-| `.stopDemo()`   | _stops a running or paused demo_ |
+| method          | effect                             |
+| --------------- | ---------------------------------- |
+| `.run()`        | _executes the code_                |
+| `.reset()`      | _resets the code block_            |
+| `.runDemo()`    | _runs a demo_                      |
+| `.pauseDemo()`  | _pauses a demo_                    |
+| `.resumeDemo()` | _resumes a paused demo_            |
+| `.stopDemo()`   | _stops a running or a paused demo_ |
 
 
 
