@@ -1,9 +1,9 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.3.3
+ * @version 0.4.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
- * @license GPL-3.0
+ * @license MIT
  */
 
 
@@ -11,11 +11,33 @@ import "../lib/prism.js";
 import { CodeJar } from "../lib/codejar.js";
 import ConTodo from "../lib/contodo.js";
 import { mainCSS, prismCSS } from "./css.js";
+import {
+    RUNNER_FUNCTION_NAME,
+    AsyncFunction,
+    makeDemo,
+    throwError 
+} from "./utils.js";
+
 
 const CSS = mainCSS + prismCSS;
-const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-const AsyncFunction = (async function () {}).constructor;
+
+const AUTO_EXECUTED = new Event("autoexecuted");
 const EXECUTED = new Event("executed");
+const STOPPED = new Event("stopped");
+
+const OPTIONS = {
+    autostart: false,
+    buttons: true,
+    caret: true,
+    demo: false,
+    executionDelay: 250,
+    indicator: true,
+    scroll: true,
+    transform: true,
+    typingSpeed: 60,
+    typingVariation: 80
+};
+
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -26,29 +48,30 @@ class LiveExample {
     
     /**
      * Contains all steps for the node creation and
-     * insertion.
-     * @param {object} template - A html "<template>" node.
+     * insertion into the page.
+     * @param {object} template - A html <template> node.
      * @param {number} index - Index of the node for one document.
      */
     constructor(template, index) {
 
-        // if the template has the attribute for
+        // if the template has the attribute "for"
         // it is used for the id of instance
         this.id = template.getAttribute("for") || `live-example-${index+1}`;
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
-        const { code, autostart } = this.getCode(template);
-
-        if (!code) {
-            return null;
-        }
+        const { code, options } = this.getAttributes(template);
         
-        const example = this.makeCodeExample(title, code);
+        const example = this.makeCodeExample(title, code, options);
         example.id = this.id;
-        example.className = className;
-        example.autostart = autostart;
+        example.autostart = options.autostart;
+        example.demo = options.demo;
 
+        example.classList.add(...className.split(" "));
+        if (!options.buttons) example.classList.add("no-buttons");
+        if (!options.scroll) example.classList.add("no-scroll");
+
+        
         // insert the fresh node right before the
         // template node in the document
         template.parentNode.insertBefore(example, template);
@@ -78,26 +101,110 @@ class LiveExample {
 
 
     /**
-     * Extracts the code from given a <script> - tag
-     * from the <template> node.
+     * Extracts the code and other attributes from a given
+     * <script> - tag from the <template> node.
      * @param {object} template - A html "<template>" node. 
-     * @returns {string} - The code as a string.
+     * @returns {Object} - The extracted code and options.
      */
-    getCode(template) {
+    getAttributes(template) {
+
+        const getBool = (val, True=false) => {  
+            const boolFromAttrStr = val => (val === "" || !(/^(?:false|no?|0)$/i).test(String(val)));
+            
+            if (True) {
+                return typeof val === "undefined" || boolFromAttrStr(val);
+            }
+            return typeof val !== "undefined" && boolFromAttrStr(val);
+        };
         
+        const getInt = (val, fallback, min, name) => {
+            if (typeof val === "undefined") {
+                return fallback;
+            }
+        
+            let n = parseInt(val, 10);
+        
+            if (isNaN(n) || n < min) {
+                n = fallback;
+                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to ${min}. Using default value ${fallback}`);
+            }
+        
+            return n;
+        };
+        
+        
+        let code = "";
+
+        // copy default values
+        const options = { ...OPTIONS };
+
         const codeNode = template.content.querySelector("script");
-        if (!codeNode) {
-            console.warn("Every template needs a script tag with the code to display.");
-            return null;
+
+        if (codeNode) {
+            code = codeNode.innerHTML;
+            const pattern = code.match(/\s*\n[\t\s]*/);
+            code = code
+                .replace(new RegExp(pattern, "g"), "\n")
+                .trim();
+            
+            // backwards compatibility
+            let autostart = getBool(codeNode.dataset.run, false);
+            if (autostart) {
+                console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
+                
+                options.autostart = true;
+
+                return {
+                    code,
+                    options
+                };
+            }
+        }
+   
+        const metaNode = template.content.querySelector("meta");
+        
+        if (metaNode) {
+            const data = metaNode.dataset;
+
+            options.autostart = getBool(data.run, OPTIONS.autostart);
+            options.buttons = getBool(data.buttons, OPTIONS.buttons);
+            options.caret = getBool(data.caret, OPTIONS.caret);
+            options.demo = getBool(data.demo, OPTIONS.demo);
+            options.executionDelay = getInt(
+                data.executionDelay,
+                OPTIONS.executionDelay,
+                0,
+                "execution-delay"
+            );
+            options.indicator = getBool(data.indicator, OPTIONS.indicator);
+            options.scroll = getBool(data.scroll, OPTIONS.scroll);
+            
+            options.transform = (/^perm/i).test(data.transform)
+                ? "perm"
+                : getBool(data.transform, OPTIONS.transform);
+
+            options.typingSpeed = getInt(
+                data.typingSpeed,
+                OPTIONS.typingSpeed,
+                1,
+                "typing-speed"
+            );
+            options.typingVariation = getInt(
+                data.typingVariation,
+                OPTIONS.typingVariation,
+                1,
+                "typing-variation"
+            );
+
+            if (options.typingVariation/2 > options.typingSpeed) {
+                options.typingSpeed = OPTIONS.typingSpeed;
+                options.typingVariation = OPTIONS.typingVariation;
+
+                window._console.warn(`The maximum value for typing variation is twice the typing speed. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
+            }
         }
         
-        let code = codeNode.innerHTML;
-        const pattern = code.match(/\s*\n[\t\s]*/);
-        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
-
-        const autostart = Boolean(codeNode.dataset.run);
-
-        return { code, autostart };
+        return { code, options };
     }
 
 
@@ -111,8 +218,9 @@ class LiveExample {
 
         let storedLines = 0;
         
-        const updateLines = (code) => {
+        return code => {
             const lines = code.split("\n").length;
+            
             if (lines !== storedLines) {
                 while (lines < storedLines) {
                     lineNumNode.childNodes[lines-1].remove();
@@ -124,8 +232,6 @@ class LiveExample {
                 }
             }
         };
-
-        return updateLines;
     }
 
 
@@ -139,83 +245,21 @@ class LiveExample {
         window.navigator.clipboard.writeText(code);
 
         const copied = document.querySelector("#le-copied");
+
+        // reset animation in case it is running 
+        clearTimeout(window.copyTimer);
+        copied.getAnimations().forEach(anim => {
+            anim.cancel();
+            anim.play();
+        });
+
+        // start animation
         copied.classList.add("show");
-        
-        setTimeout(() => {
+        window.copyTimer = setTimeout(() => {
             copied.classList.remove("show");
         }, 1500);
     };
 
-    /**
-     * Adjusts the information from an error stack.
-     * @param {Object} error - Error object. 
-     * @returns {string} - Stack string.
-     */
-    errorStackExtractor(error) {
-
-        const stackArray = error.stack.split("\n");
-        
-        // remove irrelevant stack information deeper down
-        let part;
-        do {
-            part = stackArray.pop();
-        }
-        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
-    
-        // remove redundant error name and description (chrome)
-        const redundancyReg = new RegExp(`^${error.name}`);
-        if (stackArray.length && redundancyReg.test(stackArray[0])) {
-            stackArray.shift();
-        }
-
-        if (stackArray.length) {
-            
-            const buildStackElem = (fn, line, col) => {
-                line -=2;
-                if (line < 0) {
-                    return null;
-                }
-                
-                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
-            };
-
-            // chrome & edge
-            if ((/\s*at\s/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            } 
-            
-            // firefox
-            else if ((/^\w+@/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.split("@")[0];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            }
-
-            let stackStr = "";
-            stackArray.forEach(elem => {
-                if (elem) {
-                    stackStr += elem + "\n";
-                }
-            });
-
-            return stackStr;
-        }
-        
-        return null;
-    }
-    
 
     /**
      * Main method. Finally the whole html node
@@ -224,23 +268,22 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code) { 
+    makeCodeExample(title, code, options) { 
 
         // create new html node
         const main = document.createElement("div");
 
-
         // the code part
         const codeWrapper = document.createElement("div");
-        codeWrapper.className = "code";
+        codeWrapper.classList.add("code");
 
         const lineNumbers = document.createElement("ol");
         
         const codeNode = document.createElement("code");
-        codeNode.className = "language-js";
+        codeNode.classList.add("language-js");
 
         const copyBtn = document.createElement("div");
-        copyBtn.className = "copy";
+        copyBtn.classList.add("copy");
         copyBtn.title = "copy to clipboard";
         copyBtn.addEventListener("click", this.toClipboard, false);
 
@@ -251,39 +294,92 @@ class LiveExample {
 
         // the title and controls part
         const titleWrapper = document.createElement("div");
-        titleWrapper.className = "title-wrapper";
+        titleWrapper.classList.add("title-wrapper");
         
         const titleNode = document.createElement("h1");
         titleNode.textContent = title;
 
         const controlsWrapper = document.createElement("div");
-        controlsWrapper.className = "controls";
+        controlsWrapper.classList.add("controls");
 
+        // if is a demo create demo specific buttons
+        let demoBtn;
+        let demoStopBtn;
+        let demoPauseBtn;
+        let demoResumeBtn;
+
+        if (options.demo) {
+            if (options.caret) {
+                main.classList.add("caret");
+            }
+
+            if (options.indicator) {
+                main.classList.add("indicator");
+            }
+
+            demoStopBtn = document.createElement("button");
+            demoStopBtn.textContent = "stop";
+            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
+            controlsWrapper.append(demoStopBtn);
+            
+            demoBtn = document.createElement("button");
+            demoBtn.textContent = "demo";
+            demoBtn.classList.add("demoBtn", "stopped");
+            controlsWrapper.append(demoBtn);
+
+            demoPauseBtn = document.createElement("button");
+            demoPauseBtn.textContent = "pause";
+            demoPauseBtn.classList.add("demoPauseBtn", "demo", "running");
+            controlsWrapper.append(demoPauseBtn);
+
+            demoResumeBtn = document.createElement("button");
+            demoResumeBtn.textContent = "play";
+            demoResumeBtn.classList.add("demoResumeBtn", "demo", "paused");
+            controlsWrapper.append(demoResumeBtn);
+        }
+
+        // create regular buttons
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
+        resetBtn.classList.add("resetBtn","regular");
+        controlsWrapper.append(resetBtn);
 
         const executeBtn = document.createElement("button");
         executeBtn.textContent = "run";
-
-        controlsWrapper.append(resetBtn);
+        executeBtn.classList.add("executeBtn", "regular");
         controlsWrapper.append(executeBtn);
 
         titleWrapper.append(titleNode);
         titleWrapper.append(controlsWrapper);
 
 
+
         // initialize jar instance
-        const updateLines = this.makeLineFN(lineNumbers);
-        // eslint-disable-next-line no-undef
-        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
-            tab: " ".repeat(4),
+        const jar = CodeJar(
+            codeNode,
+            // eslint-disable-next-line no-undef
+            editor => Prism.highlightElement(editor), {
+                tab: " ".repeat(4),
+            }
+        );
+
+        // store the original attribute of 'contenteditable'
+        // which differs between browsers
+        const editable = codeNode.getAttribute("contenteditable");
+
+        jar.updateLines = this.makeLineFN(lineNumbers);
+        jar.onUpdate(jar.updateLines);
+        Object.defineProperty(jar, "typing", {
+            set(typing) {
+                if (typing) {
+                    main.classList.add("typing");
+                } else {
+                    main.classList.remove("typing");
+                }
+            }
         });
 
-        jar.onUpdate(updateLines);
-        updateLines(code);
-        jar.updateCode(code);
-        
-        
+    
         // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
@@ -294,25 +390,131 @@ class LiveExample {
             main,
             {
                 autostart: false,
+                clearButton: false,
                 preventDefault: true
             }
         );
         contodo.createDocumentNode();
+
         
-        const resetFN = () => {
+        // prepare main functions for demo mode
+        // or prepare for regular mode
+        let runDemo;
+        let stopDemo;
+        let pauseDemo;
+        let resumeDemo;
+        
+        if (options.demo) {      
+            [   
+                code,
+                runDemo,
+                pauseDemo,
+                resumeDemo,
+                stopDemo
+            ] = makeDemo(this.id, code, jar, contodo, options);
+        
+            main.runDemo = () => {
+                if (window.isProcessing) {
+                    return false;
+                }
+                
+                if (main.mode === "regular") {
+                    setDemoMode();
+                }
+
+                startProcessing();
+                main.classList.remove("stopped");
+                main.classList.add("running");
+
+                runDemo()
+                    .finally(() => {
+                        if (options.transform) {
+                            if (options.transform === "perm") {
+                                demoBtn.style.visibility = "hidden";
+                            }
+                            setRegularMode();
+                        }
+                        
+                        else {
+                            main.classList.add("stopped");
+                        }
+
+                        main.classList.remove("running");
+
+                        main.dispatchEvent(STOPPED);
+                        endProcessing();
+                    });
+            };
+
+            main.pauseDemo = () => {
+                if (window.isProcessing && window.isProcessing !== this.id) {
+                    return false;
+                }
+                pauseDemo();
+                main.classList.remove("running");
+                main.classList.add("paused");
+                return true;
+            };
+
+            main.resumeDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+                resumeDemo();
+                main.classList.remove("paused");
+                main.classList.add("running");
+                return true;
+            };
+
+            main.stopDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+
+                stopDemo();
+                main.classList.remove("running");
+                main.classList.add("stopped");
+                endProcessing();
+                return true;
+            };
+
+            demoBtn.addEventListener("click", main.runDemo, false);
+            demoPauseBtn.addEventListener("click", main.pauseDemo, false);
+            demoResumeBtn.addEventListener("click", main.resumeDemo, false);
+            demoStopBtn.addEventListener("click", main.stopDemo, false);
+
+        } else {
+            jar.updateLines(code);
+            jar.updateCode(code);
+        }
+
+        
+        // install run and reset functions 
+        main.reset = () => {
+            if (window.isProcessing) {
+                return false;
+            }
             contodo.clear(false);
             jar.updateCode(code);
-            updateLines(code);
+            jar.updateLines(code);
+            return true;
         };
 
-        // establish button methods
-        resetBtn.addEventListener("click", resetFN, false);
-        main.reset = resetFN;
-
+        // bind reset to resetBtn
+        resetBtn.addEventListener("click", main.reset, false);
 
         // this is a regular async fn, but protected
-        // against renaming by eg. terser
-        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+        // against renaming by eg. terser, hence the
+        // weird construction (the function name must
+        // be protected to get readable error messages)
+
+        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
+            if (window.isProcessing) {
+                return false;
+            }
+
+            startProcessing();
+
             contodo.clear(false);
             contodo.initFunctions();
 
@@ -320,19 +522,56 @@ class LiveExample {
                 const fn = new AsyncFunction(jar.toString());
                 await fn();
             } catch (err) {
-                let msg = `${err.name}: ${err.message}`;
-                const stack = this.errorStackExtractor(err);
-                if (stack) {
-                    msg += "\n" + stack;
-                }
-                console.error(msg); 
+                throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
-            main.dispatchEvent(EXECUTED);       
+            endProcessing();
+            return true; 
         }}[RUNNER_FUNCTION_NAME];
 
-        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
-        main.run = liveExampleCodeRunner;
+        // bind code execution to executeBtn
+        executeBtn.addEventListener("click", main.run, false);
+
+
+        // establish some helper functions
+        const setDemoMode = (initial=false) => {
+            main.mode = "demo";
+            main.classList.add(
+                "demo",
+                initial 
+                    ? "waiting"
+                    : "stopped"
+            );
+            main.classList.remove("regular");
+        };
+
+        const setRegularMode = () => {
+            main.mode = "regular";
+            main.classList.add("regular");
+            main.classList.remove("demo", "paused", "stopped");
+        };
+
+        const startProcessing = () => {
+            window.isProcessing = this.id;
+            document.body.classList.add("example-processing");
+            main.classList.add("processing");
+            codeNode.setAttribute("contenteditable", false);
+        };
+
+        const endProcessing = () => {
+            window.isProcessing = false;
+            document.body.classList.remove("example-processing");
+            main.classList.remove("processing");
+            codeNode.setAttribute("contenteditable", editable);
+            main.dispatchEvent(EXECUTED);
+        };
+
+        // finally set to the requested mode
+        if (options.demo) {
+            setDemoMode(true);
+        } else {
+            setRegularMode();
+        }
 
         return main;
     }
@@ -348,16 +587,15 @@ const liveExamples = (() => {
 
     // apply css to the document header (if present)
     if (CSS) {
-        const style= document.createElement("style"); 
+        const style = document.createElement("style"); 
         style.innerHTML = CSS;
         document.head.append(style);
     }
 
     /**
      * Function to generate example instances for 
-     * every template and node for displaying the
-     * information, that the code was copied to the
-     * clipboard.
+     * every template. All "autostart" instances,
+     * are also executed serially from top to bottom.
      */
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
@@ -365,9 +603,18 @@ const liveExamples = (() => {
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
-            if (example && example.autostart) {
-                autostartExamples.push(example);
+
+            if (!example) {
+                return;
             }
+        
+            if (example.autostart) {
+                autostartExamples.push(example);
+            } else if (example.demo) {
+                example.classList.add("stopped");
+                example.classList.remove("waiting");
+            }
+
         });
 
         const copiedInfo = document.createElement("section");
@@ -382,9 +629,21 @@ const liveExamples = (() => {
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
+            
             if (example) {
                 example.addEventListener("executed", autoExe, false);
-                example.run();
+                if (example.demo) {
+                    example.classList.add("stopped");
+                    example.classList.remove("waiting");
+                    example.runDemo();
+                } else {
+                    example.run();
+                }
+            }
+
+            else {
+                window.dispatchEvent(AUTO_EXECUTED);
+                window.liveExamplesAutoExecuted = true;
             }
         };
         autoExe();

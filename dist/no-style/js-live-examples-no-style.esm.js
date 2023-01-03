@@ -1,4 +1,4 @@
-/* PrismJS 1.28.0
+/* PrismJS 1.29.0
 https://prismjs.com/download.html#themes=prism&languages=clike+javascript */
 /// <reference lib="WebWorker"/>
 
@@ -1897,10 +1897,29 @@ const isIdentifier = (str) => {
 /**
  * [contodo]{@link https://github.com/UmamiAppearance/contodo}
  *
- * @version 0.2.8
+ * @version 0.4.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
- * @license GPL-3.0
+ * @license MIT
  */
+
+// Store Default Console Methods
+window._console = {
+    assert: console.assert.bind(console),
+    count: console.count.bind(console),
+    countReset: console.countReset.bind(console),
+    clear: console.clear.bind(console),
+    debug: console.debug.bind(console),
+    error: console.error.bind(console),
+    exception: console.exception ? console.exception.bind(console) : null,
+    info: console.info.bind(console),
+    log: console.log.bind(console),
+    table: console.table.bind(console),
+    time: console.time.bind(console),
+    timeEnd: console.timeEnd.bind(console),
+    timeLog: console.timeLog.bind(console),
+    trace: console.trace.bind(console),
+    warn: console.warn.bind(console)
+};
 
 
 /**
@@ -1937,6 +1956,7 @@ class ConTodo {
         this.options = {
             autostart: hasOption("autostart") ? Boolean(options.autostart) : true,
             catchErrors: hasOption("catchErrors") ? Boolean(options.catchErrors) : false,
+            clearButton: hasOption("clearButton") ? Boolean(options.clearButton) : false,
             height: hasOption("height") ? options.height : "inherit",
             maxEntries: hasOption("maxEntries") ? Math.max(parseInt(Number(options.maxEntries), 10), 0) : 0,
             preventDefault: hasOption("preventDefault") ? Boolean(options.preventDefault) : false,
@@ -1954,35 +1974,20 @@ class ConTodo {
             }
             this.options.applyCSS = false;
         }
-        
-        // Store Default Console Methods
-        this.defaultConsole = {
-            assert: console.assert.bind(console),
-            count: console.count.bind(console),
-            countReset: console.countReset.bind(console),
-            clear: console.clear.bind(console),
-            debug: console.debug.bind(console),
-            error: console.error.bind(console),
-            exception: console.exception ? console.exception.bind(console) : null,
-            info: console.info.bind(console),
-            log: console.log.bind(console),
-            table: console.table.bind(console),
-            time: console.time.bind(console),
-            timeEnd: console.timeEnd.bind(console),
-            timeLog: console.timeLog.bind(console),
-            trace: console.trace.bind(console),
-            warn: console.warn.bind(console)
-        };
-   
+         
         // Class values
         this.active = false;
-        this.counters = new Object();
+        this.counters = {};
         this.mainElem = null;
+        this.clearBtn = null;
         this.style = null;
-        this.timers = new Object;
+        this.timers = {};
 
         // Bind Error Function to Class
         this.catchErrorFN = this.catchErrorFN.bind(this);
+
+        // create API
+        this.#makeAPI();
 
         // Auto Init
         if (this.options.autostart) {
@@ -1998,9 +2003,20 @@ class ConTodo {
     createDocumentNode() {
         if (!this.mainElem) {
             this.mainElem = document.createElement("code");
-            this.parentNode.append(this.mainElem);
             this.mainElem.classList.add("contodo");
             this.mainElem.style.height = this.options.height;
+            this.parentNode.append(this.mainElem);
+
+            if (this.options.clearButton) {
+                this.mainElem.classList.add("clearBtn");
+                this.clearBtn = document.createElement("a");
+                this.clearBtn.textContent = "clear";
+                this.clearBtn.title = "clear console";
+                this.clearBtn.addEventListener("click", () => { this.clear(false); }, false);
+                this.clearBtn.classList.add("contodo-clear");
+                this.parentNode.append(this.clearBtn);
+            }
+            
             this.logCount = 0;
         }
         if (this.options.applyCSS) {
@@ -2020,7 +2036,40 @@ class ConTodo {
             return;
         }
         this.mainElem.remove();
+        if (this.clearBtn) {
+            this.clearBtn.remove();
+            this.clearBtn = null;
+        }
         this.mainElem = null;
+    }
+
+    #makeAPI() {
+        const naErr = () => {
+            throw new ReferenceError("contodo does not have this method available");
+        };
+
+        this.api = {
+            assert: (bool, ...args) => this.assert(bool, args),
+            count: (label) => this.count(label),
+            countReset: (label) => this.countReset(label),
+            counters: () => this.countersShow(),
+            clear: () => this.clear(),
+            debug: (...args) => this.debug(args),
+            dir: naErr,
+            dirxml: naErr,
+            error: (...args) => this.makeLog("error", args),
+            group: naErr,
+            info: (...args) => this.makeLog("info", args),
+            log: (...args) => this.makeLog("log", args),
+            table: (...args) => this.makeTableLog(args),
+            time: (label) => this.time(label),
+            timeEnd: (label) => this.timeEnd(label),
+            timeLog: (label) => this.timeLog(label),
+            timers: () => this.timersShow(),
+            trace: (...args) => this.trace(args),
+            warn: (...args) => this.makeLog("warn", args),
+        };
+        this.api.exception = this.api.error;
     }
 
 
@@ -2032,23 +2081,23 @@ class ConTodo {
         if (this.active) {
             return;
         }
-        console.assert = (bool, ...args) => this.assert(bool, args);
-        console.count = (label) => this.count(label);
-        console.countReset = (label) => this.countReset(label);
-        console.counters = () => this.countersShow();
-        console.clear = () => this.clear();
-        console.debug = (...args) => this.debug(args);
-        console.error = (...args) => this.makeLog("error", args);
-        console.exception = console.error;
-        console.info = (...args) => this.makeLog("info", args);
-        console.log = (...args) => this.makeLog("log", args);
-        console.table = (...args) => this.makeTableLog(args);
-        console.time = (label) => this.time(label);
-        console.timeEnd = (label) => this.timeEnd(label);
-        console.timeLog = (label) => this.timeLog(label);
-        console.timers = () => this.timersShow();
-        console.trace = (...args) => this.trace(args);
-        console.warn = (...args) => this.makeLog("warn", args);
+        console.assert = this.api.assert;
+        console.count = this.api.count;
+        console.countReset = this.api.countReset;
+        console.counters = this.api.counters;
+        console.clear = this.api.clear;
+        console.debug = this.api.debug;
+        console.error = this.api.error;
+        console.exception = this.api.exception;
+        console.info = this.api.info;
+        console.log = this.api.log;
+        console.table = this.api.table;
+        console.time = this.api.time;
+        console.timeEnd = this.api.timeEnd;
+        console.timeLog = this.api.timeLog;
+        console.timers = this.api.timers;
+        console.trace = this.api.trace;
+        console.warn = this.api.warn;
         if (this.options.catchErrors) window.addEventListener("error", this.catchErrorFN, false);
         this.active = true;
     }
@@ -2061,23 +2110,23 @@ class ConTodo {
         if (!this.active) {
             return;
         }
-        console.assert = this.defaultConsole.assert;
-        console.count = this.defaultConsole.count;
-        console.countReset = this.defaultConsole.countReset;
+        console.assert = window._console.assert;
+        console.count = window._console.count;
+        console.countReset = window._console.countReset;
         delete console.counters;
-        console.clear = this.defaultConsole.clear;
-        console.debug = this.defaultConsole.debug;
-        console.error = this.defaultConsole.error;
-        console.exception = this.defaultConsole.exception;
-        console.info = this.defaultConsole.info;
-        console.log = this.defaultConsole.log;
-        console.table = this.defaultConsole.table;
-        console.time = this.defaultConsole.time;
-        console.timeEnd = this.defaultConsole.timeEnd;
-        console.timeLog = this.defaultConsole.timeLog;
+        console.clear = window._console.clear;
+        console.debug = window._console.debug;
+        console.error = window._console.error;
+        console.exception = window._console.exception;
+        console.info = window._console.info;
+        console.log = window._console.log;
+        console.table = window._console.table;
+        console.time = window._console.time;
+        console.timeEnd = window._console.timeEnd;
+        console.timeLog = window._console.timeLog;
         delete console.timers;
-        console.trace = this.defaultConsole.trace;
-        console.warn = this.defaultConsole.warn;
+        console.trace = window._console.trace;
+        console.warn = window._console.warn;
         if (this.options.catchErrors) window.removeEventListener("error", this.catchErrorFN, false);
         this.active = false;
     }
@@ -2146,7 +2195,7 @@ class ConTodo {
         };
 
         if (!preventDefaultLog) {
-            this.defaultConsole[type](...args);
+            window._console[type](...args);
         }
 
         const newLog = this.#makeDivLogEntry(type);
@@ -2191,7 +2240,7 @@ class ConTodo {
      */
     makeTableLog(args, preventDefaultLog=this.options.preventDefault) {
         if (!preventDefaultLog) {
-            this.defaultConsole.table(...args);
+            window._console.table(...args);
         }
 
         // Helper function. Test wether the data
@@ -2333,7 +2382,7 @@ class ConTodo {
      */
     #foundEdgeCaseError(input) {
         console.error("You found an edge case, which is not covered yet.\nPlease create an issue mentioning your input at:\nhttps://github.com/UmamiAppearance/contodo/issues");
-        this.defaultConsole.warn(input);
+        window._console.warn(input);
         
     }
 
@@ -2635,7 +2684,7 @@ class ConTodo {
      */
     assert(bool, args) {
         if (!this.options.preventDefault) {
-            this.defaultConsole.assert(bool, ...args);
+            window._console.assert(bool, ...args);
         }
         if (!bool) {
             this.makeLog("error", ["Assertion failed:", ...args], true);
@@ -2689,7 +2738,7 @@ class ConTodo {
      */
     clear(info=true) {
         if (!this.options.preventDefault && info) {
-            this.defaultConsole.clear();
+            window._console.clear();
         }
         this.mainElem.innerHTML = "";
         this.logCount = 0;
@@ -2708,7 +2757,7 @@ class ConTodo {
      */
     debug(args) {
         if (!this.options.preventDefault) {
-            this.defaultConsole.debug(...args);
+            window._console.debug(...args);
         }
         if (this.options.showDebugging) {
             this.makeLog("log", args, true);
@@ -2730,7 +2779,7 @@ class ConTodo {
             this.makeLog("warn", [msg], true);
 
             if (!this.options.preventDefault) {
-                this.defaultConsole.warn(msg);
+                window._console.warn(msg);
             }
         }
     }
@@ -2762,7 +2811,7 @@ class ConTodo {
 
         this.makeLog(type, [msg], true);
         if (!this.options.preventDefault) {
-            this.defaultConsole[type](msg);
+            window._console[type](msg);
         }
         
         return label;
@@ -2791,7 +2840,7 @@ class ConTodo {
      */
     timersShow() {
         const now = window.performance.now();
-        const timers = new Object();
+        const timers = {};
         for (const timer in this.timers) {
             timers[timer] = `${now - this.timers[timer]} ms`;
         }
@@ -2872,21 +2921,395 @@ class ConTodo {
                 msg.push(`  ${line.name}${" ".repeat(lenLeft-line.len)}${line.file}\n`);
             }
 
-            this.defaultConsole.log(...msg);
+            window._console.log(...msg);
         }
     }
 }
 
+const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
+const AsyncFunction = (async function(){}).constructor;
+const randID = () => `_${Math.random().toString(16).slice(2)}`;
+
+/**
+ * A promise, which remains in a pending state
+ * until a event occurs.
+ * @param {string} name - Event name. 
+ * @returns {Object} - Wait Promise.
+ */
+window.waitPromise = name => {
+    if (window.abortDemo) {
+        return Promise.reject();
+    }
+       
+    return new Promise((resolve, reject) => {
+
+        const resolveFN = () => {
+            window.removeEventListener("abort" + name, rejectFN, false);
+            return resolve();
+        };
+    
+        const rejectFN = () => {
+            window.removeEventListener(name, resolveFN, false);
+            return reject();
+        };
+
+        window.addEventListener(name, resolveFN, {
+            capture: false,
+            once: true,
+        });
+        
+        window.addEventListener("abort" + name, rejectFN, {
+            capture: false,
+            once: true,
+        });
+    });
+};
+
+/**
+ * Async Sleep function, which can also wait
+ * until a pause event resolves.
+ * @param {*} ms 
+ * @returns 
+ */
+window.sleep = ms => new Promise(resolve => {
+    const resumeIfNotPaused = async () => {
+        if (window.demoIsPaused) {
+            await window.demoPause;
+        }
+        return resolve();
+    };
+    setTimeout(resumeIfNotPaused, ms);
+});
+
+
+window.demoPauseEvt = new Event("demoPause");
+
+/**
+ * Generates a pause function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
+ * @returns {function} - Pause function.
+ */
+const pauseDemoFN = (contodo, jar) => {
+    return () => {
+        if (!window.isDemoing || window.demoIsPaused) {
+            return;
+        }
+        jar.typing = false;
+        contodo.restoreDefaultConsole();
+        window.demoPause = window.waitPromise("demoPause");
+        window.demoIsPaused = true;
+    };
+};
+
+/**
+ * Generates a resume function. Which can
+ * control a contodo instance.
+ * @param {Object} contodo - contodo instance.
+ * @param {Object} jar - Code Jar instance.
+ * @returns {function} - resume function.
+ */
+const resumeDemoFN = (contodo, jar) => {
+    return () => {
+        if (!window.isDemoing || !window.demoIsPaused) {
+            return;
+        }
+        contodo.initFunctions();
+        window.dispatchEvent(window.demoPauseEvt);
+        window.demoIsPaused = false;
+        jar.typing = true;
+    };
+};
+
+/**
+ * Generates a stop function. Which can
+ * control all parts of a LiveExample.
+ * @param {string} instanceId - ID of the instance.
+ * @param {string} code - Source code of the example.
+ * @param {Object} jar - Code jar instance.
+ * @param {Object} contodo - Contodo instance.
+ * @returns {function} - Pause function.
+ */
+const stopDemoFN = (instanceId, code, jar, contodo) => {
+    return () => {
+
+        contodo.restoreDefaultConsole();
+        contodo.clear(false);
+
+        window.abortDemo = true;
+        
+        window.dispatchEvent(window.demoPauseEvt);
+        window.dispatchEvent(window["abort" + instanceId]);
+
+        jar.updateCode(code);
+        jar.updateLines(code);
+        jar.typing = false;
+        
+        window.isDemoing = false;
+
+    };
+};
+
+
+/**
+ * Generates a function, which emulates keyboard typing
+ * on a CodeJar instance.
+ * @param {string} code - The source code for the typing emulation.
+ * @returns {function} - Typing function.
+ */
+const makeTypingFN = (code, options) => {
+    const minRN = options.typingSpeed - options.typingVariation/2;
+    const maxRN = minRN + options.typingVariation;
+    
+    return async jar => {
+        let content = jar.toString();
+        jar.typing = true;
+        const charArray = [...code];
+        let last;
+        
+        for (const char of charArray) {
+
+            content += char;
+
+            // if a newline is followed by a space:
+            // continue (respect indentation)
+            // print the character in any other case
+
+            if (!(last === "\n" && char === " ")) {
+                last = char;
+
+                jar.updateCode(content);
+                jar.updateLines(content);
+                
+                await window.sleep(Math.floor(Math.random() * maxRN + minRN));
+            
+            }
+
+            if (window.abortDemo) {
+                return;
+            }
+        }
+        
+        jar.typing = false;
+
+        if (options.executionDelay) {
+            await window.sleep(options.executionDelay);
+        }
+    };
+};
+
+
+/**
+ * Generates all required functions for running
+ * a LiveExample in demo mode.
+ * @param {string} id - Id of the html-node. 
+ * @param {string} code - The source code (with breakpoints) 
+ * @param {Object} jar - A CodeJar instance. 
+ * @param {Object} contodo - A contodo instance. 
+ * @returns {array[]} - An array with the required functions and the source code with the breakpoints removed.
+ */
+const makeDemo = (id, code, jar, contodo, options) => {
+    jar.updateLines("");
+    jar.updateCode(""); 
+
+    const instanceId = randID();
+    window[instanceId] = new Event(instanceId);
+    window["abort" + instanceId] = new Event("abort" + instanceId);
+
+    // REGEX: 
+    // * ignore whitespace but exclude previous newline
+    // * look for three underscores
+    // * optionally followed by a number between brackets
+    // * select the whole line (including newline)
+    const breakPointRegex = /^[^\S\r\n]*_{3}(?:\([0-9]+\))?.*\r?\n?/gm;
+    const codeUnits = code.split(breakPointRegex);
+    let breakpoints = [];
+
+    const breakpointsArr = code.match(breakPointRegex);
+    if (breakpointsArr) {
+        breakpointsArr.forEach(bp => breakpoints.push(Number(bp.replace(/[^0-9]/g, ""))));
+        breakpoints.push(0);
+    }
+    
+    let cleanCode = "";
+    let codeInstructions = `await window.waitPromise("${instanceId}");\n`;
+    const typingInstructions = [];
+    const lastIndex = codeUnits.length-1;
+
+    codeUnits.forEach((codeUnit, i) => {
+
+        cleanCode += codeUnit;
+        const typingFN = makeTypingFN(codeUnit, options);
+
+        typingInstructions.push(typingFN);
+        typingInstructions.push(() => window.dispatchEvent(window[instanceId]));
+        typingInstructions.push(async () => await window.waitPromise(instanceId));
+
+        codeInstructions += codeUnit;
+        if (i < lastIndex) {
+            codeInstructions += `await window.sleep(${Math.max(breakpoints[i], 10)});\n`;
+            codeInstructions += `window.dispatchEvent(window.${instanceId});\n`;
+            codeInstructions += `await waitPromise("${instanceId}");\n`;
+        }
+    });
+    
+    const demoFN = async () => {
+         
+        window.abortDemo = false;
+        window.demoIsPaused = false;
+        window.isDemoing = true;
+        
+        contodo.clear(false);
+        contodo.initFunctions();
+        
+        jar.updateLines("");
+        jar.updateCode("");
+        
+        try {
+            (async () => {
+                for (const fn of typingInstructions) {
+                    try {
+                        await fn(jar);
+                    } catch {
+                        return;
+                    }
+                    if (window.abortDemo) {
+                        return;
+                    }
+                }
+            })();
+            const fn = new AsyncFunction(codeInstructions);
+            window.FN = fn();
+            await window.FN;
+        } catch (err) {
+            throwError(err, id);
+        }
+        
+        // end waiter, if still hanging
+        window.dispatchEvent(window[instanceId]);
+        contodo.restoreDefaultConsole();
+        window.isDemoing = false;
+    };
+    
+    return [
+        cleanCode,
+        demoFN,
+        pauseDemoFN(contodo, jar),
+        resumeDemoFN(contodo, jar),
+        stopDemoFN(instanceId, cleanCode, jar, contodo)
+    ];
+};
+
+
+
+/**
+ * Adjusts the information from an error stack.
+ * @param {Object} error - Error object. 
+ * @returns {string} - Stack string.
+ */
+const errorStackExtractor = (error, id) => {
+    
+    const stackArray = error.stack.split("\n");
+    
+    // remove irrelevant stack information deeper down
+    let part;
+    do {
+        part = stackArray.pop();
+    }
+    while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
+
+    // remove redundant error name and description (chrome)
+    const redundancyReg = new RegExp(`^${error.name}`);
+    if (stackArray.length && redundancyReg.test(stackArray[0])) {
+        stackArray.shift();
+    }
+
+    if (stackArray.length) {
+        
+        const buildStackElem = (fn, line, col) => {
+            line -=2;
+            if (line < 0) {
+                return null;
+            }
+            
+            return `  > ${fn}@${id}, line: ${line}, col: ${col}`;
+        };
+
+        // chrome & edge
+        if ((/\s*at\s/).test(stackArray[0])) {
+            stackArray.forEach((elem, i) => {
+                const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
+                let [ line, col ] = elem.split(":")
+                    .slice(-2)
+                    .map(n => n.replace(/\D/g, "")|0);
+                
+                stackArray[i] = buildStackElem(fn, line, col);
+            });
+        } 
+        
+        // firefox
+        else if ((/^\w+@/).test(stackArray[0])) {
+            stackArray.forEach((elem, i) => {
+                const fn = elem.split("@")[0];
+                let [ line, col ] = elem.split(":")
+                    .slice(-2)
+                    .map(n => n.replace(/\D/g, "")|0);
+                
+                stackArray[i] = buildStackElem(fn, line, col);
+            });
+        }
+
+        let stackStr = "";
+        stackArray.forEach(elem => {
+            if (elem) {
+                stackStr += elem + "\n";
+            }
+        });
+
+        return stackStr;
+    }
+    
+    return null;
+};
+
+const throwError = (err, id) => {
+    if (!err || !err.message) {
+        return;
+    }
+    let msg = `${err.name}: ${err.message}`;
+    const stack = errorStackExtractor(err, id);
+    if (stack) {
+        msg += "\n" + stack;
+    }
+    console.error(msg);
+};
+
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.3.3
+ * @version 0.4.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
- * @license GPL-3.0
+ * @license MIT
  */
-const RUNNER_FUNCTION_NAME = "liveExampleCodeRunner";
-const AsyncFunction = (async function () {}).constructor;
+
+const AUTO_EXECUTED = new Event("autoexecuted");
 const EXECUTED = new Event("executed");
+const STOPPED = new Event("stopped");
+
+const OPTIONS = {
+    autostart: false,
+    buttons: true,
+    caret: true,
+    demo: false,
+    executionDelay: 250,
+    indicator: true,
+    scroll: true,
+    transform: true,
+    typingSpeed: 60,
+    typingVariation: 80
+};
+
 
 /**
  * Constructor for an instance of a LiveExample.
@@ -2897,29 +3320,30 @@ class LiveExample {
     
     /**
      * Contains all steps for the node creation and
-     * insertion.
-     * @param {object} template - A html "<template>" node.
+     * insertion into the page.
+     * @param {object} template - A html <template> node.
      * @param {number} index - Index of the node for one document.
      */
     constructor(template, index) {
 
-        // if the template has the attribute for
+        // if the template has the attribute "for"
         // it is used for the id of instance
         this.id = template.getAttribute("for") || `live-example-${index+1}`;
         const className = template.getAttribute("class");
 
         const title = this.getTitle(template, index);
-        const { code, autostart } = this.getCode(template);
-
-        if (!code) {
-            return null;
-        }
+        const { code, options } = this.getAttributes(template);
         
-        const example = this.makeCodeExample(title, code);
+        const example = this.makeCodeExample(title, code, options);
         example.id = this.id;
-        example.className = className;
-        example.autostart = autostart;
+        example.autostart = options.autostart;
+        example.demo = options.demo;
 
+        example.classList.add(...className.split(" "));
+        if (!options.buttons) example.classList.add("no-buttons");
+        if (!options.scroll) example.classList.add("no-scroll");
+
+        
         // insert the fresh node right before the
         // template node in the document
         template.parentNode.insertBefore(example, template);
@@ -2949,26 +3373,110 @@ class LiveExample {
 
 
     /**
-     * Extracts the code from given a <script> - tag
-     * from the <template> node.
+     * Extracts the code and other attributes from a given
+     * <script> - tag from the <template> node.
      * @param {object} template - A html "<template>" node. 
-     * @returns {string} - The code as a string.
+     * @returns {Object} - The extracted code and options.
      */
-    getCode(template) {
+    getAttributes(template) {
+
+        const getBool = (val, True=false) => {  
+            const boolFromAttrStr = val => (val === "" || !(/^(?:false|no?|0)$/i).test(String(val)));
+            
+            if (True) {
+                return typeof val === "undefined" || boolFromAttrStr(val);
+            }
+            return typeof val !== "undefined" && boolFromAttrStr(val);
+        };
         
+        const getInt = (val, fallback, min, name) => {
+            if (typeof val === "undefined") {
+                return fallback;
+            }
+        
+            let n = parseInt(val, 10);
+        
+            if (isNaN(n) || n < min) {
+                n = fallback;
+                window._console.warn(`The number input for ${name} must be a positive integer greater or equal to ${min}. Using default value ${fallback}`);
+            }
+        
+            return n;
+        };
+        
+        
+        let code = "";
+
+        // copy default values
+        const options = { ...OPTIONS };
+
         const codeNode = template.content.querySelector("script");
-        if (!codeNode) {
-            console.warn("Every template needs a script tag with the code to display.");
-            return null;
+
+        if (codeNode) {
+            code = codeNode.innerHTML;
+            const pattern = code.match(/\s*\n[\t\s]*/);
+            code = code
+                .replace(new RegExp(pattern, "g"), "\n")
+                .trim();
+            
+            // backwards compatibility
+            let autostart = getBool(codeNode.dataset.run, false);
+            if (autostart) {
+                console.warn("DEPRECATION NOTICE:\nPassing the run attribute directly to the script tag is deprecated. Support will be removed in a future release. Use the <meta> tag to pass this option.");
+                
+                options.autostart = true;
+
+                return {
+                    code,
+                    options
+                };
+            }
+        }
+   
+        const metaNode = template.content.querySelector("meta");
+        
+        if (metaNode) {
+            const data = metaNode.dataset;
+
+            options.autostart = getBool(data.run, OPTIONS.autostart);
+            options.buttons = getBool(data.buttons, OPTIONS.buttons);
+            options.caret = getBool(data.caret, OPTIONS.caret);
+            options.demo = getBool(data.demo, OPTIONS.demo);
+            options.executionDelay = getInt(
+                data.executionDelay,
+                OPTIONS.executionDelay,
+                0,
+                "execution-delay"
+            );
+            options.indicator = getBool(data.indicator, OPTIONS.indicator);
+            options.scroll = getBool(data.scroll, OPTIONS.scroll);
+            
+            options.transform = (/^perm/i).test(data.transform)
+                ? "perm"
+                : getBool(data.transform, OPTIONS.transform);
+
+            options.typingSpeed = getInt(
+                data.typingSpeed,
+                OPTIONS.typingSpeed,
+                1,
+                "typing-speed"
+            );
+            options.typingVariation = getInt(
+                data.typingVariation,
+                OPTIONS.typingVariation,
+                1,
+                "typing-variation"
+            );
+
+            if (options.typingVariation/2 > options.typingSpeed) {
+                options.typingSpeed = OPTIONS.typingSpeed;
+                options.typingVariation = OPTIONS.typingVariation;
+
+                window._console.warn(`The maximum value for typing variation is twice the typing speed. Falling back to default values [typing-speed: ${OPTIONS.typingSpeed}, typing-variation: ${OPTIONS.typingVariation}].`);
+            }
         }
         
-        let code = codeNode.innerHTML;
-        const pattern = code.match(/\s*\n[\t\s]*/);
-        code = code.replace(new RegExp(pattern, "g"), "\n").trim();
-
-        const autostart = Boolean(codeNode.dataset.run);
-
-        return { code, autostart };
+        return { code, options };
     }
 
 
@@ -2982,8 +3490,9 @@ class LiveExample {
 
         let storedLines = 0;
         
-        const updateLines = (code) => {
+        return code => {
             const lines = code.split("\n").length;
+            
             if (lines !== storedLines) {
                 while (lines < storedLines) {
                     lineNumNode.childNodes[lines-1].remove();
@@ -2995,8 +3504,6 @@ class LiveExample {
                 }
             }
         };
-
-        return updateLines;
     }
 
 
@@ -3010,83 +3517,21 @@ class LiveExample {
         window.navigator.clipboard.writeText(code);
 
         const copied = document.querySelector("#le-copied");
+
+        // reset animation in case it is running 
+        clearTimeout(window.copyTimer);
+        copied.getAnimations().forEach(anim => {
+            anim.cancel();
+            anim.play();
+        });
+
+        // start animation
         copied.classList.add("show");
-        
-        setTimeout(() => {
+        window.copyTimer = setTimeout(() => {
             copied.classList.remove("show");
         }, 1500);
     };
 
-    /**
-     * Adjusts the information from an error stack.
-     * @param {Object} error - Error object. 
-     * @returns {string} - Stack string.
-     */
-    errorStackExtractor(error) {
-
-        const stackArray = error.stack.split("\n");
-        
-        // remove irrelevant stack information deeper down
-        let part;
-        do {
-            part = stackArray.pop();
-        }
-        while (typeof part !== "undefined" && !part.includes(RUNNER_FUNCTION_NAME));
-    
-        // remove redundant error name and description (chrome)
-        const redundancyReg = new RegExp(`^${error.name}`);
-        if (stackArray.length && redundancyReg.test(stackArray[0])) {
-            stackArray.shift();
-        }
-
-        if (stackArray.length) {
-            
-            const buildStackElem = (fn, line, col) => {
-                line -=2;
-                if (line < 0) {
-                    return null;
-                }
-                
-                return `  > ${fn}@${this.id}, line: ${line}, col: ${col}`;
-            };
-
-            // chrome & edge
-            if ((/\s*at\s/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.match(/(?:^\s*at )(\w+)/)[1];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            } 
-            
-            // firefox
-            else if ((/^\w+@/).test(stackArray[0])) {
-                stackArray.forEach((elem, i) => {
-                    const fn = elem.split("@")[0];
-                    let [ line, col ] = elem.split(":")
-                        .slice(-2)
-                        .map(n => n.replace(/\D/g, "")|0);
-                    
-                    stackArray[i] = buildStackElem(fn, line, col);
-                });
-            }
-
-            let stackStr = "";
-            stackArray.forEach(elem => {
-                if (elem) {
-                    stackStr += elem + "\n";
-                }
-            });
-
-            return stackStr;
-        }
-        
-        return null;
-    }
-    
 
     /**
      * Main method. Finally the whole html node
@@ -3095,23 +3540,22 @@ class LiveExample {
      * @param {string} code - Initial code for the instance to display. 
      * @returns {object} - A document node (<div>) with all of its children.
      */
-    makeCodeExample(title, code) { 
+    makeCodeExample(title, code, options) { 
 
         // create new html node
         const main = document.createElement("div");
 
-
         // the code part
         const codeWrapper = document.createElement("div");
-        codeWrapper.className = "code";
+        codeWrapper.classList.add("code");
 
         const lineNumbers = document.createElement("ol");
         
         const codeNode = document.createElement("code");
-        codeNode.className = "language-js";
+        codeNode.classList.add("language-js");
 
         const copyBtn = document.createElement("div");
-        copyBtn.className = "copy";
+        copyBtn.classList.add("copy");
         copyBtn.title = "copy to clipboard";
         copyBtn.addEventListener("click", this.toClipboard, false);
 
@@ -3122,39 +3566,92 @@ class LiveExample {
 
         // the title and controls part
         const titleWrapper = document.createElement("div");
-        titleWrapper.className = "title-wrapper";
+        titleWrapper.classList.add("title-wrapper");
         
         const titleNode = document.createElement("h1");
         titleNode.textContent = title;
 
         const controlsWrapper = document.createElement("div");
-        controlsWrapper.className = "controls";
+        controlsWrapper.classList.add("controls");
 
+        // if is a demo create demo specific buttons
+        let demoBtn;
+        let demoStopBtn;
+        let demoPauseBtn;
+        let demoResumeBtn;
+
+        if (options.demo) {
+            if (options.caret) {
+                main.classList.add("caret");
+            }
+
+            if (options.indicator) {
+                main.classList.add("indicator");
+            }
+
+            demoStopBtn = document.createElement("button");
+            demoStopBtn.textContent = "stop";
+            demoStopBtn.classList.add("stopBtn", "demo", "running", "paused");
+            controlsWrapper.append(demoStopBtn);
+            
+            demoBtn = document.createElement("button");
+            demoBtn.textContent = "demo";
+            demoBtn.classList.add("demoBtn", "stopped");
+            controlsWrapper.append(demoBtn);
+
+            demoPauseBtn = document.createElement("button");
+            demoPauseBtn.textContent = "pause";
+            demoPauseBtn.classList.add("demoPauseBtn", "demo", "running");
+            controlsWrapper.append(demoPauseBtn);
+
+            demoResumeBtn = document.createElement("button");
+            demoResumeBtn.textContent = "play";
+            demoResumeBtn.classList.add("demoResumeBtn", "demo", "paused");
+            controlsWrapper.append(demoResumeBtn);
+        }
+
+        // create regular buttons
         const resetBtn = document.createElement("button");
         resetBtn.textContent = "reset";
+        resetBtn.classList.add("resetBtn","regular");
+        controlsWrapper.append(resetBtn);
 
         const executeBtn = document.createElement("button");
         executeBtn.textContent = "run";
-
-        controlsWrapper.append(resetBtn);
+        executeBtn.classList.add("executeBtn", "regular");
         controlsWrapper.append(executeBtn);
 
         titleWrapper.append(titleNode);
         titleWrapper.append(controlsWrapper);
 
 
+
         // initialize jar instance
-        const updateLines = this.makeLineFN(lineNumbers);
-        // eslint-disable-next-line no-undef
-        const jar = CodeJar(codeNode, (editor) => { Prism.highlightElement(editor); } , {
-            tab: " ".repeat(4),
+        const jar = CodeJar(
+            codeNode,
+            // eslint-disable-next-line no-undef
+            editor => Prism.highlightElement(editor), {
+                tab: " ".repeat(4),
+            }
+        );
+
+        // store the original attribute of 'contenteditable'
+        // which differs between browsers
+        const editable = codeNode.getAttribute("contenteditable");
+
+        jar.updateLines = this.makeLineFN(lineNumbers);
+        jar.onUpdate(jar.updateLines);
+        Object.defineProperty(jar, "typing", {
+            set(typing) {
+                if (typing) {
+                    main.classList.add("typing");
+                } else {
+                    main.classList.remove("typing");
+                }
+            }
         });
 
-        jar.onUpdate(updateLines);
-        updateLines(code);
-        jar.updateCode(code);
-        
-        
+    
         // append code and title to main
         main.append(codeWrapper);
         main.append(titleWrapper);
@@ -3165,25 +3662,131 @@ class LiveExample {
             main,
             {
                 autostart: false,
+                clearButton: false,
                 preventDefault: true
             }
         );
         contodo.createDocumentNode();
+
         
-        const resetFN = () => {
+        // prepare main functions for demo mode
+        // or prepare for regular mode
+        let runDemo;
+        let stopDemo;
+        let pauseDemo;
+        let resumeDemo;
+        
+        if (options.demo) {      
+            [   
+                code,
+                runDemo,
+                pauseDemo,
+                resumeDemo,
+                stopDemo
+            ] = makeDemo(this.id, code, jar, contodo, options);
+        
+            main.runDemo = () => {
+                if (window.isProcessing) {
+                    return false;
+                }
+                
+                if (main.mode === "regular") {
+                    setDemoMode();
+                }
+
+                startProcessing();
+                main.classList.remove("stopped");
+                main.classList.add("running");
+
+                runDemo()
+                    .finally(() => {
+                        if (options.transform) {
+                            if (options.transform === "perm") {
+                                demoBtn.style.visibility = "hidden";
+                            }
+                            setRegularMode();
+                        }
+                        
+                        else {
+                            main.classList.add("stopped");
+                        }
+
+                        main.classList.remove("running");
+
+                        main.dispatchEvent(STOPPED);
+                        endProcessing();
+                    });
+            };
+
+            main.pauseDemo = () => {
+                if (window.isProcessing && window.isProcessing !== this.id) {
+                    return false;
+                }
+                pauseDemo();
+                main.classList.remove("running");
+                main.classList.add("paused");
+                return true;
+            };
+
+            main.resumeDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+                resumeDemo();
+                main.classList.remove("paused");
+                main.classList.add("running");
+                return true;
+            };
+
+            main.stopDemo = () => {
+                if (window.isProcessing !== this.id) {
+                    return false;
+                }
+
+                stopDemo();
+                main.classList.remove("running");
+                main.classList.add("stopped");
+                endProcessing();
+                return true;
+            };
+
+            demoBtn.addEventListener("click", main.runDemo, false);
+            demoPauseBtn.addEventListener("click", main.pauseDemo, false);
+            demoResumeBtn.addEventListener("click", main.resumeDemo, false);
+            demoStopBtn.addEventListener("click", main.stopDemo, false);
+
+        } else {
+            jar.updateLines(code);
+            jar.updateCode(code);
+        }
+
+        
+        // install run and reset functions 
+        main.reset = () => {
+            if (window.isProcessing) {
+                return false;
+            }
             contodo.clear(false);
             jar.updateCode(code);
-            updateLines(code);
+            jar.updateLines(code);
+            return true;
         };
 
-        // establish button methods
-        resetBtn.addEventListener("click", resetFN, false);
-        main.reset = resetFN;
-
+        // bind reset to resetBtn
+        resetBtn.addEventListener("click", main.reset, false);
 
         // this is a regular async fn, but protected
-        // against renaming by eg. terser
-        const liveExampleCodeRunner = {[RUNNER_FUNCTION_NAME]: async () => {
+        // against renaming by eg. terser, hence the
+        // weird construction (the function name must
+        // be protected to get readable error messages)
+
+        main.run = {[RUNNER_FUNCTION_NAME]: async () => {
+            if (window.isProcessing) {
+                return false;
+            }
+
+            startProcessing();
+
             contodo.clear(false);
             contodo.initFunctions();
 
@@ -3191,19 +3794,56 @@ class LiveExample {
                 const fn = new AsyncFunction(jar.toString());
                 await fn();
             } catch (err) {
-                let msg = `${err.name}: ${err.message}`;
-                const stack = this.errorStackExtractor(err);
-                if (stack) {
-                    msg += "\n" + stack;
-                }
-                console.error(msg); 
+                throwError(err, this.id);
             }
             contodo.restoreDefaultConsole();
-            main.dispatchEvent(EXECUTED);       
+            endProcessing();
+            return true; 
         }}[RUNNER_FUNCTION_NAME];
 
-        executeBtn.addEventListener("click", liveExampleCodeRunner, false);
-        main.run = liveExampleCodeRunner;
+        // bind code execution to executeBtn
+        executeBtn.addEventListener("click", main.run, false);
+
+
+        // establish some helper functions
+        const setDemoMode = (initial=false) => {
+            main.mode = "demo";
+            main.classList.add(
+                "demo",
+                initial 
+                    ? "waiting"
+                    : "stopped"
+            );
+            main.classList.remove("regular");
+        };
+
+        const setRegularMode = () => {
+            main.mode = "regular";
+            main.classList.add("regular");
+            main.classList.remove("demo", "paused", "stopped");
+        };
+
+        const startProcessing = () => {
+            window.isProcessing = this.id;
+            document.body.classList.add("example-processing");
+            main.classList.add("processing");
+            codeNode.setAttribute("contenteditable", false);
+        };
+
+        const endProcessing = () => {
+            window.isProcessing = false;
+            document.body.classList.remove("example-processing");
+            main.classList.remove("processing");
+            codeNode.setAttribute("contenteditable", editable);
+            main.dispatchEvent(EXECUTED);
+        };
+
+        // finally set to the requested mode
+        if (options.demo) {
+            setDemoMode(true);
+        } else {
+            setRegularMode();
+        }
 
         return main;
     }
@@ -3219,9 +3859,8 @@ const liveExamples = (() => {
 
     /**
      * Function to generate example instances for 
-     * every template and node for displaying the
-     * information, that the code was copied to the
-     * clipboard.
+     * every template. All "autostart" instances,
+     * are also executed serially from top to bottom.
      */
     const applyNodes = () => {
         const templates = document.querySelectorAll("template.live-example");
@@ -3229,9 +3868,18 @@ const liveExamples = (() => {
 
         templates.forEach((template, i) => {
             const example = new LiveExample(template, i++);
-            if (example && example.autostart) {
-                autostartExamples.push(example);
+
+            if (!example) {
+                return;
             }
+        
+            if (example.autostart) {
+                autostartExamples.push(example);
+            } else if (example.demo) {
+                example.classList.add("stopped");
+                example.classList.remove("waiting");
+            }
+
         });
 
         const copiedInfo = document.createElement("section");
@@ -3246,9 +3894,21 @@ const liveExamples = (() => {
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
+            
             if (example) {
                 example.addEventListener("executed", autoExe, false);
-                example.run();
+                if (example.demo) {
+                    example.classList.add("stopped");
+                    example.classList.remove("waiting");
+                    example.runDemo();
+                } else {
+                    example.run();
+                }
+            }
+
+            else {
+                window.dispatchEvent(AUTO_EXECUTED);
+                window.liveExamplesAutoExecuted = true;
             }
         };
         autoExe();

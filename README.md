@@ -12,7 +12,9 @@ There are countless JavaScript packages out there. For the developer it is alway
   
 A JSLiveExample is just a little template which gets inserted into the HTML code at the place where the example should be, the rest is done by the JavaScript application.  
   
-The user can see, change, and run the provided code. The console output gets logged to the page. Watch the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) to see it in action.
+The user can see, change, and run the provided code. The console output gets logged to the page. Optionally it is possible to use the [demo mode](#demo-mode), which includes a typing animation and break points. 
+  
+Watch [this example](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) to see it in action.
 
 #### powered by:
  - [**codejar**](https://github.com/antonmedv/codejar)
@@ -78,12 +80,15 @@ First either [import](#importing) the esm-module or add the iife script tag to t
 <script src="https://cdn.jsdelivr.net/npm/js-live-examples@latest/dist/js-live-examples.iife.min.js"></script>
 ```
 
-### Creating an Example
-After importing the templates can be used inside of the HTML. A Basic example may look like this:
+### Creating a Basic Example
+After importing, the templates can be used inside of the HTML. A Basic example may look like this:
 
 ```html
 <template class="live-example">
     <h1>Example: Hello World!</h1>
+
+    <meta data-run="true">
+
     <script>
         const helloWorld = () => {
             console.log("Hello World!");
@@ -92,21 +97,73 @@ After importing the templates can be used inside of the HTML. A Basic example ma
     </script>
 </template>
 ```
-* The result of this code is shown at the very [top](#jsliveexamples); also the [demo](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) uses the same code.
-* The most important part is the class name ``live-example``. This is the property **JSLiveExamples** is looking for.
-* The ``<h1>``-tag becomes the title of the example.
-* The ``<script>``-tag contains initial code of the example.
-
-**Note:**
+* The result of this code is shown at the very [top](#jsliveexamples)
+* The most important part is the class name `live-example`. This is the property **JSLiveExamples** is looking for.
+* The `<h1>`-tag becomes the title of the example.
+* The `<meta>`-tag contains [options](#options) (in this case it enables the autostart)
+* The `<script>`-tag contains initial code of the example.
 * The final example gets inserted directly at the location of the template.
 * Additional class names for the example are possible.
 * Every example gets the id "live-example-\<nr\>", for a custom id, pass the attribute ``for="myId"`` to the ``<template>``-tag
-* Apart from the button, the code can also be executed by calling ``<example>.run()``.
-* After the code was executed the ``<example>`` emits the event ``executed``
-* Apart from the button, you can also reset the code by calling ``<example>.reset()``.
-* If the code should execute automatically, pass the data-attribute ``data-run="true"`` to the ``<script>``-tag
-* The default height of the console output is 160px, if the content overflows it starts to scroll. To change that add the class name ``no-scroll`` in addition to ``live-example`` to let the console grow with its content
+* After the code was executed or a demo is done, the ``<example>`` emits the event ``executed``
+
+### Options
+To pass options to an example, use a `<meta>` tag inside of the template and pass arguments in the form of data-attributes.
+
+| key                   | type                   | default     | effect                                                         |
+| --------------------- | ---------------------- | ----------- | -------------------------------------------------------------- |
+| data-buttons          | _Boolean_              | `true`      | removes the buttons if set to false                            |
+| data-caret            | _Boolean_              | `true`      | if true a caret is emulated for the typing animation           |
+| data-demo             | _Boolean_              | `false`     | enables the [demo-mode](#demo-mode) if set to true             |
+| data-execution-delay  | _Number_               | `250`       | delay in _ms_ before current code block is getting executed    |
+| data-indicator        | _Boolean_              | `true`      | if true a blinking dot indicates a running demo or code        |
+| data-run              | _Boolean_              | `true`      | if true the example/demo is started/executed automatically     |
+| data-scroll           | _Boolean_              | `true`      | if false the console node grows infinitely                     |
+| data-transform        | _Boolean (or Keyword)_ | `true`      | if true a demo transforms into a regular example after it is done _(pass the keyword `"perm"` to keep it in the regular state)_ |
+| data-typing-speed     | _Number_               | `60`        | value in _ms_ for the speed of the typing emulation            |
+| data-typing-variation | _Number_               | `80`        | value in _ms_ for the randomly added imperfection when typing gets emulated |
+
+
+### Demo-Mode
+The _Demo-Mode_ is a way to present the code in a much more interesting way. The code is written in front of the eyes of the spectator and can be structured with breakpoints to add pauses. The demo can be paused (or stopped) and resumed at any time. To activate this mode, pass the data-attribute `data-demo="true"` to the `<meta>`-tag.  
+  
+Breakpoints can be added, by using at least three underscores inside of the `<script>`-tag at the relevant position in the code.
+The template node for the [hello-world-example](https://umamiappearance.github.io/JSLiveExamples/examples/demo.html) for instance looks like so:
+```html
+<template class="live-example">
+    <h1>Example: Hello World!</h1>
+
+    <meta data-demo="true">
+
+    <script>
+        const helloWorld = () => {
+            console.log("Hello World!");
+        };
+        ___();
+        helloWorld();
+    </script>
+</template>
+```
+The brackets for the breakpoint are optional, but can be used to pass a number, which is the number of milliseconds before the next codeblock is getting executed (e.g. `___(2000)` for two seconds). The main purpose of a breakpoint is, that the code before the breakpoint is getting executed, before the journey continues.
+  
+You can use as many breakpoints as you like. The complete line with a breakpoint is getting removed from the visible code.
+
+### Methods
+Apart from the buttons, an example-node has direct access to its methods *(note, that demo specific methods are only available if the [demo-mode](#demo-mode) is set)*.
+
+| method          | effect                             |
+| --------------- | ---------------------------------- |
+| `.run()`        | _executes the code_                |
+| `.reset()`      | _resets the code block_            |
+| `.runDemo()`    | _runs a demo_                      |
+| `.pauseDemo()`  | _pauses a demo_                    |
+| `.resumeDemo()` | _resumes a paused demo_            |
+| `.stopDemo()`   | _stops a running or a paused demo_ |
+
 
 
 ## License
-This work is licensed under [GPL-3.0](https://opensource.org/licenses/GPL-3.0).
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2023, UmamiAppearance

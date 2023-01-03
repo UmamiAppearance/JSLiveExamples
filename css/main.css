@@ -72,6 +72,20 @@
     border: 1px solid rgba(157, 157, 157, 0.2);
     width: 1%;
 }
+.contodo-clear {
+    display: inline-block;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin: 0 0 0 calc(100% - 2.8em);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 0.2em;
+    z-index: 1;
+}
+.contodo.clearBtn {
+    margin-bottom: -2em;
+}
+
 
 div.live-example {
     font-size: 14px;
@@ -80,6 +94,34 @@ div.live-example {
     width: 80%;
     margin: 0.5em auto;
     padding: 0.5em;
+}
+.live-example.regular .demo, .live-example.demo .regular, .live-example.stopped .running, .live-example.running .stopped, .live-example.running .paused:not(.running), .live-example.paused .running:not(.paused), .live-example.stopped .paused, .live-example.paused .stopped {
+    display: none;
+}
+.live-example.demo.waiting .controls, .live-example.no-buttons .controls {
+    visibility: hidden;
+}
+.example-processing code {
+    pointer-events: none;
+    user-select: none;
+}
+.live-example.demo.caret:not(.stopped) .code code::after {
+    content: "";
+    position: absolute;
+    background-color: black;
+    display: inline-block;
+    width: 1px;
+    height: 19px;
+    margin-left: 1px;
+}
+.live-example.demo.caret:not(.stopped):not(.typing) .code code::after {
+    animation: caret 1.5s step-end infinite;
+}
+@keyframes caret {
+    50% { opacity: 0; }
+}
+.live-example.demo > .code {
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-115 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>demo</text>\</svg>");
 }
 .live-example > .code, .live-example > .contodo, .live-example > div.title-wrapper {
     border: 3px dashed #005;
@@ -112,7 +154,7 @@ div.live-example {
     min-height: 26px;
     margin: auto 0 0 -26px;
     background-image:  url('data:image/svg+xml;charset=UTF-8,<svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="none" stroke="dimgrey" stroke-width="5" d="m 37,30 v -7 c 0,-2.77 2.23,-5 5,-5 h 35 c 2.77,0 5,2.23 5,5 v 35 c 0,2.77 -2.23,5 -5,5 m 0,0 H 70 M 63,42 c 0,-2.77 -1.23,-5 -4,-5 H 23 c -2.77,0 -5,2.23 -5,5 v 35 c 0,2.77 2.23,5 5,5 h 35 c 2.77,0 5,-2.23 5,-5 z"></path></svg>');
-    background-color: rgba(245,255,245,.6);
+    background-color: rgba(245, 249, 246, 0.9);
     background-repeat: no-repeat;
     background-size: contain;
     border-radius: 6px;
@@ -138,12 +180,43 @@ div.live-example {
 }
 .live-example h1 {
     font-size: 1.4em;
+    line-height: 1.4em;
     margin: auto 0;
+}
+.live-example.indicator h1::before {
+    content: ".";
+    opacity: 0;
+    max-width: 0;
+    transition: max-width 200ms;
+    display: inline-block;
+    overflow: hidden;
+    height: 1.4em;
+    vertical-align: bottom;
 }
 .live-example .controls {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    transition: opacity 200ms ease-in-out;
+}
+.example-processing .live-example:not(.processing) .code, .example-processing .live-example:not(.processing) .contodo {
+    background-image: url("data:image/svg+xml;utf-8,<svg height='120px' width='290px' xmlns='http://www.w3.org/2000/svg' viewBox='-15 0 100 100'><text y='1em' style='font-family: monospace; font-size: 1.2rem; fill: rgba(200, 200, 200, 0.6);'>...waiting...</text>\</svg>");
+}
+.example-processing .live-example:not(.processing) .controls, .example-processing .processing .executeBtn, .example-processing .processing .resetBtn {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.example-processing .live-example.indicator h1::before {
+    animation: loading 2s cubic-bezier(0.075, 0.82, 0.165, 1) infinite;
+    max-width: 10px;
+}
+.example-processing .live-example.indicator.paused h1::before {
+    opacity: 1;
+}
+@keyframes loading {
+    50% {
+        opacity: 1;
+    }
 }
 .live-example button {
     font-weight: 500;
@@ -162,8 +235,12 @@ div.live-example {
     box-shadow: inset 0 0 0 2px #324d32;
     color: #fffee0;
 }
+.live-example button.demoPauseBtn, .live-example button.demoResumeBtn {
+    width: 5.4rem;
+}
 
 section#le-copied {
+    pointer-events: none;
     position: fixed;
     margin: auto;
     display: none;
@@ -205,4 +282,7 @@ section#le-copied.show {
     .live-example button {
         padding: 0.4em 0.9em;
     }
+    .live-example button.demoPauseBtn, .live-example button.demoResumeBtn {
+        width: 4.4rem;
+    }    
 }

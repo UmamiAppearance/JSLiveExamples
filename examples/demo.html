@@ -6,7 +6,7 @@
         
         <title>JavaScript LiveExamples Demo Page</title>
         
-        <link rel="shortcut icon" href="#">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://umamiappearance.github.io/_Profile/logo/favicon.ico">
         <link href="https://umamiappearance.github.io/MSG/MSG.css" rel="stylesheet">
         
         <script type="module">
@@ -49,10 +49,25 @@
             
                 <template class="live-example">
                     <h1>Example: Hello World!</h1>
-                    <script data-run="true">
+
+                    <meta 
+                        data-buttons="true"
+                        data-caret="true"
+                        data-demo="true"
+                        data-execution-delay="250"
+                        data-indicator="true"
+                        data-run="true"
+                        data-scroll="true"
+                        data-transform="true"
+                        data-typing-speed="60"
+                        data-typing-variation="80"
+                    >
+
+                    <script>
                         const helloWorld = () => {
                             console.log("Hello World!");
                         };
+                        ___();
                         helloWorld();
                     </script>
                 </template>
