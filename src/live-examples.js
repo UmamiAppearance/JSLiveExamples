@@ -1,7 +1,7 @@
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.4.0
+ * @version 0.4.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */

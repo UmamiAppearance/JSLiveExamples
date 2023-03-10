@@ -1484,7 +1484,7 @@ function CodeJar(editor, highlight, opt = {}) {
                 recording = true;
             }
         }
-        if (isLegacy)
+        if (isLegacy && !isCopy(event))
             restore(save());
     });
     on('keyup', event => {
@@ -1517,6 +1517,14 @@ function CodeJar(editor, highlight, opt = {}) {
         let { anchorNode, anchorOffset, focusNode, focusOffset } = s;
         if (!anchorNode || !focusNode)
             throw 'error1';
+        // If the anchor and focus are the editor element, return either a full
+        // highlight or a start/end cursor position depending on the selection
+        if (anchorNode === editor && focusNode === editor) {
+            pos.start = (anchorOffset > 0 && editor.textContent) ? editor.textContent.length : 0;
+            pos.end = (focusOffset > 0 && editor.textContent) ? editor.textContent.length : 0;
+            pos.dir = (focusOffset >= anchorOffset) ? '->' : '<-';
+            return pos;
+        }
         // Selection anchor and focus are expected to be text nodes,
         // so normalize them.
         if (anchorNode.nodeType === Node.ELEMENT_NODE) {
@@ -1800,10 +1808,19 @@ function CodeJar(editor, highlight, opt = {}) {
         return event.metaKey || event.ctrlKey;
     }
     function isUndo(event) {
-        return isCtrl(event) && !event.shiftKey && event.code === 'KeyZ';
+        return isCtrl(event) && !event.shiftKey && getKeyCode(event) === 'Z';
     }
     function isRedo(event) {
-        return isCtrl(event) && event.shiftKey && event.code === 'KeyZ';
+        return isCtrl(event) && event.shiftKey && getKeyCode(event) === 'Z';
+    }
+    function isCopy(event) {
+        return isCtrl(event) && getKeyCode(event) === 'C';
+    }
+    function getKeyCode(event) {
+        let key = event.key || event.keyCode || event.which;
+        if (!key)
+            return undefined;
+        return (typeof key === 'string' ? key : String.fromCharCode(key)).toUpperCase();
     }
     function insert(text) {
         text = text
@@ -1897,7 +1914,7 @@ const isIdentifier = (str) => {
 /**
  * [contodo]{@link https://github.com/UmamiAppearance/contodo}
  *
- * @version 0.4.1
+ * @version 0.4.2
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */
@@ -3292,7 +3309,7 @@ const throwError = (err, id) => {
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.4.0
+ * @version 0.4.1
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */
