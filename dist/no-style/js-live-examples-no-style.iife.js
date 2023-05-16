@@ -1917,10 +1917,11 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.4.3
+	 * @version 0.4.4
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
+
 
 	// Store Default Console Methods
 	window._console = {
@@ -3308,10 +3309,11 @@ var liveExamples = (function () {
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.4.2
+	 * @version 0.4.3
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
+
 
 	const AUTO_EXECUTED = new Event("autoexecuted");
 	const EXECUTED = new Event("executed");

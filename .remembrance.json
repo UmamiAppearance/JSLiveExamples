@@ -1,0 +1,12 @@
+{
+    "src": [
+        "./lib/**",
+        "./src/**",
+        "./themes/default.css"
+    ],
+    "dist": "./dist/**",
+    "extensions": [
+        "css",
+        "js"
+    ]
+}
