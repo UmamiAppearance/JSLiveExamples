@@ -1,6 +1,6 @@
 {
     "src": [
-        "./lib/**",
+        "./lib/prism.js",
         "./src/**",
         "./themes/default.css"
     ],
