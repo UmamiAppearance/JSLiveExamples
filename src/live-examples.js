@@ -489,7 +489,12 @@ class LiveExample {
             jar.updateCode(code);
         }
 
-        main.updateCode = jar.updateCode;
+        // make the code accessible and updatable from the main node
+        main.getCode = jar.toString;
+        main.updateCode = code => {
+            jar.updateLines(code);
+            jar.updateCode(code);
+        };
 
         
         // install run and reset functions 

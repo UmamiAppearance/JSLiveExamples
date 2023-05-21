@@ -155,12 +155,12 @@ Apart from the buttons, an example-node has direct access to its methods *(note,
 | --------------------- | ---------------------------------- |
 | `.run()`              | _executes the code_                |
 | `.reset()`            | _resets the code block_            |
+| `.getCode()`          | _get current code as a string_     |
+| `.updateCode(<code>)` | _set new code as a string_         |
 | `.runDemo()`          | _runs a demo_                      |
 | `.pauseDemo()`        | _pauses a demo_                    |
 | `.resumeDemo()`       | _resumes a paused demo_            |
 | `.stopDemo()`         | _stops a running or a paused demo_ |
-| `.updateCode(<code>)` | _set new code as a sting_          |
-
 
 
 ## License

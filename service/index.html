@@ -15,9 +15,15 @@
         </script>
 
         <script>
-            document.addEventListener("ExampleNodesCreated", () => { 
+            document.addEventListener("ExampleNodesCreated", () => {
                 const exampleNode = document.querySelector("#example");
                 const titleNode = exampleNode.querySelector("h1");
+                
+                const controlsNode = document.querySelector(".controls");
+                const shareBtn = document.createElement("button");
+                shareBtn.innerText = "share";
+                controlsNode.prepend(shareBtn);
+                
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const title = urlParams.get("title");
@@ -30,6 +36,19 @@
                 if (code) {
                     example.updateCode(atob(code));
                 }
+
+
+                shareBtn.addEventListener(
+                    "click",
+                    () => {
+                        const b64Code = window.btoa(example.getCode());
+                        const link = `${window.location.origin}${window.location.pathname}?title=jeee&code=${b64Code}`;
+                        console.log(link);
+                        navigator.clipboard.writeText(link);
+
+                    },
+                    false
+                );                
 
              }, false);
         </script>
@@ -57,19 +76,15 @@
             <section>
                         
                 <article>
-                    <h1>JavaScript LiveExample Service</h1>
+                    <h1>JavaScript LiveExample</h1>
                 </article>
             
             </section>
 
             <section>
             
-                <template for="example" class="live-example">
-                    <script>
-                        console.log("hello");
-                    </script>
-                </template>
-
+                <template for="example" class="live-example"></template>
+                
             </section>
         </main>
         
