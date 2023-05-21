@@ -3306,7 +3306,7 @@ const throwError = (err, id) => {
 /**
  * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
  *
- * @version 0.4.3
+ * @version 0.5.0
  * @author UmamiAppearance [mail@umamiappearance.eu]
  * @license MIT
  */
@@ -3314,6 +3314,7 @@ const throwError = (err, id) => {
 
 const AUTO_EXECUTED = new Event("autoexecuted");
 const EXECUTED = new Event("executed");
+const EXAMPLES_CREATED = new Event("ExampleNodesCreated");
 const STOPPED = new Event("stopped");
 
 const OPTIONS = {
@@ -3779,6 +3780,8 @@ class LiveExample {
             jar.updateCode(code);
         }
 
+        main.updateCode = jar.updateCode;
+
         
         // install run and reset functions 
         main.reset = () => {
@@ -3910,6 +3913,10 @@ const liveExamples = (() => {
         copiedInfo.append(copiedInfoText);
         document.body.append(copiedInfo);
 
+        if (templates.length) {
+            document.dispatchEvent(EXAMPLES_CREATED);
+        }
+
         // make sure to run the auto run examples serially
         const autoExe = () => {
             const example = autostartExamples.shift();
@@ -3926,8 +3933,8 @@ const liveExamples = (() => {
             }
 
             else {
-                window.dispatchEvent(AUTO_EXECUTED);
-                window.liveExamplesAutoExecuted = true;
+                document.dispatchEvent(AUTO_EXECUTED);
+                document.liveExamplesAutoExecuted = true;
             }
         };
         autoExe();

@@ -117,7 +117,7 @@ To pass options to an example, use a `<meta>` tag inside of the template and pas
 | data-demo             | _Boolean_              | `false`     | enables the [demo-mode](#demo-mode) if set to true             |
 | data-execution-delay  | _Number_               | `250`       | delay in _ms_ before current code block is getting executed    |
 | data-indicator        | _Boolean_              | `true`      | if true a blinking dot indicates a running demo or code        |
-| data-run              | _Boolean_              | `true`      | if true the example/demo is started/executed automatically     |
+| data-run              | _Boolean_              | `false`     | if true the example/demo is started/executed automatically     |
 | data-scroll           | _Boolean_              | `true`      | if false the console node grows infinitely                     |
 | data-transform        | _Boolean (or Keyword)_ | `true`      | if true a demo transforms into a regular example after it is done _(pass the keyword `"perm"` to keep it in the regular state)_ |
 | data-typing-speed     | _Number_               | `60`        | value in _ms_ for the speed of the typing emulation            |
@@ -151,14 +151,15 @@ You can use as many breakpoints as you like. The complete line with a breakpoint
 ### Methods
 Apart from the buttons, an example-node has direct access to its methods *(note, that demo specific methods are only available if the [demo-mode](#demo-mode) is set)*.
 
-| method          | effect                             |
-| --------------- | ---------------------------------- |
-| `.run()`        | _executes the code_                |
-| `.reset()`      | _resets the code block_            |
-| `.runDemo()`    | _runs a demo_                      |
-| `.pauseDemo()`  | _pauses a demo_                    |
-| `.resumeDemo()` | _resumes a paused demo_            |
-| `.stopDemo()`   | _stops a running or a paused demo_ |
+| method                | effect                             |
+| --------------------- | ---------------------------------- |
+| `.run()`              | _executes the code_                |
+| `.reset()`            | _resets the code block_            |
+| `.runDemo()`          | _runs a demo_                      |
+| `.pauseDemo()`        | _pauses a demo_                    |
+| `.resumeDemo()`       | _resumes a paused demo_            |
+| `.stopDemo()`         | _stops a running or a paused demo_ |
+| `.updateCode(<code>)` | _set new code as a sting_          |
 
 
 
