@@ -1917,7 +1917,7 @@ var liveExamples = (function () {
 	/**
 	 * [contodo]{@link https://github.com/UmamiAppearance/contodo}
 	 *
-	 * @version 0.4.4
+	 * @version 0.4.5
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
@@ -3309,7 +3309,7 @@ var liveExamples = (function () {
 	/**
 	 * [JSLiveExamples]{@link https://github.com/UmamiAppearance/JSLiveExamples}
 	 *
-	 * @version 0.4.3
+	 * @version 0.5.0
 	 * @author UmamiAppearance [mail@umamiappearance.eu]
 	 * @license MIT
 	 */
@@ -3317,6 +3317,7 @@ var liveExamples = (function () {
 
 	const AUTO_EXECUTED = new Event("autoexecuted");
 	const EXECUTED = new Event("executed");
+	const EXAMPLES_CREATED = new Event("ExampleNodesCreated");
 	const STOPPED = new Event("stopped");
 
 	const OPTIONS = {
@@ -3782,6 +3783,28 @@ var liveExamples = (function () {
 	            jar.updateCode(code);
 	        }
 
+	        // make initial code accessible
+	        Object.defineProperty(main, "initialCode", {
+	            get() {
+	                return code;
+	            },
+
+	            set(newCode) {
+	                if (options.demo) {
+	                    throw new Error("The initial code in demo-mode is protected.");
+	                }
+	                code = String(newCode);
+	            }
+	        });
+	  
+
+	        // make the code accessible and updatable from the main node
+	        main.getCode = jar.toString;
+	        main.updateCode = newCode => {
+	            jar.updateLines(newCode);
+	            jar.updateCode(newCode);
+	        };
+
 	        
 	        // install run and reset functions 
 	        main.reset = () => {
@@ -3789,8 +3812,8 @@ var liveExamples = (function () {
 	                return false;
 	            }
 	            contodo.clear(false);
-	            jar.updateCode(code);
-	            jar.updateLines(code);
+	            jar.updateCode(main.initialCode);
+	            jar.updateLines(main.initialCode);
 	            return true;
 	        };
 
@@ -3913,6 +3936,10 @@ var liveExamples = (function () {
 	        copiedInfo.append(copiedInfoText);
 	        document.body.append(copiedInfo);
 
+	        if (templates.length) {
+	            document.dispatchEvent(EXAMPLES_CREATED);
+	        }
+
 	        // make sure to run the auto run examples serially
 	        const autoExe = () => {
 	            const example = autostartExamples.shift();
@@ -3929,8 +3956,8 @@ var liveExamples = (function () {
 	            }
 
 	            else {
-	                window.dispatchEvent(AUTO_EXECUTED);
-	                window.liveExamplesAutoExecuted = true;
+	                document.dispatchEvent(AUTO_EXECUTED);
+	                document.liveExamplesAutoExecuted = true;
 	            }
 	        };
 	        autoExe();

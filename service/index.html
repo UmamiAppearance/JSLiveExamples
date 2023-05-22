@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <title>JavaScript LiveExamples Service Page</title>
+        
+        <link rel="icon" type="image/png" sizes="32x32" href="https://umamiappearance.github.io/_Profile/logo/favicon.ico">
+        <link href="https://umamiappearance.github.io/MSG/MSG.css" rel="stylesheet">
+        
+        <script type="module">
+            import liveExamples from "../dist/js-live-examples.esm.min.js";
+            //import liveExamples from "../src/live-examples.js";
+        </script>
+
+        <script>
+            document.addEventListener(
+                "ExampleNodesCreated",
+                async () => {
+                    const { default: Base64 } = await import("https://umamiappearance.github.io/BaseExJS/dist/converters/Base64/base-64.esm.min.js");
+                    const b64 = new Base64("urlsafe");
+
+                    const exampleNode = document.querySelector("#example");
+                    
+                    // get the title node and make it modifiable 
+                    const titleWrapper = exampleNode.querySelector(".title-wrapper");
+                    const titleNode = titleWrapper.querySelector("h1");
+                    const titleField = document.createElement("input");
+                    titleField.value = titleNode.innerText;
+                    titleField.id = "title-field";
+                    titleNode.after(titleField);
+
+                    // add share button
+                    const controlsNode = document.querySelector(".controls");
+                    const shareBtn = document.createElement("button");
+                    shareBtn.innerText = "share";
+                    controlsNode.prepend(shareBtn);
+
+                    // store an initial title (to make it restorable)
+                    let initialTitle = "My Title";
+                    
+                    // get url parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const title = urlParams.get("title");
+                    const code = urlParams.get("code");
+
+                    // update the example according to the url params
+                    if (title) {
+                        titleNode.innerText = title;
+                        titleField.value = title;
+                        initialTitle = title;
+                    }
+
+                    if (code) {
+                        example.initialCode = b64.decode(code, "str");
+                        example.reset();
+                    }
+
+                    // show example
+                    exampleNode.classList.add("ready");
+
+
+                    // events -->
+
+                    titleField.addEventListener(
+                        "change",
+                        () => {
+                            titleNode.innerText = titleField.value;
+                        },
+                        false
+                    );
+
+                    const exitModification = () => {
+                        if (!titleField.value) {
+                            titleField.value = initialTitle;
+                        }
+                        titleWrapper.classList.remove("modify");
+                        document.removeEventListener(
+                            "keydown",
+                            modListener,
+                            false
+                        );
+                    }
+                    
+                    titleField.addEventListener(
+                        "blur",
+                        exitModification,
+                        false
+                    );
+
+
+                    const modListener = e => {
+                        if (e.keyCode === 13 || e.keyCode === 27) {
+                            exitModification();
+                        }
+                    };
+
+                    titleNode.addEventListener(
+                        "click",
+                        () => {
+                            titleWrapper.classList.add("modify");
+
+                            // stop modifying if return or escape was pressed
+                            document.addEventListener(
+                                "keydown",
+                                modListener,
+                                false
+                            );
+
+                            titleField.focus();
+                        },
+                        false
+                    );
+
+                    shareBtn.addEventListener(
+                        "click",
+                        () => {
+                        
+                        /// link creation ///
+                        
+                            // generate url params without the b64 code string
+                            const params = new URLSearchParams({
+                                title: titleNode.innerText,
+                                code: ""
+                            });
+
+                            // generate a base64 code string
+                            const b64Code = b64.encode(example.getCode());
+                            
+                            // compose link
+                            const link = `${window.location.origin}${window.location.pathname}?${params.toString()}${b64Code}`;
+
+                            // write to clipboard
+                            navigator.clipboard.writeText(link);
+
+
+                        /// copy animation ///
+
+                            const copied = document.querySelector("#le-copied");
+
+                            // reset animation in case it is running 
+                            clearTimeout(window.copyTimer);
+                            copied.getAnimations().forEach(anim => {
+                                anim.cancel();
+                                anim.play();
+                            });
+
+                            // start animation
+                            copied.classList.add("show");
+                            window.copyTimer = setTimeout(() => {
+                                copied.classList.remove("show");
+                            }, 1500);
+
+                        },
+                        false
+                    );
+
+
+                    // extent reset function, to also restore the title
+                    titleWrapper.querySelector(".resetBtn").addEventListener(
+                        "click",
+                        () => {
+                            titleNode.innerText = initialTitle;
+                            titleField.value = initialTitle;
+                        },
+                        false
+                    );
+                },
+                false
+            );
+        </script>
+
+        <style>
+            body {
+                min-width: 320px;
+            }
+
+            main {
+                min-height: calc(100vh - 40px);
+            }
+
+            #example {
+                opacity: 0;
+                transition: opacity 500ms;
+            }
+
+            #example.ready {
+                opacity: 1;
+            }
+
+            div.live-example {
+                max-width: 1024px;
+            }
+
+            h1 {
+                cursor: pointer;
+            }
+
+            .modify h1, input#title-field {
+                display: none;
+            }
+
+            .modify input#title-field {
+                display: inline;
+            }
+
+            footer {
+                text-align: right;
+                margin-right: 6px;
+                height: 40px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <main>
+            <section>
+                        
+                <article>
+                    <h1>JavaScript LiveExample</h1>
+                </article>
+            
+            </section>
+
+            <section>
+            
+                <template for="example" class="live-example">
+
+                    <h1>My Title</h1>
+
+                    <script>
+                        /**
+                         * Insert Code here.
+                         * Click "run" to test it.
+                         * Click the title to modify it.
+                         * Click "share" -> The URL gets copied to your clipboard.
+                         */
+                    </script>
+
+                </template>
+                
+            </section>
+        </main>
+        
+        <footer>
+            <a href="https://github.com/UmamiAppearance/JSLiveExamples" style="text-decoration: none;" title="to repository">
+                <span style="text-decoration: underline;">github.com/UmamiAppearance/JSLiveExamples</span>
+                <svg height="22" width="22" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="vertical-align: bottom;"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            </a>
+        </footer>
+    </body>
+</html>
