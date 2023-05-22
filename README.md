@@ -162,6 +162,12 @@ Apart from the buttons, an example-node has direct access to its methods *(note,
 | `.resumeDemo()`       | _resumes a paused demo_            |
 | `.stopDemo()`         | _stops a running or a paused demo_ |
 
+Additionally, the initial code (the reset state) can be modified in regular mode. It can be accessed with the property `initialCode`.
+
+
+## Code Sharing Service
+If you like to share some code or want to demonstrate something, use this [Code Sharing Service](https://umamiappearance.github.io/JSLiveExamples/service/). _No account needed, mobile friendly, easy to use._
+
 
 ## License
 

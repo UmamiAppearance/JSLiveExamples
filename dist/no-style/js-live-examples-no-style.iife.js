@@ -3783,7 +3783,27 @@ var liveExamples = (function () {
 	            jar.updateCode(code);
 	        }
 
-	        main.updateCode = jar.updateCode;
+	        // make initial code accessible
+	        Object.defineProperty(main, "initialCode", {
+	            get() {
+	                return code;
+	            },
+
+	            set(newCode) {
+	                if (options.demo) {
+	                    throw new Error("The initial code in demo-mode is protected.");
+	                }
+	                code = String(newCode);
+	            }
+	        });
+	  
+
+	        // make the code accessible and updatable from the main node
+	        main.getCode = jar.toString;
+	        main.updateCode = newCode => {
+	            jar.updateLines(newCode);
+	            jar.updateCode(newCode);
+	        };
 
 	        
 	        // install run and reset functions 
@@ -3792,8 +3812,8 @@ var liveExamples = (function () {
 	                return false;
 	            }
 	            contodo.clear(false);
-	            jar.updateCode(code);
-	            jar.updateLines(code);
+	            jar.updateCode(main.initialCode);
+	            jar.updateLines(main.initialCode);
 	            return true;
 	        };
 

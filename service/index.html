@@ -10,63 +10,205 @@
         <link href="https://umamiappearance.github.io/MSG/MSG.css" rel="stylesheet">
         
         <script type="module">
-            //import liveExamples from "../dist/js-live-examples.esm.min.js";
-            import liveExamples from "../src/live-examples.js";
+            import liveExamples from "../dist/js-live-examples.esm.min.js";
+            //import liveExamples from "../src/live-examples.js";
         </script>
 
         <script>
-            document.addEventListener("ExampleNodesCreated", () => {
-                const exampleNode = document.querySelector("#example");
-                const titleNode = exampleNode.querySelector("h1");
-                
-                const controlsNode = document.querySelector(".controls");
-                const shareBtn = document.createElement("button");
-                shareBtn.innerText = "share";
-                controlsNode.prepend(shareBtn);
-                
+            document.addEventListener(
+                "ExampleNodesCreated",
+                async () => {
+                    const { default: Base64 } = await import("https://umamiappearance.github.io/BaseExJS/dist/converters/Base64/base-64.esm.min.js");
+                    const b64 = new Base64("urlsafe");
 
-                const urlParams = new URLSearchParams(window.location.search);
-                const title = urlParams.get("title");
-                const code = urlParams.get("code");
+                    const exampleNode = document.querySelector("#example");
+                    
+                    // get the title node and make it modifiable 
+                    const titleWrapper = exampleNode.querySelector(".title-wrapper");
+                    const titleNode = titleWrapper.querySelector("h1");
+                    const titleField = document.createElement("input");
+                    titleField.value = titleNode.innerText;
+                    titleField.id = "title-field";
+                    titleNode.after(titleField);
 
-                if (title) {
-                    titleNode.innerText = title;
-                }
+                    // add share button
+                    const controlsNode = document.querySelector(".controls");
+                    const shareBtn = document.createElement("button");
+                    shareBtn.innerText = "share";
+                    controlsNode.prepend(shareBtn);
 
-                if (code) {
-                    example.updateCode(atob(code));
-                }
+                    // store an initial title (to make it restorable)
+                    let initialTitle = "My Title";
+                    
+                    // get url parameters
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const title = urlParams.get("title");
+                    const code = urlParams.get("code");
+
+                    // update the example according to the url params
+                    if (title) {
+                        titleNode.innerText = title;
+                        titleField.value = title;
+                        initialTitle = title;
+                    }
+
+                    if (code) {
+                        example.initialCode = b64.decode(code, "str");
+                        example.reset();
+                    }
+
+                    // show example
+                    exampleNode.classList.add("ready");
 
 
-                shareBtn.addEventListener(
-                    "click",
-                    () => {
-                        const b64Code = window.btoa(example.getCode());
-                        const link = `${window.location.origin}${window.location.pathname}?title=jeee&code=${b64Code}`;
-                        console.log(link);
-                        navigator.clipboard.writeText(link);
+                    // events -->
 
-                    },
-                    false
-                );                
+                    titleField.addEventListener(
+                        "change",
+                        () => {
+                            titleNode.innerText = titleField.value;
+                        },
+                        false
+                    );
 
-             }, false);
+                    const exitModification = () => {
+                        if (!titleField.value) {
+                            titleField.value = initialTitle;
+                        }
+                        titleWrapper.classList.remove("modify");
+                        document.removeEventListener(
+                            "keydown",
+                            modListener,
+                            false
+                        );
+                    }
+                    
+                    titleField.addEventListener(
+                        "blur",
+                        exitModification,
+                        false
+                    );
+
+
+                    const modListener = e => {
+                        if (e.keyCode === 13 || e.keyCode === 27) {
+                            exitModification();
+                        }
+                    };
+
+                    titleNode.addEventListener(
+                        "click",
+                        () => {
+                            titleWrapper.classList.add("modify");
+
+                            // stop modifying if return or escape was pressed
+                            document.addEventListener(
+                                "keydown",
+                                modListener,
+                                false
+                            );
+
+                            titleField.focus();
+                        },
+                        false
+                    );
+
+                    shareBtn.addEventListener(
+                        "click",
+                        () => {
+                        
+                        /// link creation ///
+                        
+                            // generate url params without the b64 code string
+                            const params = new URLSearchParams({
+                                title: titleNode.innerText,
+                                code: ""
+                            });
+
+                            // generate a base64 code string
+                            const b64Code = b64.encode(example.getCode());
+                            
+                            // compose link
+                            const link = `${window.location.origin}${window.location.pathname}?${params.toString()}${b64Code}`;
+
+                            // write to clipboard
+                            navigator.clipboard.writeText(link);
+
+
+                        /// copy animation ///
+
+                            const copied = document.querySelector("#le-copied");
+
+                            // reset animation in case it is running 
+                            clearTimeout(window.copyTimer);
+                            copied.getAnimations().forEach(anim => {
+                                anim.cancel();
+                                anim.play();
+                            });
+
+                            // start animation
+                            copied.classList.add("show");
+                            window.copyTimer = setTimeout(() => {
+                                copied.classList.remove("show");
+                            }, 1500);
+
+                        },
+                        false
+                    );
+
+
+                    // extent reset function, to also restore the title
+                    titleWrapper.querySelector(".resetBtn").addEventListener(
+                        "click",
+                        () => {
+                            titleNode.innerText = initialTitle;
+                            titleField.value = initialTitle;
+                        },
+                        false
+                    );
+                },
+                false
+            );
         </script>
 
         <style>
             body {
                 min-width: 320px;
             }
+
             main {
                 min-height: calc(100vh - 40px);
             }
+
+            #example {
+                opacity: 0;
+                transition: opacity 500ms;
+            }
+
+            #example.ready {
+                opacity: 1;
+            }
+
+            div.live-example {
+                max-width: 1024px;
+            }
+
+            h1 {
+                cursor: pointer;
+            }
+
+            .modify h1, input#title-field {
+                display: none;
+            }
+
+            .modify input#title-field {
+                display: inline;
+            }
+
             footer {
                 text-align: right;
                 margin-right: 6px;
                 height: 40px;
-            }
-            div.live-example {
-                max-width: 1024px;
             }
         </style>
     </head>
@@ -83,7 +225,20 @@
 
             <section>
             
-                <template for="example" class="live-example"></template>
+                <template for="example" class="live-example">
+
+                    <h1>My Title</h1>
+
+                    <script>
+                        /**
+                         * Insert Code here.
+                         * Click "run" to test it.
+                         * Click the title to modify it.
+                         * Click "share" -> The URL gets copied to your clipboard.
+                         */
+                    </script>
+
+                </template>
                 
             </section>
         </main>
