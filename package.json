@@ -1,6 +1,6 @@
 {
   "name": "js-live-examples",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Create HTML live examples to demonstrate JavaScript code in action",
   "browser": "./dist/js-live-examples.esm.js",
   "exports": {
@@ -38,17 +38,14 @@
     "@rollup/plugin-terser": "^0.4.3",
     "clean-css": "^5.3.2",
     "codejar": "^3.7.0",
-    "contodo": "^0.4.6",
-    "eslint": "^8.44.0",
+    "contodo": "^0.4.7",
+    "eslint": "^8.45.0",
     "http-server": "^14.1.1",
-    "no-bro-cote": "^0.2.18",
+    "no-bro-cote": "^0.2.19",
     "prismjs": "^1.29.0",
     "remembrance": "^0.3.1",
-    "rollup": "^3.26.1",
+    "rollup": "^3.26.2",
     "rollup-plugin-import-manager": "^0.6.4",
     "rollup-plugin-your-function": "^0.5.3"
-  },
-  "overrides": {
-    "optionator" : "0.9.3"
   }
 }
